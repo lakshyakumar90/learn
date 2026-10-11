@@ -23,6 +23,8 @@ export const docSchema = pageSchema.extend({
   sources: z.array(z.string()).optional(),
   diagram: z.string().optional(),
   diagrams: z.array(z.string()).optional(),
+  /** Dependency workspace key for the rendered Dependencies section. */
+  workspace: z.string().optional(),
 });
 
 export type DocFrontmatter = z.infer<typeof docSchema>;

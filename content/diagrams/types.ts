@@ -35,6 +35,8 @@ export interface DiagramEdgeSpec {
 
 export interface DiagramSpec {
   id: string;
+  /** Owning project; sources resolve under its source root. Defaults to excalidraw. */
+  project?: string;
   title: string;
   nodes: DiagramNodeSpec[];
   edges: DiagramEdgeSpec[];

@@ -1,0 +1,18 @@
+---
+title: How it works
+description: Follow one action through the whole system, step by step.
+sources:
+  - frontend/src/services/userService.js
+  - frontend/src/services/connectionService.js
+  - frontend/src/services/socketService.js
+  - backend/utils/socket.js
+  - backend/controllers/notificationController.js
+---
+
+Pick a tab and press Play. Each step lights up the nodes involved and
+narrates what moves: signing up and logging in on JWT, sending and
+accepting a connection request, a chat message travelling the socket
+channel with receipts and typing, a post going up with its image, and a
+notification stored then pushed live.
+
+<FlowPlayer project="devconnect" />

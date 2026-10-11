@@ -90,14 +90,14 @@ function scaffoldProject(slug: string, name: string): void {
     JSON.stringify({ title: 'packages/', pages: ['index'] }, null, 2) + '\n',
   );
 
-  // Register the project in the single config file.
-  const configPath = join(ROOT, 'src', 'site.config.ts');
+  // Register the project in the projects config.
+  const configPath = join(ROOT, 'src', 'projects.config.ts');
   const config = readFileSync(configPath, 'utf8');
   const marker = '// __NEW_PROJECTS__ (appended by `pnpm new project <slug>`)';
-  if (!config.includes(marker)) fail('site.config.ts marker missing');
-  const entry = `    {\n      slug: '${slug}',\n      name: '${name.replace(/'/g, "\\'")}',\n      description: '${name} notes.',\n      repo: '', // TODO: project repository URL\n    },\n    ${marker}`;
+  if (!config.includes(marker)) fail('projects.config.ts marker missing');
+  const entry = `  {\n    id: '${slug}',\n    title: '${name.replace(/'/g, "\\'")}',\n    description: '${name} notes.',\n    tags: [],\n    status: 'live',\n    documentedCommit: 'main', // TODO: pin the documented commit\n    repo: '', // TODO: project repository URL\n    source: { type: 'git', url: '', commit: 'main' }, // TODO: local path or git remote\n    workspaces: [], // TODO: folders that contain a package.json\n  },\n  ${marker}`;
   writeFileSync(configPath, config.replace(marker, entry));
-  console.log(`registered ${slug} in src/site.config.ts`);
+  console.log(`registered ${slug} in src/projects.config.ts`);
 }
 
 function scaffoldTopic(slug: string, name: string): void {

@@ -24,13 +24,18 @@ const ROWS: Array<{ title: string; categories: string[]; color: string }> = [
   },
   {
     title: 'Realtime and backend',
-    categories: ['Realtime and queues', 'Backend framework', 'Auth and email'],
+    categories: ['Realtime and queues', 'Realtime', 'Backend framework', 'Auth and email'],
     color: 'var(--dg-realtime)',
   },
   {
     title: 'Data',
-    categories: ['Database and ORM'],
+    categories: ['Database and ORM', 'Database and ODM'],
     color: 'var(--dg-database)',
+  },
+  {
+    title: 'External services',
+    categories: ['File storage', 'Email'],
+    color: 'var(--dg-api)',
   },
   {
     title: 'Quality',
@@ -44,14 +49,14 @@ const ROWS: Array<{ title: string; categories: string[]; color: string }> = [
  * site's color-by-layer variables; selecting one opens a detail card with
  * its reason, the folders using it, and a link to the Tech stack page.
  */
-export function StackMap() {
+export function StackMap({ project = 'excalidraw' }: { project?: string }) {
   const [selected, setSelected] = useState<string | null>(null);
-  const groups = librariesByCategory();
+  const groups = librariesByCategory(project);
 
   const selectedLib = selected
     ? groups.flatMap((g) => g.libs).find((l) => l.id === selected)
     : undefined;
-  const users = selected ? libraryWorkspaces(selected) : [];
+  const users = selected ? libraryWorkspaces(project, selected) : [];
 
   return (
     <div
@@ -115,8 +120,8 @@ export function StackMap() {
               <span className="opacity-60">Used in: </span>
               {users.map((p, i) => (
                 <span key={p}>
-                  <Link href={workspaceHref(p)} className="underline">
-                    {workspaceTitle(p)}
+                  <Link href={workspaceHref(project, p)} className="underline">
+                    {workspaceTitle(p, project)}
                   </Link>
                   {i < users.length - 1 ? ', ' : ''}
                 </span>
@@ -125,7 +130,7 @@ export function StackMap() {
           ) : null}
           <p className="mt-2 text-sm">
             <Link
-              href={`/projects/excalidraw/tech-stack#${libraryAnchor(selectedLib.id)}`}
+              href={`/projects/${project}/tech-stack#${libraryAnchor(selectedLib.id)}`}
               className="underline"
             >
               Tech stack page

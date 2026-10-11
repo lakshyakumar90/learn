@@ -1,0 +1,38 @@
+---
+title: Connections
+description: Requests, accepts, lists, and removal.
+diagram: devconnect-feat-connections
+owns:
+  - "Sending requests with self and duplicate guards"
+  - "Accepting and rejecting incoming requests"
+  - "Incoming, sent, and accepted lists"
+  - "Removing connections"
+files:
+  - file: frontend/src/pages/RequestsPage.jsx
+    purpose: Incoming and sent request screens.
+  - file: frontend/src/pages/ConnectionsPage.jsx
+    purpose: Accepted connections screen.
+  - file: frontend/src/services/connectionService.js
+    purpose: Request lifecycle calls.
+  - file: backend/routes/connectionRoutes.js
+    purpose: Request, accept, reject, list, remove routes.
+  - file: backend/controllers/connectionController.js
+    purpose: Pair guards and list shaping.
+  - file: backend/models/Connection.js
+    purpose: Pair rows with a unique index.
+talksTo:
+  - label: Connect flow
+    href: /projects/devconnect/how-it-works#flow=dc-connection
+  - label: Real-time chat
+    href: /projects/devconnect/features/realtime-chat
+sources:
+  - frontend/src/services/connectionService.js
+  - backend/routes/connectionRoutes.js
+  - backend/controllers/connectionController.js
+  - backend/models/Connection.js
+---
+
+One row per pair, unique on the ordered pair, with a pending, accepted, or
+rejected state. Sending notifies the recipient; accepting notifies the
+requester; rejecting only flips the state. Lists return the *other* user,
+populated for display. Accepted connections are the main gate for chat.

@@ -1,0 +1,46 @@
+---
+title: routes/
+description: One Express router per area, mounted under /api.
+workspace: backend
+diagram: devconnect-backend-routes
+owns:
+  - "URL shapes and HTTP methods for every area"
+  - "Which routes need the auth guard and which do not"
+  - "Which routes carry rate limits and upload middleware"
+files:
+  - file: authRoutes.js
+    purpose: GitHub OAuth plus profile sync routes.
+  - file: userRoutes.js
+    purpose: Register, login, profile, search, uploads.
+  - file: connectionRoutes.js
+    purpose: Request, accept, reject, list, remove.
+  - file: postRoutes.js
+    purpose: Feed, create, like, comments, image upload.
+  - file: messageRoutes.js
+    purpose: History, send, conversation list.
+  - file: notificationRoutes.js
+    purpose: List, mark read, delete.
+  - file: jobRoutes.js
+    purpose: List, create, apply with resume, status, delete.
+  - file: contactRoutes.js
+    purpose: Public contact form route.
+talksTo:
+  - label: Controllers
+    href: /projects/devconnect/backend/controllers
+  - label: Middleware
+    href: /projects/devconnect/backend/middleware
+sources:
+  - backend/routes/authRoutes.js
+  - backend/routes/userRoutes.js
+  - backend/routes/connectionRoutes.js
+  - backend/routes/postRoutes.js
+  - backend/routes/messageRoutes.js
+  - backend/routes/notificationRoutes.js
+  - backend/routes/jobRoutes.js
+  - backend/routes/contactRoutes.js
+---
+
+All routers except contact apply the auth guard; register, login, logout,
+and the contact form stay public. Auth, connection, search, post, and job
+routes carry rate limits. Avatar, cover, post-image, and document uploads
+attach Multer middleware for their single field before the controller runs.

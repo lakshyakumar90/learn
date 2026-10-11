@@ -1,0 +1,20 @@
+---
+title: src/hooks
+description: Shared React hooks.
+workspace: frontend
+diagram: devconnect-frontend-hooks
+owns:
+  - "Swipe gesture handling for touch navigation"
+files:
+  - file: useSwipeGesture.js
+    purpose: Touch swipe detection used by the chat page.
+talksTo:
+  - label: Pages
+    href: /projects/devconnect/frontend/pages
+sources:
+  - frontend/src/hooks/useSwipeGesture.js
+  - frontend/src/pages/ChatPage.jsx
+---
+
+One hook, one consumer: the chat page uses swipe gestures for mobile
+navigation between the conversation list and the active thread.

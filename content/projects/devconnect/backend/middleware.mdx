@@ -1,0 +1,31 @@
+---
+title: middleware/
+description: Auth guard, rate limits, and upload handling.
+workspace: backend
+diagram: devconnect-backend-middleware
+owns:
+  - "Token verification and user loading for protected routes"
+  - "Per-area request rate limits"
+  - "Multer uploaders: avatar, cover, post image, documents"
+files:
+  - file: authMiddleware.js
+    purpose: Cookie-or-Bearer token check, loads the user.
+  - file: rateLimiter.js
+    purpose: Five limiters for auth, connections, search, posts, jobs.
+  - file: upload.js
+    purpose: Cloudinary-or-local storage plus error wrapping.
+talksTo:
+  - label: Routes
+    href: /projects/devconnect/backend/routes
+sources:
+  - backend/middleware/authMiddleware.js
+  - backend/middleware/rateLimiter.js
+  - backend/middleware/upload.js
+---
+
+The guard reads the `jwt` cookie first and falls back to the Authorization
+header — that fallback is what makes hosted frontends work where
+third-party cookies are blocked. Limits range from 15 auth attempts per 15
+minutes to 60 searches per 5 minutes. Uploads pick Cloudinary storage when
+keys exist and local disk otherwise, cap files at 10MB, and convert Multer
+errors into 400 responses instead of crashes.

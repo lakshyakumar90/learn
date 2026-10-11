@@ -14,6 +14,7 @@ export interface StaticSearchProps {
 interface SearchEntry {
   url: string;
   collection: string;
+  project: string | null;
   title: string;
   description: string;
   headings: string[];
@@ -185,6 +186,11 @@ export function StaticSearchDialog({ open, onOpenChange, links = [] }: StaticSea
                   <span>
                     <span className="block font-medium">{entry.title}</span>
                     <span className="block text-xs opacity-60">{breadcrumb(entry)}</span>
+                    {entry.project ? (
+                      <span className="mt-1 inline-block rounded-full border px-2 py-0.5 text-[11px] font-medium opacity-80">
+                        {entry.project}
+                      </span>
+                    ) : null}
                     {entry.description ? (
                       <span className="mt-0.5 block text-xs opacity-70">{entry.description}</span>
                     ) : null}

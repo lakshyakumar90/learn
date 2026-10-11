@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import { useReducedMotion } from 'motion/react';
 import { Maximize2 } from 'lucide-react';
-import { getFlowSpec } from '../../content/flows';
+import { flowOrderForProject, getFlowSpec } from '../../content/flows';
 import { FLOW_STEP_MS, useFlowStore, useFlowUi } from '@/lib/flow-store';
 import { DiagramLegend } from './diagram-shared';
 import { ExpandedView } from './ExpandedView';
@@ -85,16 +85,26 @@ function FlowModalHotkeys({ total, canAnimate }: { total: number; canAnimate: bo
  * store, so the inline player and the expanded view stay in sync and
  * opening or closing the modal never resets the step or playback.
  */
-export function FlowPlayer() {
+export function FlowPlayer({ project = 'excalidraw' }: { project?: string }) {
   const { tab } = useFlowUi(FLOW_ID);
   const [open, setOpen] = useState(false);
   const reduceMotion = useReducedMotion();
   const canAnimate = reduceMotion !== true;
+  const tabIds = flowOrderForProject(project);
+
+  // Reset to this project's first tab when the shared store points at
+  // another project's tab (players never co-mount, one store is shared).
+  useEffect(() => {
+    if (!tabIds.includes(tab) && tabIds.length > 0) {
+      useFlowStore.getState().setTab(FLOW_ID, tabIds[0]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [project]);
 
   // Deep-link tabs once: /end-to-end#flow=room selects the Room tab.
   useEffect(() => {
-    const match = window.location.hash.match(/^#flow=(guest|signedin|room)$/);
-    if (match) useFlowStore.getState().setTab(FLOW_ID, match[1]);
+    const match = window.location.hash.match(/^#flow=([\w-]+)$/);
+    if (match && tabIds.includes(match[1])) useFlowStore.getState().setTab(FLOW_ID, match[1]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -102,14 +112,14 @@ export function FlowPlayer() {
     window.history.replaceState(null, '', `#flow=${tab}`);
   }, [tab]);
 
-  const flow = getFlowSpec(tab) ?? getFlowSpec('guest');
+  const flow = getFlowSpec(tab) ?? (tabIds.length > 0 ? getFlowSpec(tabIds[0]) : undefined);
   const steps = flow?.steps ?? [];
 
   return (
     <>
       <div className="my-6 overflow-hidden rounded-xl border">
         <div className="flex items-stretch border-b">
-          <FlowTabs flowId={FLOW_ID} className="flex-1" />
+          <FlowTabs flowId={FLOW_ID} project={project} className="flex-1" />
           <button
             type="button"
             aria-label="Expand flow"
@@ -162,7 +172,7 @@ export function FlowPlayer() {
             aria-label="Flow narration and steps"
             className="flex min-h-0 w-full flex-col gap-4 overflow-y-auto border-t p-4 lg:w-84 lg:border-l lg:border-t-0 lg:max-h-[70vh]"
           >
-            <FlowTabs flowId={FLOW_ID} arrowNav={false} />
+            <FlowTabs flowId={FLOW_ID} project={project} arrowNav={false} />
             <FlowNarration large />
             <FlowControls flowId={FLOW_ID} total={steps.length} canAnimate={canAnimate} />
             <FlowSteps flowId={FLOW_ID} steps={steps} large />

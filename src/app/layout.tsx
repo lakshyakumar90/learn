@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { RootProvider } from 'fumadocs-ui/provider/next';
 import { StaticSearchDialog } from '@/components/StaticSearchDialog';
 import { siteConfig } from '@/site.config';
+import { PROJECTS } from '@/projects.config';
 import './globals.css';
 
 const geistSans = Geist({
@@ -23,6 +24,10 @@ export const metadata: Metadata = {
   description: siteConfig.tagline,
 };
 
+const searchLinks: Array<[string, string]> = PROJECTS.filter((p) => p.status === 'live').flatMap((p) => [
+  [`${p.title} project`, `/projects/${p.id}`],
+]);
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
@@ -34,11 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <RootProvider
           search={{
             SearchDialog: StaticSearchDialog,
-            links: [
-              ['Excalidraw project', '/projects/excalidraw'],
-              ['End-to-end flow', '/projects/excalidraw/end-to-end'],
-              ['High-level architecture', '/projects/excalidraw/high-level'],
-            ],
+            links: searchLinks,
           }}
         >
           {children}

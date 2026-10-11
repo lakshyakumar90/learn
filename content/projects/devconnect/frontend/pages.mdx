@@ -1,0 +1,54 @@
+---
+title: src/pages
+description: One screen per route.
+workspace: frontend
+diagram: devconnect-frontend-pages
+owns:
+  - "Public screens: landing, login, signup, terms, privacy, 404"
+  - "App screens: dashboard, feed, jobs, chat, connections, search, profiles"
+  - "OAuth landing: token pickup from the redirect URL"
+files:
+  - file: LandingPage.jsx
+    purpose: Public marketing screen.
+  - file: LoginPage.jsx
+    purpose: Email login plus GitHub entry point.
+  - file: SignupPage.jsx
+    purpose: Registration form with password check.
+  - file: auth/
+    purpose: Unused duplicate auth screens (see page).
+  - file: DashboardPage.jsx
+    purpose: Signed-in home screen.
+  - file: FeedPage.jsx
+    purpose: Posts feed with tabs and filters.
+  - file: ChatPage.jsx
+    purpose: Conversations, messages, typing, receipts.
+  - file: JobsPage.jsx
+    purpose: Listings with filters.
+  - file: JobDetailPage.jsx
+    purpose: Listing detail and applications.
+  - file: ConnectionsPage.jsx
+    purpose: Accepted connections list.
+  - file: RequestsPage.jsx
+    purpose: Incoming and sent requests.
+  - file: SearchPage.jsx
+    purpose: Developer search and discovery.
+  - file: ProfilePage.jsx
+    purpose: Own profile editing.
+  - file: UserProfilePage.jsx
+    purpose: Another developer's profile.
+talksTo:
+  - label: Services
+    href: /projects/devconnect/frontend/services
+  - label: Store
+    href: /projects/devconnect/frontend/store
+sources:
+  - frontend/src/App.jsx
+  - frontend/src/pages/SignupPage.jsx
+  - frontend/src/pages/ChatPage.jsx
+---
+
+Pages are thin screens over services and slices: forms dispatch thunks,
+lists select slice state, and the chat page wires the socket service for
+typing, presence, and receipts. Note `pages/auth/` holds older Login and
+Signup screens that nothing imports — the router uses the top-level
+`LoginPage` and `SignupPage` instead.

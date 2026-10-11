@@ -1,0 +1,31 @@
+---
+title: Deployment overview
+description: What has to run for DevConnect to work.
+sources:
+  - backend/index.js
+  - backend/config/database.js
+  - backend/config/redis.js
+  - backend/config/cloudinary.js
+---
+
+DevConnect needs four external services, two of them optional with
+degradation:
+
+- **MongoDB** (required) — every collection lives here. The backend exits
+  on a failed connection; there is no retry.
+- **Redis** (optional, degrades) — presence hash and the Socket.io adapter.
+  Without it, realtime works on a single instance only.
+- **Cloudinary** (optional, degrades) — image and document storage. Without
+  keys, uploads land in the backend `uploads/` folder and are served
+  statically by Express.
+- **Email over Gmail SMTP** (optional, degrades) — the contact form answers
+  503 without credentials.
+
+The backend is one long-lived Node process serving HTTP and sockets from
+the same port; the frontend is a static Vite build talking to it over REST
+plus sockets. See [Environment variables](/projects/devconnect/deployment-env)
+for the full table and [Hosting notes](/projects/devconnect/deployment-hosting)
+for what the repo's `vercel.json` files actually configure.
+
+Last verified against the documented commit on 2026-10-11. This project
+makes no claim about where the author hosts it.

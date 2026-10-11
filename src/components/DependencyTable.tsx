@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { siteConfig } from '@/site.config';
 import {
   CATEGORY_ORDER,
+  depsCommit,
   getLibrary,
   getWorkspace,
   isAggregateKey,
@@ -17,14 +17,14 @@ function isTypesRow(ids: string[]): boolean {
   return ids.length > 0 && ids.every((id) => id.startsWith('@types/'));
 }
 
-function WhyCell({ dep, workspacePath }: { dep: DepEntry; workspacePath: string }) {
-  const lib = getLibrary(dep.name);
+function WhyCell({ dep, workspacePath, project }: { dep: DepEntry; workspacePath: string; project: string }) {
+  const lib = getLibrary(project, dep.name);
   const note = lib?.uses?.[workspacePath];
   return <>{note ?? lib?.why ?? ''}</>;
 }
 
-function LibraryCell({ dep }: { dep: DepEntry }) {
-  const lib = getLibrary(dep.name);
+function LibraryCell({ dep, project }: { dep: DepEntry; project: string }) {
+  const lib = getLibrary(project, dep.name);
   const label = lib?.displayName ?? dep.name;
   if (!lib?.homepage) return <code>{label}</code>;
   return (
@@ -42,10 +42,10 @@ function UnusedBadge() {
   );
 }
 
-function DepTable({ deps, workspacePath }: { deps: DepEntry[]; workspacePath: string }) {
+function DepTable({ deps, workspacePath, project }: { deps: DepEntry[]; workspacePath: string; project: string }) {
   const byCategory = new Map<string, DepEntry[]>();
   for (const dep of deps) {
-    const cat = getLibrary(dep.name)?.category ?? 'Other';
+    const cat = getLibrary(project, dep.name)?.category ?? 'Other';
     if (!byCategory.has(cat)) byCategory.set(cat, []);
     byCategory.get(cat)!.push(dep);
   }
@@ -86,14 +86,14 @@ function DepTable({ deps, workspacePath }: { deps: DepEntry[]; workspacePath: st
             return sorted.map((dep) => (
               <tr key={dep.name}>
                 <td>
-                  <LibraryCell dep={dep} />
+                  <LibraryCell dep={dep} project={project} />
                   {dep.kind === 'dependency' && !dep.used ? <UnusedBadge /> : null}
                 </td>
                 <td>
                   <code>{dep.versionRange}</code>
                 </td>
                 <td>
-                  <WhyCell dep={dep} workspacePath={workspacePath} />
+                  <WhyCell dep={dep} workspacePath={workspacePath} project={project} />
                 </td>
               </tr>
             ));
@@ -105,12 +105,12 @@ function DepTable({ deps, workspacePath }: { deps: DepEntry[]; workspacePath: st
 }
 
 /**
- * Data-driven dependency table. `workspace` is a workspace path
- * (apps/web), 'apps'/'packages' for group summaries, 'packages/tooling'
- * for both config packages, or 'root'/'.' for the repo root.
+ * Data-driven dependency table. `workspace` is a workspace path, a group
+ * key (apps, packages, backend, frontend), or 'root'/'.' for the repo
+ * root. `project` selects the project (defaults to excalidraw).
  */
-export function DependencyTable({ workspace }: { workspace: string }) {
-  const paths = resolveWorkspaces(workspace);
+export function DependencyTable({ workspace, project = 'excalidraw' }: { workspace: string; project?: string }) {
+  const paths = resolveWorkspaces(project, workspace);
 
   if (paths.length === 0) {
     return (
@@ -120,10 +120,10 @@ export function DependencyTable({ workspace }: { workspace: string }) {
     );
   }
 
-  if (isAggregateKey(workspace)) {
+  if (isAggregateKey(project, workspace)) {
     const counts = new Map<string, Set<string>>();
     for (const path of paths) {
-      const ws = getWorkspace(path);
+      const ws = getWorkspace(project, path);
       if (!ws) continue;
       for (const dep of ws.deps) {
         if (dep.internal) continue;
@@ -134,7 +134,7 @@ export function DependencyTable({ workspace }: { workspace: string }) {
     const top = [...counts.entries()]
       .sort((a, b) => b[1].size - a[1].size || a[0].localeCompare(b[0]))
       .slice(0, 8);
-    const children = paths.filter((p) => getWorkspace(p));
+    const children = paths.filter((p) => getWorkspace(project, p));
     return (
       <div>
         <div className="overflow-x-auto">
@@ -148,11 +148,14 @@ export function DependencyTable({ workspace }: { workspace: string }) {
             </thead>
             <tbody>
               {top.map(([name, users]) => {
-                const lib = getLibrary(name);
+                const lib = getLibrary(project, name);
                 return (
                   <tr key={name}>
                     <td>
-                      <LibraryCell dep={{ name, versionRange: '', kind: 'dependency', internal: false, used: true }} />
+                      <LibraryCell
+                        dep={{ name, versionRange: '', kind: 'dependency', internal: false, used: true }}
+                        project={project}
+                      />
                     </td>
                     <td>{lib?.why ?? ''}</td>
                     <td className="tabular-nums">{users.size}</td>
@@ -166,30 +169,30 @@ export function DependencyTable({ workspace }: { workspace: string }) {
           <span className="font-medium">In this group: </span>
           {children.map((p, i) => (
             <span key={p}>
-              <Link href={workspaceHref(p)}>{workspaceTitle(p)}</Link>
+              <Link href={workspaceHref(project, p)}>{workspaceTitle(p, project)}</Link>
               {i < children.length - 1 ? ' · ' : ''}
             </span>
           ))}
         </p>
-        <p className="mt-2 text-xs opacity-60">Dependencies as of commit {siteConfig.excalidrawCommit}.</p>
+        <p className="mt-2 text-xs opacity-60">Dependencies as of commit {depsCommit(project)}.</p>
       </div>
     );
   }
 
-  // Single workspace, or the tooling pair (render one table each).
+  // Single workspace (render one table each when an alias maps to several).
   return (
     <div className="flex flex-col gap-6">
       {paths.map((path) => {
-        const ws = getWorkspace(path);
+        const ws = getWorkspace(project, path);
         if (!ws) return null;
         const runtime = ws.deps.filter((d) => !d.internal && d.kind === 'dependency');
         const dev = ws.deps.filter((d) => !d.internal && d.kind !== 'dependency');
         const showTitle = paths.length > 1;
         return (
           <section key={path} aria-label={showTitle ? `Dependencies of ${path}` : undefined}>
-            {showTitle ? <h3 className="!mt-0 text-base font-semibold">{workspaceTitle(path)}</h3> : null}
+            {showTitle ? <h3 className="!mt-0 text-base font-semibold">{workspaceTitle(path, project)}</h3> : null}
             {runtime.length > 0 ? (
-              <DepTable deps={runtime} workspacePath={path} />
+              <DepTable deps={runtime} workspacePath={path} project={project} />
             ) : (
               <p className="text-sm opacity-70">No runtime dependencies.</p>
             )}
@@ -199,7 +202,7 @@ export function DependencyTable({ workspace }: { workspace: string }) {
                   Development and tooling ({dev.length})
                 </summary>
                 <div className="mt-2">
-                  <DepTable deps={dev} workspacePath={path} />
+                  <DepTable deps={dev} workspacePath={path} project={project} />
                 </div>
               </details>
             ) : null}
@@ -209,7 +212,7 @@ export function DependencyTable({ workspace }: { workspace: string }) {
           </section>
         );
       })}
-      <p className="text-xs opacity-60">Dependencies as of commit {siteConfig.excalidrawCommit}.</p>
+      <p className="text-xs opacity-60">Dependencies as of commit {depsCommit(project)}.</p>
     </div>
   );
 }

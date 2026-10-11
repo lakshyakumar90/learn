@@ -1,0 +1,22 @@
+---
+title: High-level architecture
+description: The system in one diagram.
+diagram: devconnect-system
+sources:
+  - backend/index.js
+  - backend/utils/socket.js
+  - frontend/src/App.jsx
+---
+
+The browser holds four pieces: the React app, the Redux store, one service
+module per API area, and the socket client. The API is Express routes into
+controllers into Mongoose models into MongoDB. The socket server stands next
+to the API on the same process: chat and notifications travel over rooms,
+presence lives in Redis, and everything durable still lands in MongoDB.
+
+Uploads leave the request path sideways into Cloudinary (or the local folder
+when keys are missing); contact mail leaves toward the email service. Both
+are external services, shown in the Shared layer color.
+
+Solid lines are durable writes; dashed lines are ephemeral realtime traffic
+(typing, presence broadcasts, live pushes).

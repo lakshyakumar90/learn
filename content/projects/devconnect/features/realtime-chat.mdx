@@ -1,0 +1,41 @@
+---
+title: Real-time chat
+description: Rooms, messages, receipts, typing, and presence.
+diagram: devconnect-feat-chat
+owns:
+  - "Personal rooms plus secret pair rooms"
+  - "Gated sending: connections or active job pairs only"
+  - "Sent, delivered, and read message states"
+  - "Typing indicators and online presence"
+  - "History over REST with pagination"
+files:
+  - file: frontend/src/pages/ChatPage.jsx
+    purpose: Conversations, thread, typing, receipts.
+  - file: frontend/src/services/socketService.js
+    purpose: Socket wiring and event mapping.
+  - file: frontend/src/services/messageService.js
+    purpose: History and conversation REST calls.
+  - file: backend/utils/socket.js
+    purpose: Rooms, events, presence, adapter.
+  - file: backend/controllers/messageController.js
+    purpose: History, REST send, conversations.
+  - file: backend/models/Chat.js
+    purpose: Participants with embedded messages.
+talksTo:
+  - label: Chat flow
+    href: /projects/devconnect/how-it-works#flow=dc-chat
+  - label: Connections
+    href: /projects/devconnect/features/connections
+sources:
+  - frontend/src/pages/ChatPage.jsx
+  - frontend/src/services/socketService.js
+  - backend/utils/socket.js
+  - backend/models/Chat.js
+---
+
+Chat has two doors that stay in sync: socket events for live exchange and
+REST for history and sending from cold state. Every message is stored with
+a delivery state — sent when the peer is offline, delivered when present,
+read when the thread opens. Typing and presence are ephemeral broadcasts;
+only chat content is durable. The Redis adapter lets any instance reach any
+user room, so the design survives more than one server.

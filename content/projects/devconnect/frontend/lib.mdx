@@ -1,0 +1,19 @@
+---
+title: src/lib
+description: Shared code helpers.
+workspace: frontend
+diagram: devconnect-frontend-lib
+owns:
+  - "The class-name merge helper every primitive uses"
+files:
+  - file: utils.js
+    purpose: The cn helper (clsx plus tailwind-merge).
+talksTo:
+  - label: Components
+    href: /projects/devconnect/frontend/components
+sources:
+  - frontend/src/lib/utils.js
+---
+
+One six-line file: `cn` merges conditional classes without Tailwind
+conflicts, and every `ui/` primitive builds on it.

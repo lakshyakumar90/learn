@@ -1,36 +1,38 @@
 'use client';
 
-import { flowOrder, getFlowSpec } from '../../../content/flows';
+import { flowOrderForProject, getFlowSpec } from '../../../content/flows';
 import { useFlowStore, useFlowUi } from '@/lib/flow-store';
-
-const TAB_IDS = [...flowOrder] as string[];
 
 /** Tab list shared by the inline player and its expanded view (one store). */
 export function FlowTabs({
   flowId,
+  project = 'excalidraw',
   arrowNav = true,
   className = '',
 }: {
   flowId: string;
+  project?: string;
   arrowNav?: boolean;
   className?: string;
 }) {
   const tab = useFlowUi(flowId).tab;
   const setTab = useFlowStore((s) => s.setTab);
+  const tabIds = flowOrderForProject(project);
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (!arrowNav) return;
-    const i = TAB_IDS.indexOf(tab);
-    if (e.key === 'ArrowRight') setTab(flowId, TAB_IDS[(i + 1) % TAB_IDS.length]);
+    const i = tabIds.indexOf(tab);
+    if (i < 0) return;
+    if (e.key === 'ArrowRight') setTab(flowId, tabIds[(i + 1) % tabIds.length]);
     else if (e.key === 'ArrowLeft')
-      setTab(flowId, TAB_IDS[(i - 1 + TAB_IDS.length) % TAB_IDS.length]);
+      setTab(flowId, tabIds[(i - 1 + tabIds.length) % tabIds.length]);
     else return;
     e.preventDefault();
   };
 
   return (
     <div role="tablist" aria-label="End-to-end flows" onKeyDown={onKeyDown} className={`flex ${className}`}>
-      {TAB_IDS.map((id) => {
+      {tabIds.map((id) => {
         const f = getFlowSpec(id);
         if (!f) return null;
         const selected = id === tab;

@@ -1,0 +1,25 @@
+{
+  "title": "DevConnect",
+  "pages": [
+    "---Get Started---",
+    "index",
+    "tech-stack",
+    "installation",
+    "project-structure",
+    "---Architecture---",
+    "folder-structure",
+    "high-level",
+    "low-level",
+    "---Folders---",
+    "backend",
+    "frontend",
+    "---Features---",
+    "features",
+    "---How It Works---",
+    "how-it-works",
+    "---Deployment---",
+    "deployment-overview",
+    "deployment-env",
+    "deployment-hosting"
+  ]
+}

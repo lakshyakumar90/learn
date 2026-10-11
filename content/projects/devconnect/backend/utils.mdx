@@ -1,0 +1,29 @@
+---
+title: utils/
+description: The Socket.io server.
+workspace: backend
+diagram: devconnect-backend-utils
+owns:
+  - "Socket setup: path, transports, heartbeats"
+  - "User registration, personal rooms, secret chat rooms"
+  - "Presence: local map plus the Redis hash, broadcast to connections"
+  - "Chat: send, deliver, read receipts, typing indicators"
+  - "The Redis adapter hookup for multi-instance events"
+files:
+  - file: socket.js
+    purpose: The whole realtime server plus its helpers.
+talksTo:
+  - label: Models
+    href: /projects/devconnect/backend/models
+  - label: Entry point
+    href: /projects/devconnect/backend/entry
+sources:
+  - backend/utils/socket.js
+---
+
+One file owns realtime end to end. Sockets register a user id and join that
+id as a room, so any process can reach a user by id once the Redis adapter
+is attached. Presence is tracked twice: a local socket map for instant
+lookups and a Redis hash so other instances agree. Typing and status
+broadcasts are never stored; messages always are, with sent, delivered, and
+read states.

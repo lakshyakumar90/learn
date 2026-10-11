@@ -1,0 +1,45 @@
+---
+title: src/components
+description: Shared UI, layout, and feature widgets.
+workspace: frontend
+diagram: devconnect-frontend-components
+owns:
+  - "Interface primitives: button, card, input, avatar, and friends"
+  - "App frame: navbar, sidebar, main layout, route guard"
+  - "Feature widgets: posts, jobs, notification bell"
+  - "Cross-cutting: error boundary, spinner, theme toggle"
+files:
+  - file: ui/
+    purpose: shadcn-style primitives on Radix and cva.
+  - file: layout/
+    purpose: Sidebar and main app frame.
+  - file: posts/
+    purpose: Post card, comments, create modal.
+  - file: jobs/
+    purpose: Job card, create and apply modals.
+  - file: notifications/
+    purpose: Notification bell with read and delete.
+  - file: ProtectedRoute.jsx
+    purpose: Auth gate with login redirect memory.
+  - file: ErrorBoundary.jsx
+    purpose: Crash containment for the tree.
+  - file: ThemeToggle.jsx
+    purpose: Dark and light switch.
+talksTo:
+  - label: Pages
+    href: /projects/devconnect/frontend/pages
+  - label: Store
+    href: /projects/devconnect/frontend/store
+sources:
+  - frontend/src/components/ProtectedRoute.jsx
+  - frontend/src/components/posts/PostCard.jsx
+  - frontend/src/components/jobs/JobCard.jsx
+  - frontend/src/components/notifications/NotificationBell.jsx
+  - frontend/components.json
+---
+
+The `ui/` subfolder follows the shadcn pattern (configured in
+`components.json`, new-york style): Radix primitives styled with the `cn`
+helper. Feature widgets stay near their feature — posts, jobs, and the bell
+each own their modals and cards — while layout and the route guard frame
+every guarded screen.

@@ -1,0 +1,42 @@
+---
+title: Environment variables
+description: Every variable the code reads, with placeholders only.
+sources:
+  - backend/.env.example
+  - frontend/.env.example
+---
+
+Placeholder values only — never commit real secrets. The backend
+`.env.example` does not list every name the code reads; the tables below
+merge the example files with the names found in the sources.
+
+## Backend
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `PORT` | Yes | Port the server listens on. |
+| `MONGO_URI` | Yes | MongoDB connection string. |
+| `JWT_SECRET` | Yes | Signs and verifies session tokens. |
+| `FRONTEND_URL` | For OAuth | Redirect target after GitHub login. |
+| `REDIS_URI` / `REDIS_URL` | No | Redis URL; falls back to localhost, then no Redis. |
+| `CLOUDINARY_CLOUD_NAME` | No | Cloudinary account; without all three keys uploads stay local. |
+| `CLOUDINARY_API_KEY` | No | Cloudinary key. |
+| `CLOUDINARY_API_SECRET` | No | Cloudinary secret. |
+| `GITHUB_CLIENT_ID` | For OAuth | GitHub OAuth app id. |
+| `GITHUB_CLIENT_SECRET` | For OAuth | GitHub OAuth secret. |
+| `EMAIL_USER` / `GMAIL_USER` | For contact mail | Gmail sender account. |
+| `EMAIL_PASS` / `GMAIL_APP_PASSWORD` | For contact mail | Gmail app password. |
+| `EMAIL_RECEIVER` | No | Contact form recipient; defaults to the sender. |
+| `API_BASE_URL` | No | Base for local upload URLs; defaults to localhost plus port. |
+
+## Frontend
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `VITE_API_URL` | Yes | REST base, e.g. `http://localhost:5000/api`. |
+| `VITE_SOCKET_URL` | No | Socket base; derived from the API URL when missing. |
+
+Service modules fall back to `/api` and the socket service to localhost
+when the variables are missing, but set both explicitly in any hosted
+setup. The login and signup screens also build the GitHub OAuth entry URL
+from `VITE_API_URL`.

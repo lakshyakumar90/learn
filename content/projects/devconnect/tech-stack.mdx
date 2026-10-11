@@ -1,0 +1,16 @@
+---
+title: Tech stack
+description: Every external library, grouped by category, with its reason.
+sources:
+  - backend/package.json
+  - frontend/package.json
+---
+
+Every library below is declared in some workspace manifest — names, version
+ranges, and categories come from the data, and the build fails if the list
+drifts. "Used in" points at the folders that import each library. Libraries
+marked "Declared but not used in source" sit in a manifest but no source file
+imports them — most notably better-auth, which both manifests declare while
+authentication actually runs on JWT plus bcrypt.
+
+<TechStackIndex project="devconnect" />

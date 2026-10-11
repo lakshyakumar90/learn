@@ -8,20 +8,20 @@ import {
 import { projectsSource } from '@/lib/source';
 import { getMDXComponents } from '@/mdx-components';
 import { PageSections, sectionTocEntries } from '@/components/FolderSections';
+import { getProject } from '@/projects.config';
+import { resolveWorkspaces } from '@/lib/deps-data';
 import type { DocFrontmatter } from '@/lib/doc-schema';
 
 /**
- * Map docs slugs to dependency workspace keys. Only folder pages
- * (apps/*, packages/*) get a Dependencies section.
+ * Map docs slugs to dependency workspace keys. Folder pages whose slug
+ * resolves to configured workspaces (exact, alias, or group prefix) get
+ * a Dependencies section.
  */
 function workspaceKeyFor(project: string, slug: string[]): string | undefined {
-  // Dependency data only exists for the Excalidraw project.
-  if (project !== 'excalidraw') return undefined;
-  if (slug.length === 1 && (slug[0] === 'apps' || slug[0] === 'packages')) return slug[0];
-  if (slug.length === 2 && (slug[0] === 'apps' || slug[0] === 'packages')) {
-    return `${slug[0]}/${slug[1]}`;
-  }
-  return undefined;
+  if (!getProject(project)) return undefined;
+  if (slug.length === 0) return undefined;
+  const key = slug.join('/');
+  return resolveWorkspaces(project, key).length > 0 ? key : undefined;
 }
 
 export function generateStaticParams(): Array<{ project: string; slug?: string[] }> {
@@ -52,16 +52,19 @@ export default async function ProjectPage({
   if (!page) notFound();
   const MDX = page.data.body;
   const data = page.data as unknown as DocFrontmatter;
-  const workspaceKey = workspaceKeyFor(project, slug ?? []);
+  const workspaceKey =
+    typeof data.workspace === 'string' && data.workspace.length > 0
+      ? data.workspace
+      : workspaceKeyFor(project, slug ?? []);
   return (
-    <DocsPage toc={[...page.data.toc, ...sectionTocEntries(data, workspaceKey)]} full={page.data.full}>
+    <DocsPage toc={[...page.data.toc, ...sectionTocEntries(data, workspaceKey, project)]} full={page.data.full}>
       <DocsTitle>{page.data.title}</DocsTitle>
       {page.data.description ? (
         <DocsDescription>{page.data.description}</DocsDescription>
       ) : null}
       <DocsBody>
         <MDX components={getMDXComponents()} />
-        <PageSections data={data} workspaceKey={workspaceKey} />
+        <PageSections data={data} workspaceKey={workspaceKey} project={project} />
       </DocsBody>
     </DocsPage>
   );

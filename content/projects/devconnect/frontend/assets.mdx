@@ -1,0 +1,25 @@
+---
+title: Static assets
+description: Favicons and social images served as-is.
+workspace: frontend
+diagram: devconnect-frontend-assets
+owns:
+  - "Favicon and social preview files in public/"
+  - "The default Vite mark under src/assets/"
+files:
+  - file: public/
+    purpose: Favicon, social image, Vite badge, served as-is.
+  - file: src/assets/
+    purpose: Holds only the default Vite logo.
+talksTo:
+  - label: Pages
+    href: /projects/devconnect/frontend/pages
+sources:
+  - frontend/index.html
+---
+
+`public/` carries the favicon, the social preview image, and the Vite badge
+— files the build copies untouched. `src/assets/` holds only the default
+Vite logo; the app has no other bundled artwork. User content (avatars,
+post images, resumes) never lives here — it goes to Cloudinary or the
+backend `uploads/` folder.

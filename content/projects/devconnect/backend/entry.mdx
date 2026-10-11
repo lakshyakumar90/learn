@@ -1,0 +1,27 @@
+---
+title: Entry point
+description: App setup, route mounting, socket start, listen.
+workspace: backend
+diagram: devconnect-backend-entry
+owns:
+  - "Middleware order: CORS, JSON, cookies, static uploads"
+  - "Health endpoints for uptime pings"
+  - "Mounting all eight route modules"
+  - "Starting the socket server on the same HTTP server"
+files:
+  - file: index.js
+    purpose: The whole wiring file, 51 lines.
+talksTo:
+  - label: Routes
+    href: /projects/devconnect/backend/routes
+  - label: Socket server
+    href: /projects/devconnect/backend/utils
+sources:
+  - backend/index.js
+---
+
+The entry requires the database connector (which connects on import),
+declares permissive CORS with credentials, serves `uploads/` statically,
+answers `/health` and `/api/health` without auth or DB waits, mounts the
+API routers, hands the HTTP server to the socket initializer, and listens
+on `PORT`. `trust proxy` is set for rate limiting behind a proxy.

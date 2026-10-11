@@ -33,7 +33,7 @@ export default function Home() {
             <SectionHead
               eyebrow="Projects"
               title="Real codebases, documented end to end"
-              line="One live project today; more systems joining the shelf."
+              line="Two live projects today; more systems joining the shelf."
             />
             <div className="mt-6 grid gap-3 md:grid-cols-3">
               {projectCards.map((p) =>

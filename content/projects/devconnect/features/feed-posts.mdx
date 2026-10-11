@@ -1,0 +1,38 @@
+---
+title: Feed and posts
+description: Publishing, feed, likes, and comments.
+diagram: devconnect-feat-feed
+owns:
+  - "Post creation with optional image, code snippet, tags"
+  - "Cursor-paged feed with recent and top tabs"
+  - "Likes with author notifications"
+  - "Comments with author-or-post-owner deletes"
+files:
+  - file: frontend/src/pages/FeedPage.jsx
+    purpose: Feed screen with tabs and filters.
+  - file: frontend/src/components/posts/CreatePostModal.jsx
+    purpose: Compose and publish modal.
+  - file: frontend/src/components/posts/PostCard.jsx
+    purpose: Post display with code highlighting.
+  - file: frontend/src/services/postService.js
+    purpose: Feed, posts, likes, and comment calls.
+  - file: backend/routes/postRoutes.js
+    purpose: Feed, create, like, comment, upload routes.
+  - file: backend/controllers/postController.js
+    purpose: Feed queries, create, like, comments.
+  - file: backend/models/Post.js
+    purpose: Post rows with embedded likes and comments.
+talksTo:
+  - label: Post flow
+    href: /projects/devconnect/how-it-works#flow=dc-post
+sources:
+  - frontend/src/pages/FeedPage.jsx
+  - backend/controllers/postController.js
+  - backend/models/Post.js
+---
+
+Posts carry text, an optional image URL, a code snippet with language, a
+type, tags, and a collaboration flag. The recent tab pages by cursor; the
+top tab aggregates like counts over the last week. Code snippets render
+with syntax highlighting in the post card. Likes and comments both notify
+the post author.

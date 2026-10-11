@@ -1,0 +1,52 @@
+---
+title: controllers/
+description: Request handling, one module per area.
+workspace: backend
+diagram: devconnect-backend-controllers
+owns:
+  - "Register, login, logout, profile, search, avatar and cover uploads"
+  - "GitHub OAuth login, callback, and profile sync"
+  - "Connection lifecycle: request, accept, reject, list, remove"
+  - "Posts: feed, create, like, comments, image upload"
+  - "Messages: history with pagination, send, conversations"
+  - "Jobs: listing, create, resume applications, status changes"
+  - "Notifications: the shared notify helper plus list and read routes"
+  - "Contact form: admin and confirmation mails"
+files:
+  - file: authController.js
+    purpose: GitHub OAuth flow and profile sync.
+  - file: userController.js
+    purpose: JWT register/login plus profile and search.
+  - file: connectionController.js
+    purpose: Connection requests and lists.
+  - file: postController.js
+    purpose: Feed, posts, likes, comments.
+  - file: messageController.js
+    purpose: Chat history, REST send, conversations.
+  - file: notificationController.js
+    purpose: notifyUser helper plus notification routes.
+  - file: jobController.js
+    purpose: Listings, applications, status changes.
+  - file: contactController.js
+    purpose: Nodemailer contact form.
+talksTo:
+  - label: Models
+    href: /projects/devconnect/backend/models
+  - label: Socket server
+    href: /projects/devconnect/backend/utils
+sources:
+  - backend/controllers/authController.js
+  - backend/controllers/userController.js
+  - backend/controllers/connectionController.js
+  - backend/controllers/postController.js
+  - backend/controllers/messageController.js
+  - backend/controllers/notificationController.js
+  - backend/controllers/jobController.js
+  - backend/controllers/contactController.js
+---
+
+Controllers own the product rules: no self-connections, no duplicate
+requests, author-only deletes, poster-only application updates, messaging
+only between connections or active job pairs. Anything worth telling the
+user about goes through `notifyUser`, which stores the notification and
+emits it into the recipient room.

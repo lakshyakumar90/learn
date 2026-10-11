@@ -8,6 +8,7 @@
 import { readdirSync, readFileSync, statSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import matter from 'gray-matter';
+import { PROJECTS } from '../src/projects.config';
 
 declare const require: (id: string) => unknown;
 
@@ -17,6 +18,8 @@ const CONTENT = join(ROOT, 'content');
 export interface SearchEntry {
   url: string;
   collection: string;
+  /** Owning project id for project pages (shown as a badge), else null. */
+  project: string | null;
   title: string;
   description: string;
   headings: string[];
@@ -56,49 +59,56 @@ function urlFor(collection: string, rel: string): string {
   return `/${collection}/${parts.join('/')}`;
 }
 
-function workspaceUrl(path: string): string | null {
-  if (path === '.') return '/projects/excalidraw/monorepo';
-  if (path === 'apps') return '/projects/excalidraw/apps';
-  if (path === 'packages') return '/projects/excalidraw/packages';
-  if (path.startsWith('apps/')) return `/projects/excalidraw/${path}`;
-  if (path === 'packages/eslint-config' || path === 'packages/typescript-config') {
-    return '/projects/excalidraw/packages/tooling';
-  }
-  if (path.startsWith('packages/')) return `/projects/excalidraw/${path}`;
+function projectOf(collection: string, rel: string): string | null {
+  if (collection !== 'projects') return null;
+  const id = rel.split(sep)[0] ?? '';
+  return PROJECTS.some((p) => p.id === id) ? id : null;
+}
+
+function workspaceUrl(projectId: string, path: string): string | null {
+  const project = PROJECTS.find((p) => p.id === projectId);
+  if (!project) return null;
+  if (path === '.') return `/projects/${projectId}/${project.rootPage ?? 'index'}`;
+  const alias = project.aliases?.[path];
+  if (alias) return `/projects/${projectId}/${path}`;
+  if (project.workspaces.includes(path)) return `/projects/${projectId}/${path}`;
+  if (project.workspaces.some((w) => w.startsWith(`${path}/`))) return `/projects/${projectId}/${path}`;
   return null;
 }
 
 /**
- * Index library names so Ctrl+K finds them: every library on the Tech
- * stack page, and each workspace's declared libraries on its folder page
- * (and the monorepo page for root tooling).
+ * Index library names so Ctrl+K finds them: every library on each
+ * project's Tech stack page, and each workspace's declared libraries on
+ * its folder page.
  */
 function indexLibraries(entries: SearchEntry[]): void {
   const byUrl = new Map(entries.map((e) => [e.url, e]));
   const libsData = require('../generated/libraries.json') as {
-    libraries?: Array<{ id: string; displayName?: string }>;
+    projects?: Record<string, { libraries?: Array<{ id: string; displayName?: string }> }>;
   };
   const depsData = require('../generated/deps.json') as {
-    workspaces?: Array<{ path: string; deps?: Array<{ name: string; internal: boolean }> }>;
+    projects?: Record<string, { workspaces?: Array<{ path: string; deps?: Array<{ name: string; internal: boolean }> }> }>;
   };
-  const libs = libsData.libraries ?? [];
-  const tech = byUrl.get('/projects/excalidraw/tech-stack');
-  if (tech) {
-    const names = libs.flatMap((l) => [l.id, l.displayName ?? '']).filter(Boolean);
-    tech.text += ` Libraries: ${[...new Set(names)].join(', ')}.`;
-  }
-  const displayById = new Map(libs.map((l) => [l.id, l.displayName ?? l.id]));
-  const workspaces = depsData.workspaces ?? [];
-  for (const ws of workspaces) {
-    const url = workspaceUrl(ws.path);
-    const entry = url ? byUrl.get(url) : undefined;
-    if (!entry) continue;
-    const names = (ws.deps ?? [])
-      .filter((d) => !d.internal)
-      .flatMap((d) => [d.name, displayById.get(d.name) ?? ''])
-      .filter(Boolean);
-    if (names.length > 0) {
-      entry.text += ` Libraries used here: ${[...new Set(names)].join(', ')}.`;
+  for (const project of PROJECTS) {
+    const libs = libsData.projects?.[project.id]?.libraries ?? [];
+    const tech = byUrl.get(`/projects/${project.id}/tech-stack`);
+    if (tech) {
+      const names = libs.flatMap((l) => [l.id, l.displayName ?? '']).filter(Boolean);
+      tech.text += ` Libraries: ${[...new Set(names)].join(', ')}.`;
+    }
+    const displayById = new Map(libs.map((l) => [l.id, l.displayName ?? l.id]));
+    const workspaces = depsData.projects?.[project.id]?.workspaces ?? [];
+    for (const ws of workspaces) {
+      const url = workspaceUrl(project.id, ws.path);
+      const entry = url ? byUrl.get(url) : undefined;
+      if (!entry) continue;
+      const names = (ws.deps ?? [])
+        .filter((d) => !d.internal)
+        .flatMap((d) => [d.name, displayById.get(d.name) ?? ''])
+        .filter(Boolean);
+      if (names.length > 0) {
+        entry.text += ` Libraries used here: ${[...new Set(names)].join(', ')}.`;
+      }
     }
   }
 }
@@ -107,7 +117,7 @@ function main(): void {
   const entries: SearchEntry[] = [];
   for (const collection of ['projects', 'topics', 'books']) {
     const dir = join(CONTENT, collection);
-    let files: string[] = [];
+    const files: string[] = [];
     try {
       walk(dir, files);
     } catch {
@@ -121,6 +131,7 @@ function main(): void {
       entries.push({
         url: urlFor(collection, rel),
         collection,
+        project: projectOf(collection, rel),
         title: String(data.title ?? rel),
         description: String(data.description ?? ''),
         headings,

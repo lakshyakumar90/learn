@@ -1,0 +1,35 @@
+---
+title: Notifications
+description: Stored rows plus live pushes, one helper.
+diagram: devconnect-feat-notifications
+owns:
+  - "Six notification types across connections, posts, jobs, chat"
+  - "The notify helper: store, populate, emit"
+  - "Paged list with unread counts"
+  - "Single, all, and delete read-state changes"
+files:
+  - file: frontend/src/components/notifications/NotificationBell.jsx
+    purpose: Bell with list, read, and delete actions.
+  - file: frontend/src/services/notificationService.js
+    purpose: List and read-state calls.
+  - file: backend/routes/notificationRoutes.js
+    purpose: List, read, read-all, delete routes.
+  - file: backend/controllers/notificationController.js
+    purpose: notifyUser helper plus read routes.
+  - file: backend/models/Notification.js
+    purpose: Typed rows with read flags.
+talksTo:
+  - label: Notify flow
+    href: /projects/devconnect/how-it-works#flow=dc-notify
+sources:
+  - backend/controllers/notificationController.js
+  - backend/models/Notification.js
+  - frontend/src/components/notifications/NotificationBell.jsx
+---
+
+Every notification is a stored row first — connection requests and accepts,
+likes, comments, job applications, and new messages — so nothing is lost
+when the recipient is offline. The same helper then pushes into the
+recipient room for instant display. Self-actions never notify. The bell
+catches up over REST with unread counts; live arrivals land through the
+socket service into the slice.

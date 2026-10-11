@@ -1,16 +1,14 @@
 /**
  * Single configuration file for the learn site.
  *
- * Personal links (footer + navbar) live here; per-project repository
- * URLs live on each entry of `projects` so a project sidebar always
- * links that project, not this profile.
- *
- * The documented sibling project lives at `excalidrawDir`
- * (relative to the learn folder). `excalidrawCommit` records the
- * commit being documented — update it when re-reading the sources.
+ * Personal links (footer + navbar) live here; per-project entries are
+ * derived from src/projects.config.ts so a project sidebar always links
+ * that project, not this profile.
  *
  * Nothing else in the codebase may hardcode the values above.
  */
+import { PROJECTS } from './projects.config';
+
 export const siteConfig = {
   siteName: 'learn',
   tagline: 'Learn how real software fits together.',
@@ -22,23 +20,17 @@ export const siteConfig = {
   linkedinUrl: 'https://www.linkedin.com/in/kumar-lakshya/',
   twitterUrl: 'https://x.com/LakshyaKum67542',
   portfolioUrl: 'https://lakshyakumar.in/',
-  excalidrawDir: '../excalidraw',
-  excalidrawCommit: 'b0026d9',
   collections: [
     { slug: 'projects', name: 'Projects', live: true },
     { slug: 'topics', name: 'Topics', live: false },
     { slug: 'books', name: 'Books', live: false },
   ],
-  projects: [
-    {
-      slug: 'excalidraw',
-      name: 'Excalidraw',
-      description:
-        'A collaborative drawing workspace: guest storage, authenticated scenes, real-time rooms, and Redis write-behind persistence.',
-      repo: 'https://github.com/lakshyakumar90/excalidraw',
-    },
-    // __NEW_PROJECTS__ (appended by `pnpm new project <slug>`)
-  ],
+  projects: PROJECTS.map((p) => ({
+    slug: p.id,
+    name: p.title,
+    description: p.description,
+    repo: p.repo,
+  })),
 } as const;
 
 export type SiteConfig = typeof siteConfig;

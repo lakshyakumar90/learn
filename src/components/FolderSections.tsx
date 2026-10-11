@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Diagram } from './Diagram';
 import { DependencyTable } from './DependencyTable';
-import { siteConfig } from '@/site.config';
+import { getProject, permalink } from '@/projects.config';
 import {
   getWorkspace,
   resolveWorkspaces,
@@ -22,25 +22,32 @@ function isTalkEntry(v: unknown): v is { label: string; href: string } {
   return typeof e.label === 'string' && typeof e.href === 'string';
 }
 
-/** Internal @repo/* deps as folder-page links (single source of truth). */
-function internalLinks(workspaceKey: string): Array<{ label: string; href: string }> {
+/**
+ * Internal workspace deps as folder-page links (single source of truth).
+ * An internal dep resolves to the workspace whose package name it matches
+ * (e.g. @repo/db -> packages/db); anything else maps to the group page.
+ */
+function internalLinks(
+  project: string,
+  workspaceKey: string,
+): Array<{ label: string; href: string }> {
   const out: Array<{ label: string; href: string }> = [];
   const seen = new Set<string>();
-  const paths =
-    workspaceKey === 'packages/tooling'
-      ? ['packages/eslint-config', 'packages/typescript-config']
-      : resolveWorkspaces(workspaceKey);
-  if (workspaceKey === 'apps' || workspaceKey === 'packages') return out;
+  const paths = resolveWorkspaces(project, workspaceKey);
+  if (paths.length > 1 && !workspaceKey.includes('/')) return out;
   for (const path of paths) {
-    const ws = getWorkspace(path);
+    const ws = getWorkspace(project, path);
     if (!ws) continue;
     for (const dep of ws.deps) {
-      if (!dep.internal || !dep.name.startsWith('@repo/')) continue;
-      const target = `packages/${dep.name.slice('@repo/'.length)}`;
-      const href = workspaceHref(target);
+      if (!dep.internal) continue;
+      const owner = getProject(project)?.workspaces.find((w) => {
+        const ownerWs = getWorkspace(project, w);
+        return ownerWs?.name === dep.name;
+      });
+      const href = owner ? workspaceHref(project, owner) : workspaceHref(project, workspaceKey.split('/')[0]);
       if (seen.has(href)) continue;
       seen.add(href);
-      out.push({ label: workspaceTitle(target), href });
+      out.push({ label: workspaceTitle(owner ?? workspaceKey.split('/')[0], project), href });
     }
   }
   return out.sort((a, b) => a.label.localeCompare(b.label));
@@ -49,15 +56,18 @@ function internalLinks(workspaceKey: string): Array<{ label: string; href: strin
 /**
  * Renders the front-matter-driven sections shared by every page:
  * "What it owns", the files table, dependencies (data-driven),
- * at most one diagram, "Talks to" links, and the Source line.
+ * at most one diagram, "Talks to" links, and the Source line with
+ * permalinks at the documented commit.
  * Adding a project or topic needs no changes here.
  */
 export function PageSections({
   data,
   workspaceKey,
+  project = 'excalidraw',
 }: {
   data: DocFrontmatter;
   workspaceKey?: string;
+  project?: string;
 }) {
   const owns = Array.isArray(data.owns) ? data.owns.filter((o): o is string => typeof o === 'string') : [];
   const files = Array.isArray(data.files) ? data.files.filter(isFileEntry) : [];
@@ -66,7 +76,7 @@ export function PageSections({
     ? data.sources.filter((s): s is string => typeof s === 'string')
     : [];
 
-  const internal = workspaceKey ? internalLinks(workspaceKey) : [];
+  const internal = workspaceKey ? internalLinks(project, workspaceKey) : [];
   const talksTo = [...manualTalks];
   for (const auto of internal) {
     if (!talksTo.some((t) => t.href.toLowerCase() === auto.href.toLowerCase())) {
@@ -74,6 +84,8 @@ export function PageSections({
     }
   }
   const showDependencies = Boolean(workspaceKey);
+  const config = getProject(project);
+  const commit = config?.documentedCommit ?? '';
 
   return (
     <>
@@ -118,7 +130,7 @@ export function PageSections({
       {showDependencies && workspaceKey ? (
         <section aria-label="Dependencies">
           <h2 id="dependencies">Dependencies</h2>
-          <DependencyTable workspace={workspaceKey} />
+          <DependencyTable workspace={workspaceKey} project={project} />
           {internal.length > 0 ? (
             <div className="mt-4">
               <h3 id="internal-packages">Internal packages used</h3>
@@ -151,16 +163,18 @@ export function PageSections({
         </section>
       ) : null}
 
-      {sources.length > 0 ? (
+      {sources.length > 0 && config ? (
         <p className="mt-8 border-t pt-4 text-sm opacity-80">
           <span className="font-medium">Sources: </span>
           {sources.map((s, i) => (
             <span key={s}>
-              <code>{s}</code>
+              <a href={permalink(config, s)} target="_blank" rel="noopener noreferrer">
+                <code>{s}</code>
+              </a>
               {i < sources.length - 1 ? ', ' : ''}
             </span>
           ))}{' '}
-          <span className="opacity-70">(documented at commit {siteConfig.excalidrawCommit})</span>
+          <span className="opacity-70">(documented at commit {commit})</span>
         </p>
       ) : null}
     </>
@@ -171,6 +185,7 @@ export function PageSections({
 export function sectionTocEntries(
   data: DocFrontmatter,
   workspaceKey?: string,
+  project: string = 'excalidraw',
 ): Array<{ title: string; url: string; depth: number }> {
   const entries: Array<{ title: string; url: string; depth: number }> = [];
   if (typeof data.diagram === 'string' && data.diagram.length > 0) {
@@ -183,7 +198,7 @@ export function sectionTocEntries(
   if (workspaceKey) entries.push({ title: 'Dependencies', url: '#dependencies', depth: 2 });
   if (
     Array.isArray(data.talksTo) &&
-    (data.talksTo.length > 0 || (workspaceKey && internalLinks(workspaceKey).length > 0))
+    (data.talksTo.length > 0 || (workspaceKey && internalLinks(project, workspaceKey).length > 0))
   )
     entries.push({ title: 'Talks to', url: '#talks-to', depth: 2 });
   return entries;

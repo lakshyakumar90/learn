@@ -1,0 +1,37 @@
+---
+title: Introduction
+description: A social platform for developers, documented folder by folder.
+sources:
+  - README.md
+  - backend/README.md
+  - frontend/README.md
+---
+
+DevConnect is a social platform for developers: register with email or GitHub,
+build a profile, find developers, exchange connection requests, publish feed
+posts, post and apply to jobs, receive notifications, and chat in real time.
+
+The frontend is a React 19 single-page app (Vite, Redux Toolkit, React Router,
+Tailwind with Radix UI). The backend is a Node CommonJS app (Express 5, MongoDB
+with Mongoose, Socket.io with a Redis adapter). The two apps install and run
+independently — see [Project structure](/projects/devconnect/project-structure).
+
+These notes describe what each folder owns and how the folders talk to each
+other. They never explain code — for behaviour, read the linked sources in the
+repo itself. Where the repo was unclear, the page says so.
+
+Start with [Installation](/projects/devconnect/installation), then
+[Project structure](/projects/devconnect/project-structure), then
+[High-level architecture](/projects/devconnect/high-level).
+
+## Tech stack at a glance
+
+The codebase is JavaScript and JSX throughout: a Node CommonJS backend and a
+Vite-bundled React frontend. Authentication is JWT plus bcrypt — the manifests
+also declare better-auth, but no source file imports it.
+
+<StackMap project="devconnect" />
+
+<StackMatrix project="devconnect" />
+
+The full list lives on the [Tech stack](/projects/devconnect/tech-stack) page.

@@ -1,0 +1,32 @@
+---
+title: config/
+description: Database, Redis, and Cloudinary setup.
+workspace: backend
+diagram: devconnect-backend-config
+owns:
+  - "The Mongoose connection"
+  - "Three Redis clients: presence plus the adapter pair"
+  - "Cloudinary credentials from the environment"
+files:
+  - file: database.js
+    purpose: Connects Mongoose to MONGO_URI on import.
+  - file: redis.js
+    purpose: Lazy ioredis clients with a local fallback mode.
+  - file: cloudinary.js
+    purpose: Configures Cloudinary when keys exist.
+talksTo:
+  - label: Socket server
+    href: /projects/devconnect/backend/utils
+  - label: Upload middleware
+    href: /projects/devconnect/backend/middleware
+sources:
+  - backend/config/database.js
+  - backend/config/redis.js
+  - backend/config/cloudinary.js
+---
+
+`database.js` connects at import time and exits the process on failure —
+there is no retry. `redis.js` creates three lazy clients (presence,
+publish, subscribe) and stops retrying after five failures, letting the app
+run without Redis. `cloudinary.js` configures only when all three keys are
+present; otherwise uploads fall back to the local folder.

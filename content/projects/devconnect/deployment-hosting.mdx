@@ -1,0 +1,42 @@
+---
+title: Hosting notes
+description: What vercel.json configures, and the Socket.io caveat.
+sources:
+  - vercel.json
+  - frontend/vercel.json
+  - backend/index.js
+  - frontend/src/services/apiClient.js
+---
+
+Two config files, two different jobs:
+
+- The **root `vercel.json`** uses the legacy `builds`/`routes` syntax to
+  run `backend/index.js` as a Node function and route every path to it. It
+  says nothing about the frontend.
+- **`frontend/vercel.json`** is a single SPA rewrite: any path without a
+  dot serves `/`, so React Router owns deep links.
+
+Neither file provisions MongoDB, Redis, Cloudinary, or mail — those stay
+external services with environment variables.
+
+## Can Socket.io run in that setup?
+
+Honestly: only with caveats. Vercel Functions [serve WebSocket connections](https://vercel.com/docs/functions/websockets)
+(Public Beta since June 2026, last verified 2026-10-11), and Socket.IO is
+listed as supported — but connections are pinned to one function instance
+up to its maximum duration, reconnects may land on a different instance,
+and clients must handle reconnects. The repo's Redis adapter is exactly the
+right shock absorber for that world, and the socket client already
+reconnects with backoff. The code comments also reference Render
+(uptime-ping health endpoints, proxy trust, cross-site cookie notes), so
+the author has clearly run the backend on a long-lived host too.
+
+This project does not claim where the author hosts DevConnect, and the
+legacy `builds` syntax in the root config predates the current
+functions-based configuration style.
+
+Last verified 2026-10-11. Official references:
+
+- [WebSockets on Vercel Functions](https://vercel.com/docs/functions/websockets)
+- [Do Vercel Serverless Functions support WebSocket connections?](https://vercel.com/kb/guide/do-vercel-serverless-functions-support-websocket-connections)
+- [Socket.IO troubleshooting on serverless](https://socket.io/docs/v4/troubleshooting-connection-issues)

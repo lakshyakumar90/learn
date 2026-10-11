@@ -1,0 +1,45 @@
+---
+title: src/services
+description: One typed client per API area, plus the socket service.
+workspace: frontend
+diagram: devconnect-frontend-services
+owns:
+  - "The shared axios factory: token, timeout, expiry handling"
+  - "One module per area: users, connections, posts, messages, jobs, notifications, contact"
+  - "The socket service: connect, rooms, chat events, presence"
+files:
+  - file: apiClient.js
+    purpose: Token-attaching axios factory with 401 handling.
+  - file: userService.js
+    purpose: Auth, profile, search, uploads against /users.
+  - file: connectionService.js
+    purpose: Requests and lists against /connections.
+  - file: postService.js
+    purpose: Feed, posts, likes, comments against /posts.
+  - file: messageService.js
+    purpose: History and conversations against /messages.
+  - file: jobService.js
+    purpose: Listings and applications against /jobs.
+  - file: notificationService.js
+    purpose: List and read state against /notifications.
+  - file: contactService.js
+    purpose: Contact form against /contact.
+  - file: socketService.js
+    purpose: Socket connection, rooms, and event wiring.
+talksTo:
+  - label: Routes
+    href: /projects/devconnect/backend/routes
+  - label: Store
+    href: /projects/devconnect/frontend/store
+sources:
+  - frontend/src/services/apiClient.js
+  - frontend/src/services/socketService.js
+  - frontend/src/services/userService.js
+  - frontend/src/services/connectionService.js
+---
+
+Every REST module builds on `createApi`, so the Bearer token, the 30-second
+timeout, and the expired-session event behave the same everywhere. Base URLs
+come from `VITE_API_URL` with localhost fallbacks; the socket URL prefers
+`VITE_SOCKET_URL`, then derives from the API URL. The socket service maps
+server events straight into slice actions.

@@ -1,0 +1,4 @@
+{
+  "title": "frontend/",
+  "pages": ["index", "pages", "components", "services", "store", "hooks", "lib", "utils", "assets"]
+}

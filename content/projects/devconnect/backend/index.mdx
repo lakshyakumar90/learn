@@ -1,0 +1,38 @@
+---
+title: backend/
+description: Express API plus the socket server, in one process.
+diagram: devconnect-backend
+owns:
+  - "The REST API: eight route modules under /api"
+  - "The realtime server: rooms, chat, typing, presence, live pushes"
+  - "Mongoose models and the MongoDB connection"
+  - "Upload handling: Multer with Cloudinary or local fallback"
+files:
+  - file: index.js
+    purpose: Entry point — app, routes, socket, listen.
+  - file: config/
+    purpose: Database, Redis, and Cloudinary setup.
+  - file: routes/
+    purpose: One Express router per area.
+  - file: controllers/
+    purpose: Request handling, one module per area.
+  - file: models/
+    purpose: Six Mongoose schemas.
+  - file: middleware/
+    purpose: Auth guard, rate limits, upload handling.
+  - file: utils/
+    purpose: The Socket.io server.
+talksTo:
+  - label: MongoDB
+    href: /projects/devconnect/deployment-overview
+  - label: frontend/
+    href: /projects/devconnect/frontend
+sources:
+  - backend/index.js
+  - backend/README.md
+---
+
+One Node process serves HTTP and realtime together: `index.js` mounts the
+route modules, starts the socket server on the same HTTP server, and listens.
+Everything protected goes through the auth guard; uploads branch into
+Multer before reaching their controllers.

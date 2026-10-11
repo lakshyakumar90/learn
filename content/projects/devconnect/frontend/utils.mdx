@@ -1,0 +1,20 @@
+---
+title: src/utils
+description: Small app helpers.
+workspace: frontend
+diagram: devconnect-frontend-utils
+owns:
+  - "Remembering where a logged-out user wanted to go"
+files:
+  - file: redirectUtils.js
+    purpose: Intended-destination save, read, and clear.
+talksTo:
+  - label: Components
+    href: /projects/devconnect/frontend/components
+sources:
+  - frontend/src/utils/redirectUtils.js
+---
+
+The route guard stores the attempted URL before bouncing to login; the auth
+pages read it back after a successful sign-in so the user lands where they
+meant to go.

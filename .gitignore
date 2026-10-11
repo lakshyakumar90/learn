@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# documented project sources cloned by scripts/fetch-source.ts
+/.cache/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

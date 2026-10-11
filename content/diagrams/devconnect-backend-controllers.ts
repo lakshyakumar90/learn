@@ -1,0 +1,42 @@
+import type { DiagramSpec } from './types';
+
+export const devconnectBackendControllersSpec: DiagramSpec = {
+  id: 'devconnect-backend-controllers',
+  project: 'devconnect',
+  title: 'Backend controllers folder',
+  nodes: [
+    { id: 'auth', label: 'Auth control', layer: 'api' },
+    { id: 'users', label: 'User control', layer: 'api' },
+    { id: 'connections', label: 'Connect control', layer: 'api' },
+    { id: 'posts', label: 'Post control', layer: 'api' },
+    { id: 'messages', label: 'Message control', layer: 'api' },
+    { id: 'notify', label: 'Notify helper', layer: 'api' },
+    { id: 'jobs', label: 'Job control', layer: 'api' },
+    { id: 'contact', label: 'Contact control', layer: 'api' },
+    { id: 'models', label: 'Models', layer: 'api', external: true },
+    { id: 'socket', label: 'Socket server', layer: 'realtime', external: true },
+    { id: 'email', label: 'Email service', layer: 'shared', external: true },
+  ],
+  edges: [
+    { from: 'auth', to: 'models', kind: 'solid' },
+    { from: 'users', to: 'models', kind: 'solid' },
+    { from: 'connections', to: 'notify', kind: 'solid', label: 'notifies' },
+    { from: 'posts', to: 'notify', kind: 'solid', label: 'notifies' },
+    { from: 'messages', to: 'models', kind: 'solid' },
+    { from: 'messages', to: 'socket', kind: 'dashed', label: 'emits' },
+    { from: 'jobs', to: 'notify', kind: 'solid', label: 'notifies' },
+    { from: 'notify', to: 'models', kind: 'solid', label: 'stores' },
+    { from: 'notify', to: 'socket', kind: 'dashed', label: 'emits' },
+    { from: 'contact', to: 'email', kind: 'solid', label: 'mails' },
+  ],
+  sources: [
+    'backend/controllers/authController.js',
+    'backend/controllers/userController.js',
+    'backend/controllers/connectionController.js',
+    'backend/controllers/postController.js',
+    'backend/controllers/messageController.js',
+    'backend/controllers/notificationController.js',
+    'backend/controllers/jobController.js',
+    'backend/controllers/contactController.js',
+  ],
+};

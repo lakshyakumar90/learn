@@ -1,0 +1,43 @@
+---
+title: Folder structure
+description: Where everything lives and why.
+sources:
+  - README.md
+  - backend/README.md
+  - frontend/README.md
+---
+
+Two apps, each with its own layout. The backend groups by technical role —
+`config/`, `routes/`, `controllers/`, `models/`, `middleware/`, `utils/` —
+with the entry file at the root. The frontend groups by UI role —
+`pages/`, `components/`, `services/`, `store/`, `hooks/`, `lib/`, `utils/` —
+with `App.jsx` and `main.jsx` at the `src/` root.
+
+```text
+backend/
+├── index.js        # entry: app, routes, socket, listen
+├── config/         # database, redis, cloudinary
+├── routes/         # eight route modules
+├── controllers/    # eight matching controllers
+├── models/         # six Mongoose schemas
+├── middleware/     # auth guard, rate limits, uploads
+├── utils/          # socket server
+└── uploads/        # local upload fallback (committed files exist here)
+
+frontend/
+├── index.html      # shell
+└── src/
+    ├── App.jsx         # route table
+    ├── main.jsx        # bootstrap
+    ├── pages/          # route-level screens
+    ├── components/     # ui, layout, posts, jobs, notifications
+    ├── services/       # apiClient plus one module per area
+    ├── store/          # store plus nine slices
+    ├── hooks/          # swipe gesture
+    ├── lib/            # class merge helper
+    └── utils/          # login redirect helper
+```
+
+Uploads and helper scripts (`fix_db.js`, `test-cloudinary.js`, `dummy.txt`)
+exist in the backend folder without being part of the architecture — the
+backend pages name them but do not document their contents.

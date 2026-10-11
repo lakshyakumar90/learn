@@ -19,7 +19,9 @@ var docSchema = pageSchema.extend({
   talksTo: z.array(talkEntry).optional(),
   sources: z.array(z.string()).optional(),
   diagram: z.string().optional(),
-  diagrams: z.array(z.string()).optional()
+  diagrams: z.array(z.string()).optional(),
+  /** Dependency workspace key for the rendered Dependencies section. */
+  workspace: z.string().optional()
 });
 
 // source.config.ts

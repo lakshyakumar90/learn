@@ -1,0 +1,45 @@
+---
+title: src/store
+description: Central store, one slice per feature area.
+workspace: frontend
+diagram: devconnect-frontend-store
+owns:
+  - "Store setup with nine slice reducers"
+  - "Auth, chat, connections, feed, posts, jobs, notifications, presence, profiles"
+  - "Async thunks for every server round-trip"
+files:
+  - file: store.js
+    purpose: Store setup, nine reducers.
+  - file: slices/authSlice.js
+    purpose: Session, register, login, logout, profile thunks.
+  - file: slices/chatSlice.js
+    purpose: Active chat, messages, receipts.
+  - file: slices/connectionSlice.js
+    purpose: Connections and network refresh.
+  - file: slices/feedSlice.js
+    purpose: Developer discovery feed.
+  - file: slices/postSlice.js
+    purpose: Posts feed, create, like, comments.
+  - file: slices/jobSlice.js
+    purpose: Listings and applications.
+  - file: slices/notificationSlice.js
+    purpose: List, realtime inserts, read state.
+  - file: slices/presenceSlice.js
+    purpose: Online map and typing flags.
+  - file: slices/userProfileSlice.js
+    purpose: Viewed-user profile state.
+talksTo:
+  - label: Services
+    href: /projects/devconnect/frontend/services
+  - label: Pages
+    href: /projects/devconnect/frontend/pages
+sources:
+  - frontend/src/store/store.js
+  - frontend/src/store/slices/authSlice.js
+  - frontend/src/store/slices/chatSlice.js
+---
+
+Most slices use async thunks; the auth slice uses plain thunks instead.
+Realtime never calls the API layer — the socket service dispatches slice
+actions directly for messages, notifications, presence, and typing. The
+serializable check is off, so non-plain values can pass through actions.

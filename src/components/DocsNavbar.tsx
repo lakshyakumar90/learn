@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowUpRight, Menu, Search, X } from 'lucide-react';
@@ -9,6 +9,7 @@ import { ThemeSwitch } from 'fumadocs-ui/layouts/shared/slots/theme-switch';
 import { FullSearchTrigger } from 'fumadocs-ui/layouts/shared/slots/search-trigger';
 import { useSearchContext } from 'fumadocs-ui/contexts/search';
 import { siteConfig } from '@/site.config';
+import { PROJECTS } from '@/projects.config';
 
 const TABS = [
   { text: 'Projects', url: '/projects' },
@@ -26,11 +27,16 @@ const TABS = [
  */
 export function DocsNavbar({ className = '' }: { className?: string }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { setOpenSearch } = useSearchContext();
   const [drawer, setDrawer] = useState(false);
   const [mounted, setMounted] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  const liveProjects = PROJECTS.filter((p) => p.status === 'live');
+  const pathProject = pathname.match(/^\/projects\/([^/]+)/)?.[1];
+  const currentProject = liveProjects.find((p) => p.id === pathProject);
 
   useEffect(() => {
     setMounted(true);
@@ -102,6 +108,23 @@ export function DocsNavbar({ className = '' }: { className?: string }) {
           })}
         </div>
         <div className="ml-auto flex shrink-0 items-center gap-1">
+          {currentProject && liveProjects.length > 1 ? (
+            <label className="hidden items-center md:inline-flex">
+              <span className="sr-only">Switch project</span>
+              <select
+                value={currentProject.id}
+                onChange={(e) => router.push(`/projects/${e.target.value}`)}
+                aria-label="Switch project"
+                className="h-9 rounded-lg border bg-transparent px-2 text-sm opacity-80 hover:opacity-100"
+              >
+                {liveProjects.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
           <FullSearchTrigger className="hidden md:inline-flex" />
           <button
             type="button"
@@ -180,6 +203,28 @@ export function DocsNavbar({ className = '' }: { className?: string }) {
                         }`}
                       >
                         {t.text}
+                      </Link>
+                    );
+                  })}
+                </nav>
+                <nav aria-label="Projects" className="mt-2 flex flex-col border-t pt-2">
+                  <p className="px-3 pb-1 pt-2 text-xs font-medium uppercase tracking-wider opacity-50">
+                    Projects
+                  </p>
+                  {liveProjects.map((p) => {
+                    const href = `/projects/${p.id}`;
+                    const active = pathname === href || pathname.startsWith(`${href}/`);
+                    return (
+                      <Link
+                        key={p.id}
+                        href={href}
+                        aria-current={active ? 'page' : undefined}
+                        onClick={() => setDrawer(false)}
+                        className={`rounded-lg px-3 py-3 text-base transition-colors hover:bg-stone-100 dark:hover:bg-stone-900 ${
+                          active ? 'font-medium' : ''
+                        }`}
+                      >
+                        {p.title}
                       </Link>
                     );
                   })}

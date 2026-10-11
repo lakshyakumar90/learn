@@ -1,958 +1,1338 @@
 {
-  "commit": "b0026d9",
-  "workspaces": [
-    {
-      "name": "excalidraw",
-      "path": ".",
-      "role": "A TypeScript drawing application with guest storage, authenticated scenes, real-time rooms, a hand-drawn renderer, Redis write-behind persistence, and the Phase 19 editor features.",
-      "runtime": "Node >=24",
-      "fileCounts": {
-        "md": 333,
-        "ts": 344,
-        "tsx": 54,
-        "css": 3,
-        "prisma": 1
-      },
-      "deps": [
+  "projects": {
+    "excalidraw": {
+      "commit": "b0026d9",
+      "workspaces": [
         {
-          "name": "prettier",
-          "versionRange": "3.9.6",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
+          "name": "excalidraw",
+          "path": ".",
+          "role": "A TypeScript drawing application with guest storage, authenticated scenes, real-time rooms, a hand-drawn renderer, Redis write-behind persistence, and the Phase 19 editor features.",
+          "runtime": "Node >=24",
+          "fileCounts": {
+            "md": 333,
+            "ts": 344,
+            "tsx": 54,
+            "css": 3,
+            "prisma": 1,
+            "js": 3
+          },
+          "deps": [
+            {
+              "name": "prettier",
+              "versionRange": "3.9.6",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "turbo",
+              "versionRange": "^2.10.12",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "typescript",
+              "versionRange": "7.0.2",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            }
+          ]
         },
         {
-          "name": "turbo",
-          "versionRange": "^2.10.12",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
+          "name": "web",
+          "path": "apps/web",
+          "role": "Next.js editor, account dashboard, and room access interface.",
+          "runtime": "Node >=24",
+          "fileCounts": {
+            "md": 50,
+            "ts": 85,
+            "tsx": 51,
+            "css": 3
+          },
+          "deps": [
+            {
+              "name": "@repo/auth",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "jotai",
+              "versionRange": "^3.0.1",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "next",
+              "versionRange": "16.3.5",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "react",
+              "versionRange": "19.2.8",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "react-dom",
+              "versionRange": "19.2.8",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@repo/common",
+              "versionRange": "workspace:*",
+              "kind": "devDependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "@repo/engine",
+              "versionRange": "workspace:*",
+              "kind": "devDependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "@repo/typescript-config",
+              "versionRange": "workspace:*",
+              "kind": "devDependency",
+              "internal": true,
+              "used": false
+            },
+            {
+              "name": "@tailwindcss/postcss",
+              "versionRange": "^4",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@types/node",
+              "versionRange": "^20",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@types/react",
+              "versionRange": "^19",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@types/react-dom",
+              "versionRange": "^19",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "eslint",
+              "versionRange": "^9",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "eslint-config-next",
+              "versionRange": "16.3.5",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "tailwindcss",
+              "versionRange": "^4",
+              "kind": "devDependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "typescript",
+              "versionRange": "^5",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "vitest",
+              "versionRange": "^5.0.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": true
+            }
+          ]
         },
         {
-          "name": "typescript",
-          "versionRange": "7.0.2",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        }
-      ]
-    },
-    {
-      "name": "flush-worker",
-      "path": "apps/flush-worker",
-      "role": "BullMQ worker that flushes Redis room state to durable Prisma snapshots.",
-      "runtime": "Node >=24",
-      "fileCounts": {
-        "md": 2,
-        "ts": 1
-      },
-      "deps": [
-        {
-          "name": "@repo/db",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
+          "name": "http-server",
+          "path": "apps/http-server",
+          "role": "Authenticated HTTP API for scenes, rooms, invites, files, and private library items.",
+          "runtime": "Node >=24",
+          "fileCounts": {
+            "ts": 16,
+            "md": 4
+          },
+          "deps": [
+            {
+              "name": "@repo/auth",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "@repo/common",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "@repo/backend-common",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "@repo/db",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "@repo/redis",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "@repo/validations",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "cors",
+              "versionRange": "2.8.5",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "express",
+              "versionRange": "^5.2.1",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "zod",
+              "versionRange": "^4.6.4",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@repo/typescript-config",
+              "versionRange": "workspace:*",
+              "kind": "devDependency",
+              "internal": true,
+              "used": false
+            },
+            {
+              "name": "@types/cors",
+              "versionRange": "2.8.19",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@types/express",
+              "versionRange": "^5.0.6",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@types/node",
+              "versionRange": "26.4.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "tsx",
+              "versionRange": "^4.23.13",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            }
+          ]
         },
         {
-          "name": "@repo/redis",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
+          "name": "ws-server",
+          "path": "apps/ws-server",
+          "role": "Authenticated room WebSocket transport for presence, scene changes, selections, and laser trails.",
+          "runtime": "Node >=24",
+          "fileCounts": {
+            "md": 2,
+            "ts": 6
+          },
+          "deps": [
+            {
+              "name": "@repo/auth",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "@repo/backend-common",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "@repo/common",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "@repo/db",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "@repo/redis",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "ws",
+              "versionRange": "^8.21.3",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@repo/typescript-config",
+              "versionRange": "workspace:*",
+              "kind": "devDependency",
+              "internal": true,
+              "used": false
+            },
+            {
+              "name": "@types/node",
+              "versionRange": "26.4.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@types/ws",
+              "versionRange": "^8.18.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "tsx",
+              "versionRange": "^4.23.13",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            }
+          ]
         },
         {
-          "name": "@repo/typescript-config",
-          "versionRange": "workspace:*",
-          "kind": "devDependency",
-          "internal": true,
-          "used": false
-        },
-        {
-          "name": "@types/node",
-          "versionRange": "26.4.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "tsx",
-          "versionRange": "^4.23.13",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "typescript",
-          "versionRange": "7.0.2",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        }
-      ]
-    },
-    {
-      "name": "http-server",
-      "path": "apps/http-server",
-      "role": "Authenticated HTTP API for scenes, rooms, invites, files, and private library items.",
-      "runtime": "Node >=24",
-      "fileCounts": {
-        "ts": 16,
-        "md": 4
-      },
-      "deps": [
-        {
-          "name": "@repo/auth",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
+          "name": "flush-worker",
+          "path": "apps/flush-worker",
+          "role": "BullMQ worker that flushes Redis room state to durable Prisma snapshots.",
+          "runtime": "Node >=24",
+          "fileCounts": {
+            "md": 2,
+            "ts": 1
+          },
+          "deps": [
+            {
+              "name": "@repo/db",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "@repo/redis",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "@repo/typescript-config",
+              "versionRange": "workspace:*",
+              "kind": "devDependency",
+              "internal": true,
+              "used": false
+            },
+            {
+              "name": "@types/node",
+              "versionRange": "26.4.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "tsx",
+              "versionRange": "^4.23.13",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "typescript",
+              "versionRange": "7.0.2",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            }
+          ]
         },
         {
           "name": "@repo/common",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
-        },
-        {
-          "name": "@repo/backend-common",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
-        },
-        {
-          "name": "@repo/db",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
-        },
-        {
-          "name": "@repo/redis",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
-        },
-        {
-          "name": "@repo/validations",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
-        },
-        {
-          "name": "cors",
-          "versionRange": "2.8.5",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
-        },
-        {
-          "name": "express",
-          "versionRange": "^5.2.1",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
-        },
-        {
-          "name": "zod",
-          "versionRange": "^4.6.4",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
-        },
-        {
-          "name": "@repo/typescript-config",
-          "versionRange": "workspace:*",
-          "kind": "devDependency",
-          "internal": true,
-          "used": false
-        },
-        {
-          "name": "@types/cors",
-          "versionRange": "2.8.19",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "@types/express",
-          "versionRange": "^5.0.6",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "@types/node",
-          "versionRange": "26.4.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "tsx",
-          "versionRange": "^4.23.13",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        }
-      ]
-    },
-    {
-      "name": "web",
-      "path": "apps/web",
-      "role": "Next.js editor, account dashboard, and room access interface.",
-      "runtime": "Node >=24",
-      "fileCounts": {
-        "md": 50,
-        "ts": 85,
-        "tsx": 51,
-        "css": 3
-      },
-      "deps": [
-        {
-          "name": "@repo/auth",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
-        },
-        {
-          "name": "jotai",
-          "versionRange": "^3.0.1",
-          "kind": "dependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "next",
-          "versionRange": "16.3.5",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
-        },
-        {
-          "name": "react",
-          "versionRange": "19.2.8",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
-        },
-        {
-          "name": "react-dom",
-          "versionRange": "19.2.8",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
-        },
-        {
-          "name": "@repo/common",
-          "versionRange": "workspace:*",
-          "kind": "devDependency",
-          "internal": true,
-          "used": true
+          "path": "packages/common",
+          "role": "Platform-neutral element models, collaboration protocols, validation, and reconciliation.",
+          "runtime": "Node >=24",
+          "fileCounts": {
+            "md": 3,
+            "ts": 20
+          },
+          "deps": [
+            {
+              "name": "@repo/typescript-config",
+              "versionRange": "workspace:*",
+              "kind": "devDependency",
+              "internal": true,
+              "used": false
+            },
+            {
+              "name": "vitest",
+              "versionRange": "^5.0.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": true
+            }
+          ]
         },
         {
           "name": "@repo/engine",
-          "versionRange": "workspace:*",
-          "kind": "devDependency",
-          "internal": true,
-          "used": true
-        },
-        {
-          "name": "@repo/typescript-config",
-          "versionRange": "workspace:*",
-          "kind": "devDependency",
-          "internal": true,
-          "used": false
-        },
-        {
-          "name": "@tailwindcss/postcss",
-          "versionRange": "^4",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "@types/node",
-          "versionRange": "^20",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "@types/react",
-          "versionRange": "^19",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "@types/react-dom",
-          "versionRange": "^19",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "eslint",
-          "versionRange": "^9",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "eslint-config-next",
-          "versionRange": "16.3.5",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "tailwindcss",
-          "versionRange": "^4",
-          "kind": "devDependency",
-          "internal": false,
-          "used": true
-        },
-        {
-          "name": "typescript",
-          "versionRange": "^5",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "vitest",
-          "versionRange": "^5.0.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": true
-        }
-      ]
-    },
-    {
-      "name": "ws-server",
-      "path": "apps/ws-server",
-      "role": "Authenticated room WebSocket transport for presence, scene changes, selections, and laser trails.",
-      "runtime": "Node >=24",
-      "fileCounts": {
-        "md": 2,
-        "ts": 6
-      },
-      "deps": [
-        {
-          "name": "@repo/auth",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
+          "path": "packages/engine",
+          "role": "Browser-independent drawing geometry, tools, renderer, scene capture, and history.",
+          "runtime": "Node >=24",
+          "fileCounts": {
+            "md": 11,
+            "ts": 103
+          },
+          "deps": [
+            {
+              "name": "@repo/common",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "@repo/typescript-config",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": false
+            },
+            {
+              "name": "vitest",
+              "versionRange": "^5.0.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": true
+            }
+          ]
         },
         {
           "name": "@repo/backend-common",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
-        },
-        {
-          "name": "@repo/common",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
+          "path": "packages/backend-common",
+          "role": "Server-only collaboration and access operations shared by HTTP, WebSocket, and worker apps.",
+          "runtime": "Node >=24",
+          "fileCounts": {
+            "md": 2,
+            "ts": 8
+          },
+          "deps": [
+            {
+              "name": "@repo/common",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "@repo/db",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "@repo/redis",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "dotenv",
+              "versionRange": "^17.4.2",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@repo/typescript-config",
+              "versionRange": "workspace:*",
+              "kind": "devDependency",
+              "internal": true,
+              "used": false
+            },
+            {
+              "name": "@types/node",
+              "versionRange": "26.4.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "vitest",
+              "versionRange": "^5.0.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": true
+            }
+          ]
         },
         {
           "name": "@repo/db",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
+          "path": "packages/db",
+          "role": "The sole Prisma schema, database client, repositories, migration graph, and schema snapshots.",
+          "runtime": "Node >=24",
+          "fileCounts": {
+            "md": 244,
+            "ts": 96,
+            "prisma": 1
+          },
+          "deps": [
+            {
+              "name": "@prisma/orm-postgres",
+              "versionRange": "8.0.0-rc.11",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "dotenv",
+              "versionRange": "^17.4.2",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "pg",
+              "versionRange": "8.23.1",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@prisma/cli-engine",
+              "versionRange": "^0.3.0",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@types/node",
+              "versionRange": "26.4.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@types/pg",
+              "versionRange": "8.23.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "prisma",
+              "versionRange": "8.0.0-rc.14",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "tsx",
+              "versionRange": "^4.23.13",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "typescript",
+              "versionRange": "7.0.2",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            }
+          ]
+        },
+        {
+          "name": "@repo/auth",
+          "path": "packages/auth",
+          "role": "Better Auth configuration, browser auth client, email delivery, and authentication helpers.",
+          "runtime": "Node >=24",
+          "fileCounts": {
+            "md": 2,
+            "ts": 6
+          },
+          "deps": [
+            {
+              "name": "@repo/db",
+              "versionRange": "workspace:*",
+              "kind": "dependency",
+              "internal": true,
+              "used": true
+            },
+            {
+              "name": "bcrypt",
+              "versionRange": "^6.0.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "better-auth",
+              "versionRange": "1.7.7",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "dotenv",
+              "versionRange": "^17.4.2",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "jsonwebtoken",
+              "versionRange": "^9.0.3",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@repo/typescript-config",
+              "versionRange": "workspace:*",
+              "kind": "devDependency",
+              "internal": true,
+              "used": false
+            },
+            {
+              "name": "@types/bcrypt",
+              "versionRange": "^6.0.0",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@types/jsonwebtoken",
+              "versionRange": "^9.0.10",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@types/node",
+              "versionRange": "26.4.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "typescript",
+              "versionRange": "7.0.2",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "vitest",
+              "versionRange": "^5.0.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": true
+            }
+          ]
         },
         {
           "name": "@repo/redis",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
+          "path": "packages/redis",
+          "role": "Redis live room state, pub/sub, rate limiting, and write-behind queue integration.",
+          "runtime": "Node >=24",
+          "fileCounts": {
+            "md": 2,
+            "ts": 2
+          },
+          "deps": [
+            {
+              "name": "bullmq",
+              "versionRange": "6.3.12",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "ioredis",
+              "versionRange": "6.0.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@repo/typescript-config",
+              "versionRange": "workspace:*",
+              "kind": "devDependency",
+              "internal": true,
+              "used": false
+            },
+            {
+              "name": "@types/node",
+              "versionRange": "26.4.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "tsx",
+              "versionRange": "^4.23.13",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "typescript",
+              "versionRange": "7.0.2",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            }
+          ]
         },
         {
-          "name": "ws",
-          "versionRange": "^8.21.3",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
+          "name": "@repo/validations",
+          "path": "packages/validations",
+          "role": "Reusable request validation schemas.",
+          "runtime": "Node >=24",
+          "fileCounts": {
+            "md": 2,
+            "ts": 1
+          },
+          "deps": [
+            {
+              "name": "zod",
+              "versionRange": "^4.6.4",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@types/node",
+              "versionRange": "26.4.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            }
+          ]
         },
         {
-          "name": "@repo/typescript-config",
-          "versionRange": "workspace:*",
-          "kind": "devDependency",
-          "internal": true,
-          "used": false
-        },
-        {
-          "name": "@types/node",
-          "versionRange": "26.4.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "@types/ws",
-          "versionRange": "^8.18.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "tsx",
-          "versionRange": "^4.23.13",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        }
-      ]
-    },
-    {
-      "name": "@repo/auth",
-      "path": "packages/auth",
-      "role": "Better Auth configuration, browser auth client, email delivery, and authentication helpers.",
-      "runtime": "Node >=24",
-      "fileCounts": {
-        "md": 2,
-        "ts": 6
-      },
-      "deps": [
-        {
-          "name": "@repo/db",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
-        },
-        {
-          "name": "bcrypt",
-          "versionRange": "^6.0.0",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
-        },
-        {
-          "name": "better-auth",
-          "versionRange": "1.7.7",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
-        },
-        {
-          "name": "dotenv",
-          "versionRange": "^17.4.2",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
-        },
-        {
-          "name": "jsonwebtoken",
-          "versionRange": "^9.0.3",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
-        },
-        {
-          "name": "@repo/typescript-config",
-          "versionRange": "workspace:*",
-          "kind": "devDependency",
-          "internal": true,
-          "used": false
-        },
-        {
-          "name": "@types/bcrypt",
-          "versionRange": "^6.0.0",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "@types/jsonwebtoken",
-          "versionRange": "^9.0.10",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "@types/node",
-          "versionRange": "26.4.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "typescript",
-          "versionRange": "7.0.2",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "vitest",
-          "versionRange": "^5.0.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": true
-        }
-      ]
-    },
-    {
-      "name": "@repo/backend-common",
-      "path": "packages/backend-common",
-      "role": "Server-only collaboration and access operations shared by HTTP, WebSocket, and worker apps.",
-      "runtime": "Node >=24",
-      "fileCounts": {
-        "md": 2,
-        "ts": 8
-      },
-      "deps": [
-        {
-          "name": "@repo/common",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
-        },
-        {
-          "name": "@repo/db",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
-        },
-        {
-          "name": "@repo/redis",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
-        },
-        {
-          "name": "dotenv",
-          "versionRange": "^17.4.2",
-          "kind": "dependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "@repo/typescript-config",
-          "versionRange": "workspace:*",
-          "kind": "devDependency",
-          "internal": true,
-          "used": false
-        },
-        {
-          "name": "@types/node",
-          "versionRange": "26.4.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "vitest",
-          "versionRange": "^5.0.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": true
-        }
-      ]
-    },
-    {
-      "name": "@repo/common",
-      "path": "packages/common",
-      "role": "Platform-neutral element models, collaboration protocols, validation, and reconciliation.",
-      "runtime": "Node >=24",
-      "fileCounts": {
-        "md": 3,
-        "ts": 20
-      },
-      "deps": [
-        {
-          "name": "@repo/typescript-config",
-          "versionRange": "workspace:*",
-          "kind": "devDependency",
-          "internal": true,
-          "used": false
-        },
-        {
-          "name": "vitest",
-          "versionRange": "^5.0.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": true
-        }
-      ]
-    },
-    {
-      "name": "@repo/db",
-      "path": "packages/db",
-      "role": "The sole Prisma schema, database client, repositories, migration graph, and schema snapshots.",
-      "runtime": "Node >=24",
-      "fileCounts": {
-        "md": 244,
-        "ts": 96,
-        "prisma": 1
-      },
-      "deps": [
-        {
-          "name": "@prisma/orm-postgres",
-          "versionRange": "8.0.0-rc.11",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
-        },
-        {
-          "name": "dotenv",
-          "versionRange": "^17.4.2",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
-        },
-        {
-          "name": "pg",
-          "versionRange": "8.23.1",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
-        },
-        {
-          "name": "@prisma/cli-engine",
-          "versionRange": "^0.3.0",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "@types/node",
-          "versionRange": "26.4.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "@types/pg",
-          "versionRange": "8.23.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "prisma",
-          "versionRange": "8.0.0-rc.14",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "tsx",
-          "versionRange": "^4.23.13",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "typescript",
-          "versionRange": "7.0.2",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        }
-      ]
-    },
-    {
-      "name": "@repo/engine",
-      "path": "packages/engine",
-      "role": "Browser-independent drawing geometry, tools, renderer, scene capture, and history.",
-      "runtime": "Node >=24",
-      "fileCounts": {
-        "md": 11,
-        "ts": 103
-      },
-      "deps": [
-        {
-          "name": "@repo/common",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": true
-        },
-        {
-          "name": "@repo/typescript-config",
-          "versionRange": "workspace:*",
-          "kind": "dependency",
-          "internal": true,
-          "used": false
-        },
-        {
-          "name": "vitest",
-          "versionRange": "^5.0.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": true
-        }
-      ]
-    },
-    {
-      "name": "@repo/eslint-config",
-      "path": "packages/eslint-config",
-      "role": "Collection of internal eslint configurations.",
-      "runtime": "Node >=24",
-      "fileCounts": {
-        "md": 1
-      },
-      "deps": [
-        {
-          "name": "@babel/core",
-          "versionRange": "8.0.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "@babel/eslint-parser",
-          "versionRange": "8.0.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "@babel/preset-typescript",
-          "versionRange": "8.0.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "@eslint/js",
-          "versionRange": "10.0.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "@next/eslint-plugin-next",
-          "versionRange": "16.3.4",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "eslint",
-          "versionRange": "10.9.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "eslint-config-prettier",
-          "versionRange": "10.1.8",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "eslint-plugin-only-warn",
-          "versionRange": "1.2.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "eslint-plugin-react-hooks",
-          "versionRange": "7.1.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "eslint-plugin-turbo",
-          "versionRange": "2.10.12",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "globals",
-          "versionRange": "17.12.0",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        }
-      ]
-    },
-    {
-      "name": "@repo/redis",
-      "path": "packages/redis",
-      "role": "Redis live room state, pub/sub, rate limiting, and write-behind queue integration.",
-      "runtime": "Node >=24",
-      "fileCounts": {
-        "md": 2,
-        "ts": 2
-      },
-      "deps": [
-        {
-          "name": "bullmq",
-          "versionRange": "6.3.12",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
-        },
-        {
-          "name": "ioredis",
-          "versionRange": "6.0.0",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
-        },
-        {
-          "name": "@repo/typescript-config",
-          "versionRange": "workspace:*",
-          "kind": "devDependency",
-          "internal": true,
-          "used": false
-        },
-        {
-          "name": "@types/node",
-          "versionRange": "26.4.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "tsx",
-          "versionRange": "^4.23.13",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "typescript",
-          "versionRange": "7.0.2",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        }
-      ]
-    },
-    {
-      "name": "@repo/typescript-config",
-      "path": "packages/typescript-config",
-      "role": "Shared TypeScript configurations.",
-      "runtime": "Node >=24",
-      "fileCounts": {
-        "md": 1
-      },
-      "deps": []
-    },
-    {
-      "name": "@repo/ui",
-      "path": "packages/ui",
-      "role": "Shared UI primitives.",
-      "runtime": "Node >=24",
-      "fileCounts": {
-        "md": 2,
-        "tsx": 3
-      },
-      "deps": [
-        {
-          "name": "react",
-          "versionRange": "19.2.8",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
-        },
-        {
-          "name": "react-dom",
-          "versionRange": "19.2.8",
-          "kind": "dependency",
-          "internal": false,
-          "used": false
+          "name": "@repo/ui",
+          "path": "packages/ui",
+          "role": "Shared UI primitives.",
+          "runtime": "Node >=24",
+          "fileCounts": {
+            "md": 2,
+            "tsx": 3
+          },
+          "deps": [
+            {
+              "name": "react",
+              "versionRange": "19.2.8",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "react-dom",
+              "versionRange": "19.2.8",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@repo/eslint-config",
+              "versionRange": "workspace:*",
+              "kind": "devDependency",
+              "internal": true,
+              "used": false
+            },
+            {
+              "name": "@repo/typescript-config",
+              "versionRange": "workspace:*",
+              "kind": "devDependency",
+              "internal": true,
+              "used": false
+            },
+            {
+              "name": "@types/node",
+              "versionRange": "26.4.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@types/react",
+              "versionRange": "19.2.18",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@types/react-dom",
+              "versionRange": "19.2.5",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "eslint",
+              "versionRange": "10.9.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "typescript",
+              "versionRange": "7.0.2",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            }
+          ]
         },
         {
           "name": "@repo/eslint-config",
-          "versionRange": "workspace:*",
-          "kind": "devDependency",
-          "internal": true,
-          "used": false
+          "path": "packages/eslint-config",
+          "role": "Collection of internal eslint configurations.",
+          "runtime": "Node >=24",
+          "fileCounts": {
+            "js": 3,
+            "md": 1
+          },
+          "deps": [
+            {
+              "name": "@babel/core",
+              "versionRange": "8.0.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@babel/eslint-parser",
+              "versionRange": "8.0.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@babel/preset-typescript",
+              "versionRange": "8.0.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@eslint/js",
+              "versionRange": "10.0.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@next/eslint-plugin-next",
+              "versionRange": "16.3.4",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "eslint",
+              "versionRange": "10.9.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "eslint-config-prettier",
+              "versionRange": "10.1.8",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "eslint-plugin-only-warn",
+              "versionRange": "1.2.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "eslint-plugin-react-hooks",
+              "versionRange": "7.1.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "eslint-plugin-turbo",
+              "versionRange": "2.10.12",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "globals",
+              "versionRange": "17.12.0",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            }
+          ]
         },
         {
           "name": "@repo/typescript-config",
-          "versionRange": "workspace:*",
-          "kind": "devDependency",
-          "internal": true,
-          "used": false
-        },
-        {
-          "name": "@types/node",
-          "versionRange": "26.4.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "@types/react",
-          "versionRange": "19.2.18",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "@types/react-dom",
-          "versionRange": "19.2.5",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "eslint",
-          "versionRange": "10.9.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
-        },
-        {
-          "name": "typescript",
-          "versionRange": "7.0.2",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
+          "path": "packages/typescript-config",
+          "role": "Shared TypeScript configurations.",
+          "runtime": "Node >=24",
+          "fileCounts": {
+            "md": 1
+          },
+          "deps": []
         }
       ]
     },
-    {
-      "name": "@repo/validations",
-      "path": "packages/validations",
-      "role": "Reusable request validation schemas.",
-      "runtime": "Node >=24",
-      "fileCounts": {
-        "md": 2,
-        "ts": 1
-      },
-      "deps": [
+    "devconnect": {
+      "commit": "cdef8af",
+      "workspaces": [
         {
-          "name": "zod",
-          "versionRange": "^4.6.4",
-          "kind": "dependency",
-          "internal": false,
-          "used": true
+          "name": "devconnect-api",
+          "path": "backend",
+          "role": "This is the backend server for DevConnect, a social connection platform for developers. It is built with Node.js, Express 5, and MongoDB, providing a robust RESTful API and real-time capabilities via Socket.io.",
+          "runtime": "Node CommonJS",
+          "fileCounts": {
+            "js": 32,
+            "md": 1
+          },
+          "deps": [
+            {
+              "name": "@socket.io/redis-adapter",
+              "versionRange": "^8.3.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "bcryptjs",
+              "versionRange": "^2.4.3",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "better-auth",
+              "versionRange": "^1.6.23",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "cloudinary",
+              "versionRange": "^1.41.3",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "cookie-parser",
+              "versionRange": "^1.4.7",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "cors",
+              "versionRange": "^2.8.5",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "dotenv",
+              "versionRange": "^16.5.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "express",
+              "versionRange": "^5.1.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "express-rate-limit",
+              "versionRange": "^8.5.2",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "ioredis",
+              "versionRange": "^5.11.1",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "jsonwebtoken",
+              "versionRange": "^9.0.2",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "mongoose",
+              "versionRange": "^8.14.1",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "multer",
+              "versionRange": "^2.0.1",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "multer-storage-cloudinary",
+              "versionRange": "^4.0.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "nodemailer",
+              "versionRange": "^9.0.3",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "socket.io",
+              "versionRange": "^4.7.4",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "validator",
+              "versionRange": "^13.11.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            }
+          ]
         },
         {
-          "name": "@types/node",
-          "versionRange": "26.4.1",
-          "kind": "devDependency",
-          "internal": false,
-          "used": false
+          "name": "devconnect-frontend",
+          "path": "frontend",
+          "role": "The frontend for DevConnect is a modern, responsive React application designed to help developers connect, view profiles, and chat in real-time. It is built using Vite for fast development and optimized builds.",
+          "runtime": "",
+          "fileCounts": {
+            "js": 24,
+            "md": 1,
+            "jsx": 46,
+            "css": 1
+          },
+          "deps": [
+            {
+              "name": "@radix-ui/react-avatar",
+              "versionRange": "^1.1.7",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@radix-ui/react-label",
+              "versionRange": "^2.1.4",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@radix-ui/react-scroll-area",
+              "versionRange": "^1.2.6",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@radix-ui/react-slot",
+              "versionRange": "^1.2.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@reduxjs/toolkit",
+              "versionRange": "^2.7.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@tailwindcss/vite",
+              "versionRange": "^4.1.4",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "axios",
+              "versionRange": "^1.9.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "better-auth",
+              "versionRange": "^1.6.23",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "class-variance-authority",
+              "versionRange": "^0.7.1",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "clsx",
+              "versionRange": "^2.1.1",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "date-fns",
+              "versionRange": "^4.1.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "lucide-react",
+              "versionRange": "^0.503.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "prism-react-renderer",
+              "versionRange": "^2.4.1",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "react",
+              "versionRange": "^19.0.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "react-dom",
+              "versionRange": "^19.0.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "react-icons",
+              "versionRange": "^5.5.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "react-redux",
+              "versionRange": "^9.2.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "react-router-dom",
+              "versionRange": "^7.5.3",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "socket.io-client",
+              "versionRange": "^4.8.1",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "tailwind-merge",
+              "versionRange": "^3.2.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "tailwindcss",
+              "versionRange": "^4.1.4",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@eslint/js",
+              "versionRange": "^9.22.0",
+              "kind": "devDependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@types/node",
+              "versionRange": "^22.15.3",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@types/react",
+              "versionRange": "^19.0.10",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@types/react-dom",
+              "versionRange": "^19.0.4",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@vitejs/plugin-react",
+              "versionRange": "^4.3.4",
+              "kind": "devDependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "eslint",
+              "versionRange": "^9.22.0",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "eslint-plugin-react-hooks",
+              "versionRange": "^5.2.0",
+              "kind": "devDependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "eslint-plugin-react-refresh",
+              "versionRange": "^0.4.19",
+              "kind": "devDependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "globals",
+              "versionRange": "^16.0.0",
+              "kind": "devDependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "tw-animate-css",
+              "versionRange": "^1.2.8",
+              "kind": "devDependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "vite",
+              "versionRange": "^6.3.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": true
+            }
+          ]
         }
       ]
     }
-  ]
+  }
 }

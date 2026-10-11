@@ -22,6 +22,8 @@ export interface FlowStep {
 
 export interface FlowSpec {
   id: string;
+  /** Owning project; sources resolve under its source root. Defaults to excalidraw. */
+  project?: string;
   title: string;
   diagram: string;
   steps: FlowStep[];

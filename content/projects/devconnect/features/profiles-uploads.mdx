@@ -1,0 +1,38 @@
+---
+title: Profiles and uploads
+description: Editable profiles with avatar and cover uploads.
+diagram: devconnect-feat-profiles
+owns:
+  - "Profile fields: bio, skills, links, location, availability, projects"
+  - "Avatar and cover uploads through the upload middleware"
+  - "GitHub stats and repository sync onto the profile"
+  - "Developer search and the discovery feed"
+files:
+  - file: frontend/src/pages/ProfilePage.jsx
+    purpose: Own profile editing screen.
+  - file: frontend/src/pages/UserProfilePage.jsx
+    purpose: Another developer's profile screen.
+  - file: frontend/src/pages/SearchPage.jsx
+    purpose: Developer search screen.
+  - file: frontend/src/services/userService.js
+    purpose: Profile, search, and upload calls.
+  - file: backend/routes/userRoutes.js
+    purpose: Profile, search, feed, and upload routes.
+  - file: backend/controllers/userController.js
+    purpose: Profile reads and writes plus search.
+  - file: backend/middleware/upload.js
+    purpose: Avatar and cover upload handling.
+talksTo:
+  - label: Connections
+    href: /projects/devconnect/features/connections
+sources:
+  - frontend/src/pages/ProfilePage.jsx
+  - backend/controllers/userController.js
+  - backend/middleware/upload.js
+---
+
+Profiles mix hand-written fields with synced GitHub data (stats, top repos,
+skills derived from repo languages). Avatar and cover uploads ride the
+same Multer-plus-Cloudinary path as post images, with a local fallback.
+Discovery has two doors: the paged user feed (excluding the user and their
+connections) and name-or-skill search.

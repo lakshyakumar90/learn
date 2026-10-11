@@ -1,7 +1,10 @@
 /**
- * Landing page content. Every card on the landing page is driven from
- * here with status "live" | "soon", so adding an item needs no UI change.
+ * Landing page content. Project cards are driven by
+ * src/projects.config.ts (live projects first); topics and books stay
+ * "Coming soon" placeholders, so adding an item needs no UI change.
  */
+import { PROJECTS } from '../src/projects.config';
+
 export type CardStatus = 'live' | 'soon';
 
 export interface ProjectCard {
@@ -32,34 +35,27 @@ export interface HowCard {
   href: string;
 }
 
+const FIRST_LIVE = PROJECTS.find((p) => p.status === 'live')?.id ?? 'excalidraw';
+
 export const projectCards: ProjectCard[] = [
-  {
-    slug: 'excalidraw',
-    name: 'Excalidraw',
-    line: 'A collaborative drawing workspace, documented folder by folder.',
-    tags: ['Next.js', 'TypeScript', 'WebSocket', 'Redis', 'Postgres'],
-    href: '/projects/excalidraw',
+  ...PROJECTS.filter((p) => p.status === 'live').map((p) => ({
+    slug: p.id,
+    name: p.title,
+    line: p.description,
+    tags: p.tags,
+    href: `/projects/${p.id}`,
     cta: 'Read the docs',
-    status: 'live',
-  },
-  {
-    slug: 'next-system',
-    name: 'Next system',
-    line: 'A second codebase, documented the same way.',
-    tags: [],
+    status: 'live' as CardStatus,
+  })),
+  ...PROJECTS.filter((p) => p.status !== 'live').map((p) => ({
+    slug: p.id,
+    name: p.title,
+    line: p.description,
+    tags: p.tags,
     href: '/projects',
     cta: 'Coming soon',
-    status: 'soon',
-  },
-  {
-    slug: 'more-systems',
-    name: 'More systems',
-    line: 'Real projects worth reading closely.',
-    tags: [],
-    href: '/projects',
-    cta: 'Coming soon',
-    status: 'soon',
-  },
+    status: 'soon' as CardStatus,
+  })),
 ];
 
 export const topicCards: TopicCard[] = [
@@ -77,16 +73,16 @@ export const howCards: HowCard[] = [
   {
     name: 'Read',
     line: 'Short docs pages: what each folder owns and what it talks to.',
-    href: '/projects/excalidraw',
+    href: `/projects/${FIRST_LIVE}`,
   },
   {
     name: 'See',
     line: 'One diagram per folder, all drawn in the same visual language.',
-    href: '/projects/excalidraw/low-level',
+    href: `/projects/${FIRST_LIVE}/low-level`,
   },
   {
     name: 'Watch',
     line: 'Animated flows that follow one action through the system.',
-    href: '/projects/excalidraw/end-to-end',
+    href: `/projects/${FIRST_LIVE}/end-to-end`,
   },
 ];

@@ -1,0 +1,57 @@
+---
+title: Installation
+description: How to run DevConnect locally.
+sources:
+  - README.md
+  - backend/README.md
+  - frontend/README.md
+  - backend/.env.example
+  - frontend/.env.example
+---
+
+You need Node.js 18 or newer, a MongoDB instance (local or Atlas), and,
+for the full realtime behaviour, a Redis instance and Cloudinary keys.
+Uploads and the socket adapter both degrade gracefully without them.
+
+Separate terminals — the two apps install independently:
+
+```bash
+cd backend
+npm install
+cp .env.example .env   # then fill in the values below
+npm run dev
+```
+
+```bash
+cd frontend
+npm install
+cp .env.example .env   # then fill in the values below
+npm run dev
+```
+
+The frontend serves on `http://localhost:5173` and talks to the backend URL
+in its own `.env`. Backend scripts are plain `node index.js` for both dev
+and start — there is no watcher; restart the process to pick up changes.
+
+## Environment values
+
+Backend `.env` (names from `.env.example` plus the optional names the code
+actually reads — see [Environment variables](/projects/devconnect/deployment-env)
+for the full table):
+
+```bash
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+FRONTEND_URL=http://localhost:5173
+```
+
+Frontend `.env`:
+
+```bash
+VITE_API_URL=http://localhost:5000/api
+VITE_SOCKET_URL=http://localhost:5000
+```
+
+Only placeholder values belong in these files. Never commit real secrets —
+the repo's committed `uploads/` folder already shows why stray files matter.

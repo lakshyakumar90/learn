@@ -1,28 +1,30 @@
 /**
- * Extract the dependency + tech-stack data the docs render.
+ * Extract the dependency + tech-stack data the docs render, for every
+ * project in src/projects.config.ts.
  *
- * Reads ../excalidraw/package.json and every apps/* and packages/*
- * package.json, detects which dependencies are actually imported in each
- * workspace's src, counts source files by extension, and writes:
- *   generated/deps.json      - per-workspace dependency data
- *   generated/libraries.json - the libraries.yaml registry as JSON
+ * For each project it reads the package.json of every configured
+ * workspace, detects which dependencies are actually imported in the
+ * workspace's scan folder, counts source files by extension, and writes:
+ *   generated/deps.json      - { projects: { <id>: { commit, workspaces } } }
+ *   generated/libraries.json - { projects: { <id>: { libraries: [...] } } }
  *     (so MDX client components can import it without a YAML loader)
  *
- * Usage: pnpm extract-deps (also runs first in `prebuild`).
+ * Internal means another workspace's package: a workspace:, file: or
+ * link: range, or a name matching a sibling workspace package name.
+ *
+ * Usage: pnpm extract-deps (also runs in `prebuild` after fetch-source).
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { builtinModules } from 'node:module';
 import { load as loadYaml } from 'js-yaml';
-import { siteConfig } from '../src/site.config';
+import { PROJECTS, isEnvSecretFile, type ProjectConfig } from '../src/projects.config';
+import { LEARN_ROOT as ROOT, sourceRoot } from './project-sources';
 
-const ROOT = join(__dirname, '..');
-const TARGET = join(ROOT, siteConfig.excalidrawDir as string);
 const OUT = join(ROOT, 'generated');
 
-const COUNT_EXTS = ['ts', 'tsx', 'css', 'prisma', 'sql', 'md'];
+const COUNT_EXTS = ['ts', 'tsx', 'js', 'jsx', 'css', 'prisma', 'sql', 'md'];
 const SCAN_EXTS = ['ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'css'];
-const IGNORE_DIRS = new Set(['node_modules', 'dist', '.next', 'coverage', '.turbo', '.git']);
 const BUILTINS = new Set<string>(builtinModules.flatMap((m) => [m, m.replace(/^node:/, '')]));
 
 export type DepKind = 'dependency' | 'devDependency' | 'peerDependency';
@@ -44,11 +46,11 @@ export interface WorkspaceDeps {
   deps: DepEntry[];
 }
 
-function walk(dir: string, out: string[] = []): string[] {
+function walk(dir: string, ignore: Set<string>, out: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
-    if (IGNORE_DIRS.has(name)) continue;
+    if (ignore.has(name) || isEnvSecretFile(name)) continue;
     const full = join(dir, name);
-    if (statSync(full).isDirectory()) walk(full, out);
+    if (statSync(full).isDirectory()) walk(full, ignore, out);
     else out.push(full);
   }
   return out;
@@ -73,10 +75,10 @@ const IMPORT_RES = [
   /@import\s+['"]([^'"]+)['"]/g,
 ];
 
-function importedPackages(srcDir: string): Set<string> {
+function importedPackages(scanDir: string, ignore: Set<string>): Set<string> {
   const found = new Set<string>();
-  if (!existsSync(srcDir)) return found;
-  for (const file of walk(srcDir)) {
+  if (!existsSync(scanDir)) return found;
+  for (const file of walk(scanDir, ignore)) {
     const ext = file.split('.').pop() ?? '';
     if (!SCAN_EXTS.includes(ext)) continue;
     const text = readFileSync(file, 'utf8');
@@ -109,40 +111,33 @@ function readmeRole(dir: string): string {
   return '';
 }
 
-function main(): void {
-  if (!existsSync(TARGET)) {
-    // Deploy environments (e.g. Vercel) clone only this repo, so the
-    // sibling project is absent. Reuse the committed generated files,
-    // which were verified where the sibling exists.
-    const depsJson = join(OUT, 'deps.json');
-    const libsJson = join(OUT, 'libraries.json');
-    if (existsSync(depsJson) && existsSync(libsJson)) {
-      console.log('extract-deps: sibling repo absent, reusing committed generated/deps.json');
-      return;
+function extractProject(project: ProjectConfig): { commit: string; workspaces: WorkspaceDeps[] } {
+  const target = sourceRoot(project);
+  const ignore = new Set(project.ignore ?? []);
+  const scanSub = project.scanDir ?? 'src';
+  const pkgNames = new Map<string, string>();
+  for (const ws of project.workspaces) {
+    const pkgFile = join(target, ws, 'package.json');
+    if (!existsSync(pkgFile)) {
+      console.error(`extract-deps: ${project.id} workspace ${ws} has no package.json at ${pkgFile}`);
+      process.exit(1);
     }
-    console.error(`extract-deps: documented repo not found at ${TARGET}`);
-    process.exit(1);
+    const pkg = JSON.parse(readFileSync(pkgFile, 'utf8'));
+    if (pkg.name) pkgNames.set(String(pkg.name), ws);
   }
-  const rootPkg = JSON.parse(readFileSync(join(TARGET, 'package.json'), 'utf8'));
-  const rootEngines: string = rootPkg.engines?.node ?? '';
-  const pkgFiles = [
-    join(TARGET, 'package.json'),
-    ...readdirSync(join(TARGET, 'apps'))
-      .map((d) => join(TARGET, 'apps', d, 'package.json'))
-      .filter(existsSync),
-    ...readdirSync(join(TARGET, 'packages'))
-      .map((d) => join(TARGET, 'packages', d, 'package.json'))
-      .filter(existsSync),
-  ];
+  const rootPkgPath = join(target, 'package.json');
+  const rootEngines: string = existsSync(rootPkgPath)
+    ? (JSON.parse(readFileSync(rootPkgPath, 'utf8')).engines?.node ?? '')
+    : '';
 
   const workspaces: WorkspaceDeps[] = [];
-  for (const pkgFile of pkgFiles) {
-    const dir = join(pkgFile, '..');
-    const rel = relative(TARGET, dir).replace(/\\/g, '/') || '.';
-    const pkg = JSON.parse(readFileSync(pkgFile, 'utf8'));
-    const used = importedPackages(join(dir, 'src'));
+  for (const ws of project.workspaces) {
+    const dir = join(target, ws);
+    const rel = relative(target, dir).replace(/\\/g, '/') || '.';
+    const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'));
+    const used = importedPackages(join(dir, scanSub), ignore);
     const counts: Record<string, number> = {};
-    for (const f of walk(dir)) {
+    for (const f of walk(dir, ignore)) {
       const ext = (f.split('.').pop() ?? '').toLowerCase();
       if (COUNT_EXTS.includes(ext)) counts[ext] = (counts[ext] ?? 0) + 1;
     }
@@ -151,33 +146,73 @@ function main(): void {
       const key =
         kind === 'dependency' ? 'dependencies' : kind === 'devDependency' ? 'devDependencies' : 'peerDependencies';
       for (const [name, range] of Object.entries((pkg[key] ?? {}) as Record<string, string>)) {
-        const internal = name.startsWith('@repo/') || String(range).startsWith('workspace:');
-        deps.push({ name, versionRange: String(range), kind, internal, used: used.has(name) });
+        const rangeStr = String(range);
+        const internal =
+          rangeStr.startsWith('workspace:') ||
+          rangeStr.startsWith('file:') ||
+          rangeStr.startsWith('link:') ||
+          pkgNames.has(name);
+        deps.push({ name, versionRange: rangeStr, kind, internal, used: used.has(name) });
       }
     }
-    const runtime = pkg.engines?.node ?? rootEngines;
+    const engines = pkg.engines?.node ?? rootEngines;
+    const runtime = engines
+      ? `Node ${engines}`
+      : pkg.type === 'commonjs' && (counts.js || counts.jsx)
+        ? 'Node CommonJS'
+        : '';
     workspaces.push({
       name: String(pkg.name ?? rel),
       path: rel,
       role: readmeRole(dir),
-      runtime: runtime ? `Node ${runtime}` : '',
+      runtime,
       fileCounts: counts,
       deps,
     });
   }
+  return { commit: project.documentedCommit, workspaces };
+}
+
+function main(): void {
+  const missing = PROJECTS.map((p) => ({ p, root: sourceRoot(p) })).filter(({ root }) => !existsSync(root));
+  if (missing.length > 0) {
+    // Deploy environments (e.g. Vercel) clone only this repo, so local
+    // sources are absent. Reuse the committed generated files, which were
+    // verified where the sources exist.
+    const depsJson = join(OUT, 'deps.json');
+    const libsJson = join(OUT, 'libraries.json');
+    if (existsSync(depsJson) && existsSync(libsJson)) {
+      console.log(
+        `extract-deps: source(s) absent (${missing.map(({ p }) => p.id).join(', ')}), reusing committed generated files`,
+      );
+      return;
+    }
+    for (const { p, root } of missing) console.error(`extract-deps: source for ${p.id} not found at ${root}`);
+    process.exit(1);
+  }
+
+  const projects: Record<string, { commit: string; workspaces: WorkspaceDeps[] }> = {};
+  for (const project of PROJECTS) {
+    projects[project.id] = extractProject(project);
+  }
 
   mkdirSync(OUT, { recursive: true });
-  writeFileSync(join(OUT, 'deps.json'), JSON.stringify({ commit: siteConfig.excalidrawCommit, workspaces }, null, 2) + '\n');
+  writeFileSync(join(OUT, 'deps.json'), JSON.stringify({ projects }, null, 2) + '\n');
 
-  const yamlPath = join(ROOT, 'content', 'projects', 'excalidraw', 'libraries.yaml');
-  if (existsSync(yamlPath)) {
-    const registry = loadYaml(readFileSync(yamlPath, 'utf8'));
-    writeFileSync(join(OUT, 'libraries.json'), JSON.stringify(registry, null, 2) + '\n');
-    console.log(`extract-deps: ${workspaces.length} workspaces -> generated/deps.json + generated/libraries.json`);
-  } else {
-    writeFileSync(join(OUT, 'libraries.json'), JSON.stringify({ libraries: [] }, null, 2) + '\n');
-    console.log(`extract-deps: ${workspaces.length} workspaces -> generated/deps.json (no libraries.yaml yet)`);
+  const libraries: Record<string, unknown> = {};
+  for (const project of PROJECTS) {
+    const yamlPath = join(ROOT, 'content', 'projects', project.id, 'libraries.yaml');
+    if (existsSync(yamlPath)) {
+      libraries[project.id] = loadYaml(readFileSync(yamlPath, 'utf8'));
+      console.log(`extract-deps: ${project.id} registry from libraries.yaml`);
+    } else {
+      libraries[project.id] = { libraries: [] };
+      console.log(`extract-deps: ${project.id} has no libraries.yaml yet`);
+    }
   }
+  writeFileSync(join(OUT, 'libraries.json'), JSON.stringify({ projects: libraries }, null, 2) + '\n');
+  const total = Object.values(projects).reduce((n, p) => n + p.workspaces.length, 0);
+  console.log(`extract-deps: ${total} workspaces across ${PROJECTS.length} projects -> generated/deps.json + generated/libraries.json`);
 }
 
 main();

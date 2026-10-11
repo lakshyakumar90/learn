@@ -1,0 +1,41 @@
+---
+title: Jobs
+description: Listings, resume applications, and status tracking.
+diagram: devconnect-feat-jobs
+owns:
+  - "Listings with type, location, skills, and budget"
+  - "Cursor-paged browsing with search and filters"
+  - "Applications with resume and document uploads"
+  - "Poster-side application status changes"
+files:
+  - file: frontend/src/pages/JobsPage.jsx
+    purpose: Listings browser screen.
+  - file: frontend/src/pages/JobDetailPage.jsx
+    purpose: Listing detail and application screen.
+  - file: frontend/src/components/jobs/CreateJobModal.jsx
+    purpose: Listing creation modal.
+  - file: frontend/src/components/jobs/ApplyJobModal.jsx
+    purpose: Application modal with resume upload.
+  - file: frontend/src/services/jobService.js
+    purpose: Listing and application calls.
+  - file: backend/routes/jobRoutes.js
+    purpose: Listing, apply, status, delete routes.
+  - file: backend/controllers/jobController.js
+    purpose: Filters, applications, status changes.
+  - file: backend/models/Job.js
+    purpose: Listings with embedded applications.
+talksTo:
+  - label: Real-time chat
+    href: /projects/devconnect/features/realtime-chat
+sources:
+  - frontend/src/services/jobService.js
+  - backend/routes/jobRoutes.js
+  - backend/controllers/jobController.js
+  - backend/models/Job.js
+---
+
+List views strip applications down to counts and an applied flag; only the
+poster sees full applications on the detail view. Applying attaches a
+resume plus up to five extra documents through the document uploader and
+notifies the poster. Active job pairs (poster plus pending, reviewed, or
+accepted applicants) may message each other without a connection.

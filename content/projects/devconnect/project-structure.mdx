@@ -1,0 +1,27 @@
+---
+title: Project structure
+description: Two independent apps, not a workspace monorepo.
+sources:
+  - README.md
+  - backend/package.json
+  - frontend/package.json
+---
+
+Despite what the repo README calls it, this is **not a workspace monorepo**.
+There is no root manifest, no workspace configuration, and no shared
+packages: `backend/` and `frontend/` are two independent apps with separate
+installs, separate lockfiles (`pnpm-lock.yaml` in backend,
+`package-lock.json` in frontend), and separate run commands.
+
+```text
+.
+├── backend/    # Node CommonJS app: Express 5, Mongoose, Socket.io
+└── frontend/   # Vite app: React 19, Redux Toolkit, React Router
+```
+
+Each side is started and installed on its own, and either side can be
+deployed without the other. The [backend/ overview](/projects/devconnect/backend)
+and [frontend/ overview](/projects/devconnect/frontend) describe what each
+app owns. The repo root holds only docs, `vercel.json` (backend targeting —
+see [Hosting notes](/projects/devconnect/deployment-hosting)), and the two
+`.env.example` templates.

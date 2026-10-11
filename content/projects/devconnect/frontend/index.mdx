@@ -1,0 +1,41 @@
+---
+title: frontend/
+description: React single-page app, routed and stored client-side.
+diagram: devconnect-frontend
+owns:
+  - "Route table: public landing/auth plus guarded app screens"
+  - "Redux store: one slice per feature area"
+  - "Service modules: one typed client per API area"
+  - "Socket client: rooms, chat events, presence, live notifications"
+files:
+  - file: src/App.jsx
+    purpose: Routes, OAuth token pickup, theme, auth bootstrap.
+  - file: src/main.jsx
+    purpose: React bootstrap with store provider.
+  - file: src/pages/
+    purpose: One screen per route.
+  - file: src/components/
+    purpose: Shared UI, layout, and feature widgets.
+  - file: src/services/
+    purpose: API clients plus the socket service.
+  - file: src/store/
+    purpose: Store setup and nine slices.
+  - file: src/hooks/
+    purpose: Swipe gesture hook.
+  - file: src/lib/
+    purpose: Class merge helper.
+  - file: src/utils/
+    purpose: Login redirect helper.
+talksTo:
+  - label: backend/
+    href: /projects/devconnect/backend
+sources:
+  - frontend/src/App.jsx
+  - frontend/src/main.jsx
+  - frontend/vite.config.js
+---
+
+The app boots the theme and the session, then splits into public routes
+(landing, login, signup, legal) and guarded routes inside the main layout.
+Every server call flows through a service module built on the shared axios
+factory; everything live flows through the socket service into Redux slices.

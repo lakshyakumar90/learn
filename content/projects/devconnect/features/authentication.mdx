@@ -1,0 +1,47 @@
+---
+title: Authentication
+description: Email register and login plus GitHub OAuth, on JWT.
+diagram: devconnect-feat-auth
+owns:
+  - "Email registration with hashed passwords"
+  - "Email login with hash comparison"
+  - "GitHub OAuth login, callback, and profile sync"
+  - "Token transport: httpOnly cookie plus Bearer fallback"
+files:
+  - file: frontend/src/pages/SignupPage.jsx
+    purpose: Registration form, dispatches the register thunk.
+  - file: frontend/src/pages/LoginPage.jsx
+    purpose: Login form, dispatches the login thunk.
+  - file: frontend/src/services/userService.js
+    purpose: Register, login, logout, and session calls.
+  - file: backend/routes/userRoutes.js
+    purpose: Register, login, and logout routes.
+  - file: backend/routes/authRoutes.js
+    purpose: GitHub OAuth and sync routes.
+  - file: backend/controllers/userController.js
+    purpose: Register, login, and token responses.
+  - file: backend/controllers/authController.js
+    purpose: GitHub OAuth flow and profile sync.
+  - file: backend/middleware/authMiddleware.js
+    purpose: Token verification for protected routes.
+  - file: backend/models/User.js
+    purpose: Schema plus bcrypt hashing.
+talksTo:
+  - label: Sign up flow
+    href: /projects/devconnect/how-it-works#flow=dc-signup
+sources:
+  - frontend/src/pages/SignupPage.jsx
+  - frontend/src/services/userService.js
+  - backend/routes/userRoutes.js
+  - backend/controllers/userController.js
+  - backend/models/User.js
+---
+
+Authentication is JWT plus bcrypt — `better-auth` sits in both manifests
+but no source file imports it. Email users register and log in through the
+user controller with 30-day tokens; GitHub users arrive through OAuth and
+get the same token. The guard reads the cookie first and the Bearer header
+second, which keeps hosted frontends working. One honest gap: the signup
+page reads a `fulfilled` matcher off a plain thunk, so its post-submit
+redirect is unverified — login and session restore follow the same token
+path and are straightforward.

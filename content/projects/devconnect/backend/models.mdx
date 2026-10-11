@@ -1,0 +1,42 @@
+---
+title: models/
+description: Six Mongoose schemas, the database shape.
+workspace: backend
+diagram: devconnect-backend-models
+owns:
+  - "User: profile, credentials, GitHub data, skills, projects"
+  - "Connection: requester, recipient, pending/accepted/rejected"
+  - "Post: content, code snippet, likes, embedded comments"
+  - "Chat: participants with embedded messages and delivery status"
+  - "Notification: typed references to whatever caused it"
+  - "Job: listing with embedded applications and resumes"
+files:
+  - file: User.js
+    purpose: Profile plus bcrypt hashing hook.
+  - file: Connection.js
+    purpose: One row per pair, unique index.
+  - file: Post.js
+    purpose: Posts with embedded likes and comments.
+  - file: Chat.js
+    purpose: Participants with embedded messages, dedupe hook.
+  - file: Notification.js
+    purpose: Typed notification rows with read flags.
+  - file: Job.js
+    purpose: Listings with embedded applications.
+talksTo:
+  - label: Controllers
+    href: /projects/devconnect/backend/controllers
+sources:
+  - backend/models/User.js
+  - backend/models/Connection.js
+  - backend/models/Post.js
+  - backend/models/Chat.js
+  - backend/models/Notification.js
+  - backend/models/Job.js
+---
+
+Messages, comments, and job applications are embedded subdocuments, not
+separate collections. Passwords hash on save with cost 12 and never leave
+the database (the field is excluded from queries by default). The chat
+model drops near-duplicate messages at save time and keeps the last-message
+timestamp fresh for conversation ordering.
