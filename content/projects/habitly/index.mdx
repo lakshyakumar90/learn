@@ -1,0 +1,40 @@
+---
+title: Introduction
+description: A mobile habit tracker, documented folder by folder.
+sources:
+  - README.md
+  - features.md
+  - implementation.md
+---
+
+Habitly is a local-first mobile habit tracker built with Expo: guest
+onboarding, daily habit tracking with schedules and streaks, task planning,
+statistics, search, appearance settings, JSON export — with SQLite on the
+device as the source of truth and optional Firebase cloud sync for signed-in
+accounts.
+
+It is a single app, not a monorepo: one manifest at the root, with the
+workspace file holding only package-manager settings — see
+[Project structure](/projects/habitly/project-structure).
+
+These notes describe what each folder owns and how the folders talk to each
+other. They never explain code — for behaviour, read the linked sources in the
+repo itself. Where the repo was unclear, the page says so.
+
+Start with [Installation](/projects/habitly/installation), then
+[Status and scope](/projects/habitly/status-scope), then
+[High-level architecture](/projects/habitly/high-level).
+
+## Tech stack at a glance
+
+The codebase is TypeScript throughout, running on Expo SDK 57 with React
+Native and a versioned SQLite schema. Cloud features are Firebase-gated:
+without Firebase values the app runs fully offline as a guest.
+
+<StackMap project="habitly" />
+
+<StackMatrix project="habitly" />
+
+The full list lives on the [Tech stack](/projects/habitly/tech-stack) page.
+
+[See the demo](/projects/habitly/demo)

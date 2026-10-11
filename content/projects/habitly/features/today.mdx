@@ -1,0 +1,23 @@
+---
+title: Today dashboard
+description: Date, progress, streak, habits, and tasks.
+diagram: habitly-slice-today
+owns:
+  - "Completion progress for the day"
+  - "Active streak display"
+  - "Scheduled habits and today's tasks"
+files:
+  - file: src/app/(tabs)/today.tsx
+    purpose: Dashboard route.
+talksTo:
+  - label: Habits
+    href: /projects/habitly/features/habits
+  - label: Tasks
+    href: /projects/habitly/features/tasks
+sources:
+  - src/app/(tabs)/today.tsx
+---
+
+One screen answers "how am I doing today": what share of scheduled habits
+is done, whether the streak is alive, which habits are due, and which tasks
+fall today. Everything on it is a read over the same state the lists edit.

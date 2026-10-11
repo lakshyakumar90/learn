@@ -1,0 +1,20 @@
+---
+title: src/theme
+description: Semantic design tokens.
+workspace: .
+diagram: habitly-theme
+owns:
+  - "Canvas, ink, accent, and line tokens per palette"
+files:
+  - file: src/theme/tokens.ts
+    purpose: Semantic color table.
+talksTo:
+  - label: Settings
+    href: /projects/habitly/features/settings
+sources:
+  - src/theme/tokens.ts
+---
+
+Colors are semantic — canvas, ink, accent — resolved from the saved
+light, dark, or system palette plus the chosen accent. Screens read
+tokens, never raw hex.

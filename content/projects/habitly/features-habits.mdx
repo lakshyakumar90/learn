@@ -1,0 +1,36 @@
+---
+title: features/habits
+description: Habit UI, types, and pure domain logic.
+workspace: .
+diagram: habitly-features-habits
+owns:
+  - "Habit rows, forms, and the celebration modal"
+  - "Habit and entry shapes in four types"
+  - "Streaks, schedules, and completion math"
+files:
+  - file: src/features/habits/HabitRow.tsx
+    purpose: List row with check-off interaction.
+  - file: src/features/habits/HabitForm.tsx
+    purpose: Create and edit form with schedules.
+  - file: src/features/habits/CelebrationModal.tsx
+    purpose: Completion celebration overlay.
+  - file: src/features/habits/domain.ts
+    purpose: Streaks, schedules, and completion rules.
+  - file: src/features/habits/types.ts
+    purpose: Habit and entry shapes.
+talksTo:
+  - label: Habits
+    href: /projects/habitly/features/habits
+  - label: Statistics and streaks
+    href: /projects/habitly/features/statistics
+sources:
+  - src/features/habits/HabitRow.tsx
+  - src/features/habits/HabitForm.tsx
+  - src/features/habits/domain.ts
+  - src/features/habits/types.ts
+---
+
+Four habit types — check-off, quantity, duration, counter — share one row
+and one form. Completion math is pure and tested: streaks span
+non-scheduled days and reset on a missed scheduled day, and repeat taps
+toggle a single entry per local calendar date.

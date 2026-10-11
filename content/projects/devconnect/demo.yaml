@@ -1,0 +1,116 @@
+# DevConnect demo media. Placeholders until real captures land in
+# public/media/devconnect/ — drop the file in and set its `src`.
+hero:
+  type: video
+  alt: Sixty-second tour of DevConnect, from landing to a live chat message
+  caption: Watch the 60-second tour
+sections:
+  - id: landing
+    layout: single
+    items:
+      - type: image
+        device: browser
+        title: Landing and sign-up
+        alt: DevConnect landing page with sign-up form
+        caption: Public landing with email registration and GitHub entry.
+  - id: profile
+    layout: single
+    items:
+      - type: image
+        device: browser
+        title: Profile
+        alt: Developer profile with bio, skills, GitHub stats, and avatar
+        caption: Hand-written fields plus synced GitHub data.
+  - id: feed
+    layout: single
+    items:
+      - type: image
+        device: browser
+        title: Feed
+        alt: Feed of developer posts with likes and comments
+        caption: Recent and top tabs over cursor-paged posts.
+  - id: connections
+    layout: grid
+    items:
+      - type: image
+        device: browser
+        title: Connections
+        alt: Connections list of accepted developers
+        caption: Accepted connections, the main gate for chat.
+      - type: image
+        device: browser
+        title: Requests
+        alt: Incoming and sent connection requests
+        caption: Incoming requests to accept and sent ones to track.
+  - id: jobs
+    layout: single
+    items:
+      - type: image
+        device: browser
+        title: Jobs
+        alt: Job listings with filters and an application view
+        caption: Listings with resume applications and poster-side status.
+  - id: chat
+    layout: single
+    items:
+      - type: image
+        device: browser
+        title: Real-time chat
+        alt: Chat thread with typing indicator and read receipts
+        caption: Rooms, receipts, typing, and presence in one thread.
+  - id: clips
+    layout: grid
+    items:
+      - type: video
+        loop: true
+        title: Sending a message
+        alt: Short clip of sending a chat message and seeing it delivered
+        caption: Send, delivered, and read states in one exchange.
+      - type: video
+        loop: true
+        title: Accepting a request
+        alt: Short clip of accepting a connection request
+        caption: Accept flips the pair to connected and notifies both sides.
+walkthroughs:
+  - id: authentication
+    title: Authentication
+    caption: Email register and login plus GitHub OAuth on JWT.
+    section: landing
+    index: 0
+    featureLink: /projects/devconnect/features/authentication
+  - id: profiles
+    title: Profiles and uploads
+    caption: Editable profiles with avatar and cover uploads.
+    section: profile
+    index: 0
+    featureLink: /projects/devconnect/features/profiles-uploads
+  - id: connections
+    title: Connections
+    caption: Requests, accepts, lists, and removal.
+    section: connections
+    index: 0
+    featureLink: /projects/devconnect/features/connections
+  - id: feed
+    title: Feed and posts
+    caption: Publishing, feed tabs, likes, and comments.
+    section: feed
+    index: 0
+    featureLink: /projects/devconnect/features/feed-posts
+  - id: jobs
+    title: Jobs
+    caption: Listings, resume applications, and status tracking.
+    section: jobs
+    index: 0
+    featureLink: /projects/devconnect/features/jobs
+  - id: notifications
+    title: Notifications
+    caption: Stored rows plus live pushes through one helper.
+    section: chat
+    index: 0
+    featureLink: /projects/devconnect/features/notifications
+  - id: chat
+    title: Real-time chat
+    caption: Rooms, receipts, typing, and presence over sockets.
+    section: chat
+    index: 0
+    featureLink: /projects/devconnect/features/realtime-chat

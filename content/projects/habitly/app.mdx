@@ -1,0 +1,48 @@
+---
+title: src/app
+description: File-based routes, launch gate to tabs to stacks.
+workspace: .
+diagram: habitly-app
+owns:
+  - "The launch gate routing first runs and returning users"
+  - "Welcome and onboarding entry screens"
+  - "The five-tab swipeable pager with its floating bar"
+  - "Stack screens for details, history, achievements, search, settings"
+files:
+  - file: src/app/index.tsx
+    purpose: Launch gate with loading and retry states.
+  - file: src/app/_layout.tsx
+    purpose: Provider stack and route declarations.
+  - file: src/app/welcome.tsx
+    purpose: First-run welcome screen.
+  - file: src/app/onboarding.tsx
+    purpose: Personalization flow host.
+  - file: src/app/(tabs)/
+    purpose: Today, Habits, Tasks, Stats, and Profile tabs.
+  - file: src/app/habit/[id].tsx
+    purpose: Habit detail screen.
+  - file: src/app/task/[id].tsx
+    purpose: Task detail screen.
+  - file: src/app/statistics/
+    purpose: Per-habit summary and month history.
+  - file: src/app/achievements.tsx
+    purpose: Achievements screen.
+  - file: src/app/search.tsx
+    purpose: Local search screen.
+  - file: src/app/settings.tsx
+    purpose: Settings, backup, export, notifications.
+talksTo:
+  - label: Screens and navigation
+    href: /projects/habitly/screens
+  - label: App state feature
+    href: /projects/habitly/features-app
+sources:
+  - src/app/index.tsx
+  - src/app/_layout.tsx
+  - src/app/(tabs)/_layout.tsx
+---
+
+Routes are files: the folder structure is the navigation. The root layout
+wraps everything in gesture, safe-area, account, and app providers; the tab
+layout owns the pager, the indicator, and the floating bar; stack screens
+open as cards and return to their originating tab.

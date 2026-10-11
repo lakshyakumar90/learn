@@ -1,0 +1,24 @@
+---
+title: Checks
+description: Lint, types, tests, and Expo health gates.
+sources:
+  - README.md
+  - package.json
+---
+
+Run the same gates the repo documents, in order:
+
+```bash
+pnpm lint
+pnpm exec tsc --noEmit
+pnpm test
+pnpm exec expo install --check
+pnpm exec expo export --platform android
+```
+
+Lint and the type check catch code issues, the node:test suites pin domain
+and pager rules, the install check verifies native-module compatibility
+for SDK 57, and the Android export proves the bundle builds. The export
+step is Android-only here, matching the configured platform.
+
+Last verified 2026-10-11 against the Expo SDK 57 docs.

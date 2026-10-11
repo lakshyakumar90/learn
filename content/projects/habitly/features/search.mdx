@@ -1,0 +1,20 @@
+---
+title: Search
+description: Local search across habits and tasks.
+diagram: habitly-slice-search
+owns:
+  - "One query over habits and tasks"
+files:
+  - file: src/app/search.tsx
+    purpose: Search screen route.
+talksTo:
+  - label: Habits
+    href: /projects/habitly/features/habits
+  - label: Tasks
+    href: /projects/habitly/features/tasks
+sources:
+  - src/app/search.tsx
+---
+
+A stack screen over the same app state the tabs read — no index to build,
+no server to ask, results filter as you type.

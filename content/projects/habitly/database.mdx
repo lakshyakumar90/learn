@@ -1,0 +1,29 @@
+---
+title: src/database
+description: Versioned SQLite plus the persistence API.
+workspace: .
+diagram: habitly-database
+owns:
+  - "Lazy database open with WAL and foreign keys"
+  - "Forward-only schema migrations, versions 1 through 8"
+  - "Per-account database files with guest seeding"
+  - "Habit, entry, task, and preference repositories"
+  - "Local export and clear-data helpers"
+files:
+  - file: src/database/client.ts
+    purpose: Open, migrate, seed, and per-owner files.
+  - file: src/database/repositories.ts
+    purpose: Typed reads and writes for every table.
+talksTo:
+  - label: Services
+    href: /projects/habitly/services
+sources:
+  - src/database/client.ts
+  - src/database/repositories.ts
+---
+
+One database per owner: guests share the default file, each signed-in
+account gets its own. Migrations never drop data. SQLite triggers mirror
+every data change into the sync outbox while skipping import replays and
+device-local notification identifiers. Guests get sample habits and a
+default profile name on first open.

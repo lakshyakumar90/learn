@@ -1,0 +1,24 @@
+---
+title: EAS profiles
+description: What development, preview, and production builds are for.
+sources:
+  - eas.json
+  - app.config.js
+---
+
+Three build profiles, one environment variable each:
+
+- **development** builds a development client for day-to-day device work
+  with live reloading and native modules like sign-in.
+- **preview** builds an internally-distributed APK for trying release-like
+  builds — the channel that already carries Firebase values.
+- **production** builds the release candidate with auto-incremented
+  versions for store submission.
+
+The dynamic config rejects any EAS build missing Firebase values or the
+Android services file. Later development and production channels need the
+same eight variables the preview channel already has before building.
+
+Last verified 2026-10-11. See the
+[EAS build profiles](https://docs.expo.dev/build/eas-json/) reference for
+what each key means.

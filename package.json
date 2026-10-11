@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "pnpm fetch-source && pnpm extract-deps && pnpm check-deps && pnpm check-sources && pnpm build-search-index",
+    "prebuild": "pnpm fetch-source && pnpm extract-deps && pnpm check-deps && pnpm check-sources && pnpm check-demo && pnpm build-search-index",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -13,6 +13,7 @@
     "extract-deps": "tsx scripts/extract-deps.ts",
     "check-deps": "tsx scripts/check-deps.ts",
     "build-search-index": "tsx scripts/build-search-index.ts",
+    "check-demo": "tsx scripts/check-demo.ts",
     "new": "tsx scripts/new-project.ts",
     "postinstall": "fumadocs-mdx"
   },

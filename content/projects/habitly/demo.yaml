@@ -1,0 +1,133 @@
+# Habitly demo media. Placeholders until real captures land in
+# public/media/habitly/ — drop the file in and set its `src`.
+hero:
+  type: video
+  alt: Sixty-second tour of Habitly, from welcome to synced statistics
+  caption: Watch the 60-second tour
+sections:
+  - id: welcome
+    layout: single
+    items:
+      - type: image
+        device: phone
+        title: Welcome and onboarding
+        alt: Habitly welcome screen with pastel art and a Get started button
+        caption: Welcome art opens the five-step personalization flow.
+  - id: today
+    layout: single
+    items:
+      - type: image
+        device: phone
+        title: Today dashboard
+        alt: Today dashboard showing date, progress ring, streak, habits, and tasks
+        caption: Date, progress, streak, scheduled habits, and today's tasks.
+  - id: habits
+    layout: phone-carousel
+    items:
+      - type: image
+        device: phone
+        title: Habits list
+        alt: Habits list with All, Active, and Archived filters
+        caption: Filterable habit list with all four habit types.
+      - type: image
+        device: phone
+        title: Habit detail and calendar
+        alt: Habit detail with streaks, completion rate, and contribution calendar
+        caption: Streaks, rate, schedule, and an editable month calendar.
+  - id: tasks
+    layout: single
+    items:
+      - type: image
+        device: phone
+        title: Tasks
+        alt: Task list with Today, Upcoming, and Completed views
+        caption: Dated tasks with repeats, subtasks, and priorities.
+  - id: stats
+    layout: single
+    items:
+      - type: image
+        device: phone
+        title: Statistics
+        alt: Statistics screen with consistency charts and best weekday
+        caption: Consistency, streaks, and best-weekday summaries.
+  - id: settings
+    layout: phone-carousel
+    items:
+      - type: image
+        device: phone
+        title: Settings and appearance
+        alt: Settings screen with appearance, accent color, and export options
+        caption: Profile, appearance, data, and permission controls.
+      - type: image
+        device: phone
+        title: Achievements
+        alt: Achievements screen with streak milestones
+        caption: Milestones earned from local entries.
+  - id: clips
+    layout: grid
+    items:
+      - type: video
+        loop: true
+        title: Checking off a habit
+        alt: Short clip of tapping a habit row to check it off for today
+        caption: One tap toggles today's check-off state.
+      - type: video
+        loop: true
+        title: Adding a reminder
+        alt: Short clip of picking a reminder time for a habit
+        caption: Reminder times persist with the schedule.
+walkthroughs:
+  - id: onboarding
+    title: Onboarding and guest profile
+    caption: Five resumable steps end in a working guest profile.
+    section: welcome
+    index: 0
+    featureLink: /projects/habitly/features/onboarding
+  - id: habits
+    title: Habits
+    caption: Four types, weekday schedules, archive and history editing.
+    section: habits
+    index: 0
+    featureLink: /projects/habitly/features/habits
+  - id: tasks
+    title: Tasks
+    caption: Due dates, repeats, subtasks, and three list views.
+    section: tasks
+    index: 0
+    featureLink: /projects/habitly/features/tasks
+  - id: today
+    title: Today dashboard
+    caption: Progress, streak, due habits, and today's tasks in one read.
+    section: today
+    index: 0
+    featureLink: /projects/habitly/features/today
+  - id: statistics
+    title: Statistics and streaks
+    caption: Consistency math derived from local entries only.
+    section: stats
+    index: 0
+    featureLink: /projects/habitly/features/statistics
+  - id: reminders
+    title: Reminders
+    caption: Local scheduled notifications reconciled with the OS.
+    section: habits
+    index: 1
+    featureLink: /projects/habitly/features/reminders
+  - id: search
+    title: Search
+    caption: One query across habits and tasks, fully local.
+    section: tasks
+    index: 0
+    featureLink: /projects/habitly/features/search
+  - id: settings
+    title: Settings
+    caption: Appearance, data controls, and JSON or CSV export.
+    section: settings
+    index: 0
+    featureLink: /projects/habitly/features/settings
+  - id: cloud-sync
+    title: Cloud account and sync
+    caption: Google sign-in with outbox-driven Firestore sync.
+    section: settings
+    index: 1
+    featureLink: /projects/habitly/features/cloud-sync

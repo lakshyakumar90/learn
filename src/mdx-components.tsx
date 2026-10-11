@@ -9,6 +9,7 @@ import { FlowPlayer } from '@/components/FlowPlayer';
 import { StackMap } from '@/components/StackMap';
 import { StackMatrix } from '@/components/StackMatrix';
 import { TechStackIndex } from '@/components/TechStackIndex';
+import { DemoGallery, DemoHero, DemoMedia } from '@/components/demo/DemoGallery';
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
@@ -19,6 +20,9 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     StackMap,
     StackMatrix,
     TechStackIndex,
+    DemoGallery,
+    DemoHero,
+    DemoMedia,
     Callout,
     Step,
     Steps,

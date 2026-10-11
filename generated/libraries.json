@@ -924,6 +924,445 @@
           "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped"
         }
       ]
+    },
+    "habitly": {
+      "libraries": [
+        {
+          "id": "expo",
+          "displayName": "Expo",
+          "category": "Mobile framework",
+          "why": "App runtime, dev server, and Metro bundler configuration.",
+          "homepage": "https://expo.dev",
+          "uses": {
+            ".": "Metro config plus the managed runtime underneath every screen."
+          },
+          "featured": [
+            "."
+          ]
+        },
+        {
+          "id": "react",
+          "displayName": "React",
+          "category": "Mobile framework",
+          "why": "UI library behind every screen and component.",
+          "homepage": "https://react.dev",
+          "uses": {
+            ".": "All screens, providers, and components under src/."
+          },
+          "featured": [
+            "."
+          ]
+        },
+        {
+          "id": "react-native",
+          "displayName": "React Native",
+          "category": "Mobile framework",
+          "why": "Native primitives and app-state hooks the app is built from.",
+          "homepage": "https://reactnative.dev",
+          "uses": {
+            ".": "Primitives in every screen plus AppState in cloud sync."
+          },
+          "featured": [
+            "."
+          ]
+        },
+        {
+          "id": "expo-router",
+          "displayName": "Expo Router",
+          "category": "Navigation",
+          "why": "File-based routing for tabs, stacks, and deep links.",
+          "homepage": "https://docs.expo.dev/router/introduction/",
+          "uses": {
+            ".": "Route table under src/app with typed route helpers."
+          },
+          "featured": [
+            "."
+          ]
+        },
+        {
+          "id": "react-native-screens",
+          "displayName": "react-native-screens",
+          "category": "Navigation",
+          "why": "Native screen containers behind the router; never imported in app sources.",
+          "homepage": "https://github.com/software-mansion/react-native-screens"
+        },
+        {
+          "id": "react-native-safe-area-context",
+          "displayName": "react-native-safe-area-context",
+          "category": "Navigation",
+          "why": "Notch and gesture-bar insets for layout and the tab bar.",
+          "homepage": "https://github.com/th3rdwave/react-native-safe-area-context",
+          "uses": {
+            ".": "Safe-area providers, hooks, and initial metrics in layouts."
+          }
+        },
+        {
+          "id": "react-native-gesture-handler",
+          "displayName": "react-native-gesture-handler",
+          "category": "Navigation",
+          "why": "Gesture root view and swipe handling for the tab pager.",
+          "homepage": "https://docs.swmansion.com/react-native-gesture-handler/",
+          "uses": {
+            ".": "Root view in the app layout plus the swipeable tabs."
+          }
+        },
+        {
+          "id": "expo-status-bar",
+          "displayName": "expo-status-bar",
+          "category": "Mobile framework",
+          "why": "Status bar styling for the root layout.",
+          "homepage": "https://docs.expo.dev/versions/latest/sdk/status-bar/",
+          "uses": {
+            ".": "StatusBar in the root layout."
+          }
+        },
+        {
+          "id": "expo-constants",
+          "displayName": "expo-constants",
+          "category": "Mobile framework",
+          "why": "App metadata access; declared but not imported in scanned sources.",
+          "homepage": "https://docs.expo.dev/versions/latest/sdk/constants/"
+        },
+        {
+          "id": "expo-device",
+          "displayName": "expo-device",
+          "category": "Device APIs",
+          "why": "Device info helpers; declared but not imported in scanned sources.",
+          "homepage": "https://docs.expo.dev/versions/latest/sdk/device/"
+        },
+        {
+          "id": "expo-font",
+          "displayName": "expo-font",
+          "category": "Mobile framework",
+          "why": "Custom font loading; declared but not imported in scanned sources.",
+          "homepage": "https://docs.expo.dev/versions/latest/sdk/font/"
+        },
+        {
+          "id": "expo-system-ui",
+          "displayName": "expo-system-ui",
+          "category": "Mobile framework",
+          "why": "System UI appearance control; declared but not imported in scanned sources.",
+          "homepage": "https://docs.expo.dev/versions/latest/sdk/system-ui/"
+        },
+        {
+          "id": "expo-dev-client",
+          "displayName": "expo-dev-client",
+          "category": "Mobile framework",
+          "why": "Development build client; native-side, never imported in app sources.",
+          "homepage": "https://docs.expo.dev/develop/development-builds/introduction/"
+        },
+        {
+          "id": "@expo/metro-runtime",
+          "displayName": "Expo Metro runtime",
+          "category": "Mobile framework",
+          "why": "Web runtime support; declared but not imported in scanned sources.",
+          "homepage": "https://expo.dev"
+        },
+        {
+          "id": "@expo/ui",
+          "displayName": "Expo UI",
+          "category": "UI and styling",
+          "why": "Declared but never referenced in any scanned source or config.",
+          "homepage": "https://expo.dev"
+        },
+        {
+          "id": "expo-sqlite",
+          "displayName": "expo-sqlite",
+          "category": "Local data",
+          "why": "SQLite database that is the offline-first source of truth.",
+          "homepage": "https://docs.expo.dev/versions/latest/sdk/sqlite/",
+          "uses": {
+            ".": "Versioned schema, migrations, triggers, and per-account files."
+          },
+          "featured": [
+            "."
+          ]
+        },
+        {
+          "id": "@react-native-async-storage/async-storage",
+          "displayName": "Async Storage",
+          "category": "Local data",
+          "why": "Persistent Firebase auth sessions on native.",
+          "homepage": "https://react-native-async-storage.github.io/async-storage/",
+          "uses": {
+            ".": "React Native auth persistence in the Firebase setup."
+          }
+        },
+        {
+          "id": "expo-notifications",
+          "displayName": "expo-notifications",
+          "category": "Device APIs",
+          "why": "Local scheduled reminders with an Android channel.",
+          "homepage": "https://docs.expo.dev/versions/latest/sdk/notifications/",
+          "uses": {
+            ".": "Scheduling, permission, and cancellation behind dynamic imports."
+          },
+          "featured": [
+            "."
+          ]
+        },
+        {
+          "id": "expo-clipboard",
+          "displayName": "expo-clipboard",
+          "category": "Device APIs",
+          "why": "Copies the JSON export to the clipboard.",
+          "homepage": "https://docs.expo.dev/versions/latest/sdk/clipboard/",
+          "uses": {
+            ".": "Copy action in settings, loaded on demand."
+          }
+        },
+        {
+          "id": "expo-file-system",
+          "displayName": "expo-file-system",
+          "category": "Device APIs",
+          "why": "Writes export files before sharing them.",
+          "homepage": "https://docs.expo.dev/versions/latest/sdk/filesystem/",
+          "uses": {
+            ".": "JSON and CSV export files in settings, loaded on demand."
+          }
+        },
+        {
+          "id": "expo-sharing",
+          "displayName": "expo-sharing",
+          "category": "Device APIs",
+          "why": "Opens the OS share sheet for export files.",
+          "homepage": "https://docs.expo.dev/versions/latest/sdk/sharing/",
+          "uses": {
+            ".": "Share action in settings, loaded on demand."
+          }
+        },
+        {
+          "id": "expo-haptics",
+          "displayName": "expo-haptics",
+          "category": "Device APIs",
+          "why": "Touch feedback on presses and completions.",
+          "homepage": "https://docs.expo.dev/versions/latest/sdk/haptics/",
+          "uses": {
+            ".": "Haptic cues in interactive components."
+          }
+        },
+        {
+          "id": "expo-linking",
+          "displayName": "expo-linking",
+          "category": "Device APIs",
+          "why": "Deep link handling; declared but not imported in scanned sources.",
+          "homepage": "https://docs.expo.dev/versions/latest/sdk/linking/"
+        },
+        {
+          "id": "expo-web-browser",
+          "displayName": "expo-web-browser",
+          "category": "Device APIs",
+          "why": "In-app browser sessions; declared but not imported in scanned sources.",
+          "homepage": "https://docs.expo.dev/versions/latest/sdk/webbrowser/"
+        },
+        {
+          "id": "expo-image",
+          "displayName": "expo-image",
+          "category": "UI and styling",
+          "why": "Image component; declared but not imported in scanned sources.",
+          "homepage": "https://docs.expo.dev/versions/latest/sdk/image/"
+        },
+        {
+          "id": "expo-symbols",
+          "displayName": "expo-symbols",
+          "category": "UI and styling",
+          "why": "Apple SF Symbols; declared but not imported, and iOS is not configured.",
+          "homepage": "https://docs.expo.dev/versions/latest/sdk/symbols/"
+        },
+        {
+          "id": "expo-glass-effect",
+          "displayName": "expo-glass-effect",
+          "category": "UI and styling",
+          "why": "Glass material views; declared but not imported in scanned sources.",
+          "homepage": "https://docs.expo.dev/versions/latest/sdk/glass-effect/"
+        },
+        {
+          "id": "expo-splash-screen",
+          "displayName": "expo-splash-screen",
+          "category": "Mobile framework",
+          "why": "Launch splash configured in app.json; never imported in app sources.",
+          "homepage": "https://docs.expo.dev/versions/latest/sdk/splash-screen/"
+        },
+        {
+          "id": "firebase",
+          "displayName": "Firebase",
+          "category": "Auth and cloud",
+          "why": "Google auth plus Firestore sync behind the cloud provider.",
+          "homepage": "https://firebase.google.com",
+          "uses": {
+            ".": "Auth, Firestore reads/writes/listeners, and deletion calls."
+          },
+          "featured": [
+            "."
+          ]
+        },
+        {
+          "id": "@react-native-google-signin/google-signin",
+          "displayName": "Google Sign-In",
+          "category": "Auth and cloud",
+          "why": "Native Google sign-in feeding Firebase credentials.",
+          "homepage": "https://github.com/react-native-google-signin/google-signin",
+          "uses": {
+            ".": "Sign-in, reauthentication, and sign-out behind dynamic imports."
+          }
+        },
+        {
+          "id": "@react-native-community/netinfo",
+          "displayName": "NetInfo",
+          "category": "Auth and cloud",
+          "why": "Connectivity gating for sync and guest import.",
+          "homepage": "https://github.com/react-native-netinfo/react-native-netinfo",
+          "uses": {
+            ".": "Online detection in cloud sync and account bootstrap."
+          }
+        },
+        {
+          "id": "nativewind",
+          "displayName": "NativeWind",
+          "category": "Styling",
+          "why": "Tailwind styling for React Native components.",
+          "homepage": "https://www.nativewind.dev",
+          "uses": {
+            ".": "Metro preset plus utility classes across screens."
+          },
+          "featured": [
+            "."
+          ]
+        },
+        {
+          "id": "tailwindcss",
+          "displayName": "Tailwind CSS",
+          "category": "Styling",
+          "why": "Utility styles consumed through the global stylesheet.",
+          "homepage": "https://tailwindcss.com",
+          "uses": {
+            ".": "Theme, preflight, and utilities imports in global.css."
+          }
+        },
+        {
+          "id": "@tailwindcss/postcss",
+          "displayName": "Tailwind PostCSS plugin",
+          "category": "Styling",
+          "why": "Compiles Tailwind inside PostCSS, wired as a config plugin key.",
+          "homepage": "https://tailwindcss.com/docs/installation/using-postcss",
+          "uses": {
+            ".": "Plugin entry in postcss.config.mjs."
+          }
+        },
+        {
+          "id": "postcss",
+          "displayName": "PostCSS",
+          "category": "Styling",
+          "why": "Stylesheet pipeline runner; declared but not directly imported in scanned sources.",
+          "homepage": "https://postcss.org"
+        },
+        {
+          "id": "react-native-css",
+          "displayName": "react-native-css",
+          "category": "Styling",
+          "why": "CSS support layer for NativeWind; declared but not directly imported in scanned sources.",
+          "homepage": "https://github.com/nativewind/react-native-css"
+        },
+        {
+          "id": "lightningcss",
+          "displayName": "lightningcss",
+          "category": "Styling",
+          "why": "CSS transformer behind the Tailwind toolchain; declared but not directly imported in scanned sources.",
+          "homepage": "https://lightningcss.dev"
+        },
+        {
+          "id": "react-native-reanimated",
+          "displayName": "Reanimated",
+          "category": "Animation and gestures",
+          "why": "Tab transitions, entrances, and press animations.",
+          "homepage": "https://docs.swmansion.com/react-native-reanimated/",
+          "uses": {
+            ".": "Animated pager, indicator, and screen transitions."
+          },
+          "featured": [
+            "."
+          ]
+        },
+        {
+          "id": "react-native-worklets",
+          "displayName": "react-native-worklets",
+          "category": "Animation and gestures",
+          "why": "Worklet runtime behind Reanimated; declared but not directly imported in scanned sources.",
+          "homepage": "https://github.com/software-mansion/react-native-worklets"
+        },
+        {
+          "id": "@expo/vector-icons",
+          "displayName": "Expo vector icons",
+          "category": "UI and styling",
+          "why": "Tab bar and interface icons.",
+          "homepage": "https://docs.expo.dev/guides/icons/",
+          "uses": {
+            ".": "Material community icons in the tab layout."
+          }
+        },
+        {
+          "id": "react-dom",
+          "displayName": "React DOM",
+          "category": "Other",
+          "why": "Web rendering companion; declared but not imported in scanned sources.",
+          "homepage": "https://react.dev"
+        },
+        {
+          "id": "react-native-web",
+          "displayName": "react-native-web",
+          "category": "Other",
+          "why": "Web target support; declared but not imported in scanned sources.",
+          "homepage": "https://necolas.github.io/react-native-web/"
+        },
+        {
+          "id": "typescript",
+          "displayName": "TypeScript",
+          "category": "Language and build",
+          "why": "Type checking for the whole codebase.",
+          "homepage": "https://www.typescriptlang.org"
+        },
+        {
+          "id": "tsx",
+          "displayName": "tsx",
+          "category": "Testing",
+          "why": "Runs the node:test suites without a separate build step.",
+          "homepage": "https://tsx.is"
+        },
+        {
+          "id": "eslint",
+          "displayName": "ESLint",
+          "category": "Linting and formatting",
+          "why": "Static analysis run through the lint script.",
+          "homepage": "https://eslint.org",
+          "uses": {
+            ".": "Lint script and flat config in eslint.config.js."
+          }
+        },
+        {
+          "id": "eslint-config-expo",
+          "displayName": "eslint-config-expo",
+          "category": "Linting and formatting",
+          "why": "Shared Expo lint rules for the flat config.",
+          "homepage": "https://docs.expo.dev/guides/using-eslint/",
+          "uses": {
+            ".": "Base rules in eslint.config.js."
+          }
+        },
+        {
+          "id": "@types/node",
+          "displayName": "@types/node",
+          "category": "Language and build",
+          "why": "Type declarations for Node.js built-ins.",
+          "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+        },
+        {
+          "id": "@types/react",
+          "displayName": "@types/react",
+          "category": "Language and build",
+          "why": "Type declarations for React.",
+          "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+        }
+      ]
     }
   }
 }

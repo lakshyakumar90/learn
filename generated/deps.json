@@ -1333,6 +1333,362 @@
           ]
         }
       ]
+    },
+    "habitly": {
+      "commit": "99a2c3d",
+      "workspaces": [
+        {
+          "name": "habit-tracker",
+          "path": ".",
+          "role": "Habitly is a local-first Expo habit tracker with a lilac and cream design system. It includes a guest onboarding flow, daily habit tracking, habit schedules and history, task planning, progress summaries, search, appearance settings, and JSON export.",
+          "runtime": "",
+          "fileCounts": {
+            "md": 7,
+            "js": 3,
+            "ts": 23,
+            "tsx": 33,
+            "css": 1
+          },
+          "deps": [
+            {
+              "name": "@expo/metro-runtime",
+              "versionRange": "~57.0.16",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@expo/ui",
+              "versionRange": "~57.0.22",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@expo/vector-icons",
+              "versionRange": "^15.1.1",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@react-native-async-storage/async-storage",
+              "versionRange": "2.2.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@react-native-community/netinfo",
+              "versionRange": "12.0.1",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@react-native-google-signin/google-signin",
+              "versionRange": "^16.1.5",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "expo",
+              "versionRange": "~57.0.27",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "expo-clipboard",
+              "versionRange": "~57.0.2",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "expo-constants",
+              "versionRange": "~57.0.21",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "expo-dev-client",
+              "versionRange": "~57.0.19",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "expo-device",
+              "versionRange": "~57.0.2",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "expo-file-system",
+              "versionRange": "~57.0.7",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "expo-font",
+              "versionRange": "~57.0.4",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "expo-glass-effect",
+              "versionRange": "~57.0.4",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "expo-haptics",
+              "versionRange": "~57.0.3",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "expo-image",
+              "versionRange": "~57.0.5",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "expo-linking",
+              "versionRange": "~57.0.12",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "expo-notifications",
+              "versionRange": "~57.0.22",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "expo-router",
+              "versionRange": "~57.0.25",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "expo-sharing",
+              "versionRange": "~57.0.22",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "expo-splash-screen",
+              "versionRange": "~57.0.9",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "expo-sqlite",
+              "versionRange": "~57.0.4",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "expo-status-bar",
+              "versionRange": "~57.0.1",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "expo-symbols",
+              "versionRange": "~57.0.3",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "expo-system-ui",
+              "versionRange": "~57.0.4",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "expo-web-browser",
+              "versionRange": "~57.0.3",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "firebase",
+              "versionRange": "^12.19.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "nativewind",
+              "versionRange": "5.0.0-rc.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "react",
+              "versionRange": "19.2.3",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "react-dom",
+              "versionRange": "19.2.3",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "react-native",
+              "versionRange": "0.86.3",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "react-native-css",
+              "versionRange": "3.1.0-rc.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "react-native-gesture-handler",
+              "versionRange": "~2.32.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "react-native-reanimated",
+              "versionRange": "4.5.1",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "react-native-safe-area-context",
+              "versionRange": "~5.7.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "react-native-screens",
+              "versionRange": "~4.26.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "react-native-web",
+              "versionRange": "~0.21.0",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "react-native-worklets",
+              "versionRange": "0.10.1",
+              "kind": "dependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@tailwindcss/postcss",
+              "versionRange": "4.1.12",
+              "kind": "devDependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "@types/node",
+              "versionRange": "^26.6.4",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "@types/react",
+              "versionRange": "~19.2.2",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "eslint",
+              "versionRange": "^9.39.5",
+              "kind": "devDependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "eslint-config-expo",
+              "versionRange": "~57.0.2",
+              "kind": "devDependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "lightningcss",
+              "versionRange": "1.30.1",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "postcss",
+              "versionRange": "8.5.28",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "tailwindcss",
+              "versionRange": "4.1.12",
+              "kind": "devDependency",
+              "internal": false,
+              "used": true
+            },
+            {
+              "name": "tsx",
+              "versionRange": "^4.23.15",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            },
+            {
+              "name": "typescript",
+              "versionRange": "~6.0.3",
+              "kind": "devDependency",
+              "internal": false,
+              "used": false
+            }
+          ]
+        }
+      ]
     }
   }
 }

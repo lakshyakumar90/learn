@@ -1,0 +1,24 @@
+---
+title: features/app
+description: Central app state behind typed hooks.
+workspace: .
+diagram: habitly-features-app
+owns:
+  - "Habit, entry, task, theme, and profile state"
+  - "Reload actions every screen shares"
+  - "Readiness and theme flags for the launch gate"
+files:
+  - file: src/features/app/AppProvider.tsx
+    purpose: Contexts, hooks, and shared actions.
+talksTo:
+  - label: Today dashboard
+    href: /projects/habitly/features/today
+  - label: Local database
+    href: /projects/habitly/database
+sources:
+  - src/features/app/AppProvider.tsx
+---
+
+Screens never touch SQLite directly — they read typed hooks and call shared
+actions, and the provider persists through the repositories. The launch
+gate waits on its readiness flag before choosing welcome or Today.

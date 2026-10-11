@@ -16,7 +16,12 @@ export type DiagramLayer =
   | 'realtime'
   | 'cache'
   | 'database'
-  | 'shared';
+  | 'shared'
+  | 'screens'
+  | 'features'
+  | 'localdata'
+  | 'device'
+  | 'cloud';
 
 export interface DiagramNodeSpec {
   id: string;
@@ -50,4 +55,9 @@ export const LAYER_LABEL: Record<DiagramLayer, string> = {
   cache: 'Cache',
   database: 'Database',
   shared: 'Shared',
+  screens: 'Screens',
+  features: 'Features',
+  localdata: 'Local data',
+  device: 'Device',
+  cloud: 'Cloud',
 };

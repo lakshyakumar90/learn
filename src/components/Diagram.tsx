@@ -61,6 +61,7 @@ export function Diagram({ id }: { id: string }) {
     setSelected(null);
     setOpen(true);
   };
+  const legendProject = spec.project ?? 'excalidraw';
 
   return (
     <figure className="my-6">
@@ -93,7 +94,7 @@ export function Diagram({ id }: { id: string }) {
         </div>
       </ReactFlowProvider>
       <figcaption className="mt-1 text-xs opacity-60">{spec.title}</figcaption>
-      <DiagramLegend />
+      <DiagramLegend project={legendProject} />
       <ExpandedView
         open={open}
         onOpenChange={setOpen}
@@ -117,7 +118,7 @@ export function Diagram({ id }: { id: string }) {
             loadingText={`Laying out ${spec.title}…`}
           />
           <div className="border-t px-4 py-2">
-            <DiagramLegend />
+            <DiagramLegend project={legendProject} />
           </div>
         </div>
       </ExpandedView>

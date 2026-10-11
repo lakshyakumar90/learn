@@ -3,6 +3,7 @@
 import { memo } from 'react';
 import { Handle, Position, type NodeProps, type Node } from '@xyflow/react';
 import { LAYER_LABEL, type DiagramLayer } from '../../content/diagrams/types';
+import { getProject } from '@/projects.config';
 import type { FlowNodeData } from '@/lib/diagram-layout';
 
 const LAYER_VAR: Record<DiagramLayer, string> = {
@@ -12,6 +13,11 @@ const LAYER_VAR: Record<DiagramLayer, string> = {
   cache: 'var(--dg-cache)',
   database: 'var(--dg-database)',
   shared: 'var(--dg-shared)',
+  screens: 'var(--dg-screens)',
+  features: 'var(--dg-features)',
+  localdata: 'var(--dg-localdata)',
+  device: 'var(--dg-device)',
+  cloud: 'var(--dg-cloud)',
 };
 
 export const LayerNode = memo(function LayerNode({
@@ -45,12 +51,20 @@ export const LayerNode = memo(function LayerNode({
 
 export const diagramNodeTypes = { layer: LayerNode };
 
-const LAYERS: DiagramLayer[] = ['browser', 'api', 'realtime', 'cache', 'database', 'shared'];
+const WEB_LAYERS: DiagramLayer[] = ['browser', 'api', 'realtime', 'cache', 'database', 'shared'];
 
-export function DiagramLegend() {
+export function DiagramLegend({ project = 'excalidraw' }: { project?: string }) {
+  const config = getProject(project);
+  const layers = (config?.diagramLayers ?? WEB_LAYERS).filter((l): l is DiagramLayer => l in LAYER_VAR);
+  const legend = config?.diagramLegend ?? {
+    solid: 'durable',
+    solidHint: 'durable data',
+    dashed: 'ephemeral',
+    dashedHint: 'ephemeral data',
+  };
   return (
     <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs opacity-80">
-      {LAYERS.map((layer) => (
+      {layers.map((layer) => (
         <span key={layer} className="inline-flex items-center gap-1.5">
           <span
             aria-hidden
@@ -60,17 +74,17 @@ export function DiagramLegend() {
           {LAYER_LABEL[layer]}
         </span>
       ))}
-      <span className="inline-flex items-center gap-1.5" aria-label="Solid line means durable data">
+      <span className="inline-flex items-center gap-1.5" aria-label={`Solid line means ${legend.solidHint}`}>
         <svg width="28" height="8" aria-hidden>
           <line x1="0" y1="4" x2="28" y2="4" stroke="var(--dg-edge)" strokeWidth="2" />
         </svg>
-        durable
+        {legend.solid}
       </span>
-      <span className="inline-flex items-center gap-1.5" aria-label="Dashed line means ephemeral data">
+      <span className="inline-flex items-center gap-1.5" aria-label={`Dashed line means ${legend.dashedHint}`}>
         <svg width="28" height="8" aria-hidden>
           <line x1="0" y1="4" x2="28" y2="4" stroke="var(--dg-edge)" strokeWidth="2" strokeDasharray="5 3" />
         </svg>
-        ephemeral
+        {legend.dashed}
       </span>
     </div>
   );

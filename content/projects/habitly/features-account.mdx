@@ -1,0 +1,27 @@
+---
+title: features/account
+description: Google sign-in, per-account databases, deletion.
+workspace: .
+diagram: habitly-features-account
+owns:
+  - "Google sign-in on native and web"
+  - "Per-account database switching with guest import"
+  - "Sign-out and the guarded account-deletion flow"
+  - "The bridge that starts cloud sync for signed-in users"
+files:
+  - file: src/features/account/CloudAccountProvider.tsx
+    purpose: Account context, sign-in, deletion, sync bridge.
+talksTo:
+  - label: Cloud account and sync
+    href: /projects/habitly/features/cloud-sync
+  - label: Services
+    href: /projects/habitly/services
+sources:
+  - src/features/account/CloudAccountProvider.tsx
+---
+
+One provider owns the account lifecycle. Signing in switches the database
+owner, which swaps the SQLite file; brand-new cloud accounts import the
+guest data once. Deletion requires a fresh sign-in, stops sync, clears the
+server data through the trusted endpoint, wipes the local file, and returns
+the app to onboarding.

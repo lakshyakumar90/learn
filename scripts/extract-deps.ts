@@ -72,6 +72,7 @@ const IMPORT_RES = [
   /import\s+(?:[^'"]*?\sfrom\s+)?['"]([^'"]+)['"]/g,
   /export\s+[^'"]*?\sfrom\s+['"]([^'"]+)['"]/g,
   /require\(\s*['"]([^'"]+)['"]\s*\)/g,
+  /import\(\s*['"]([^'"]+)['"]\s*\)/g,
   /@import\s+['"]([^'"]+)['"]/g,
 ];
 
@@ -89,6 +90,28 @@ function importedPackages(scanDir: string, ignore: Set<string>): Set<string> {
         const pkg = packageOf(m[1]);
         if (pkg) found.add(pkg);
       }
+    }
+  }
+  return found;
+}
+
+/**
+ * Config-key references: bundler/lint configs name plugins as plain object
+ * keys (e.g. `"@tailwindcss/postcss": {}` in postcss.config.mjs) rather than
+ * imports. Only exact declared dependency names can match, so unrelated
+ * string keys never flip a flag.
+ */
+function configKeyPackages(scanDir: string, ignore: Set<string>, declared: Set<string>): Set<string> {
+  const found = new Set<string>();
+  if (!existsSync(scanDir)) return found;
+  for (const file of walk(scanDir, ignore)) {
+    const ext = file.split('.').pop() ?? '';
+    if (!['js', 'mjs', 'cjs', 'ts'].includes(ext)) continue;
+    const text = readFileSync(file, 'utf8');
+    for (const name of declared) {
+      const needle1 = `'${name}':`;
+      const needle2 = `"${name}":`;
+      if (text.includes(needle1) || text.includes(needle2)) found.add(name);
     }
   }
   return found;
@@ -135,7 +158,13 @@ function extractProject(project: ProjectConfig): { commit: string; workspaces: W
     const dir = join(target, ws);
     const rel = relative(target, dir).replace(/\\/g, '/') || '.';
     const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'));
+    const declared = new Set<string>([
+      ...Object.keys((pkg.dependencies ?? {}) as Record<string, string>),
+      ...Object.keys((pkg.devDependencies ?? {}) as Record<string, string>),
+      ...Object.keys((pkg.peerDependencies ?? {}) as Record<string, string>),
+    ]);
     const used = importedPackages(join(dir, scanSub), ignore);
+    for (const name of configKeyPackages(join(dir, scanSub), ignore, declared)) used.add(name);
     const counts: Record<string, number> = {};
     for (const f of walk(dir, ignore)) {
       const ext = (f.split('.').pop() ?? '').toLowerCase();

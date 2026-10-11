@@ -1,0 +1,23 @@
+---
+title: src/utils
+description: Date keys and the checked route table.
+workspace: .
+diagram: habitly-utils
+owns:
+  - "Local-calendar date keys without UTC shifts"
+  - "Every route literal in one checked table"
+files:
+  - file: src/utils/dates.ts
+    purpose: Date keys and calendar math.
+  - file: src/utils/routes.ts
+    purpose: Typed route literals.
+talksTo:
+  - label: Screens and navigation
+    href: /projects/habitly/screens
+sources:
+  - src/utils/dates.ts
+  - src/utils/routes.ts
+---
+
+Dates are `YYYY-MM-DD` local keys, and routes are literals — renames fail
+the type check instead of silently breaking navigation.

@@ -1,0 +1,91 @@
+# Excalidraw demo media. Placeholders until real captures land in
+# public/media/excalidraw/ — drop the file in and set its `src`.
+hero:
+  type: video
+  alt: Sixty-second tour of Excalidraw, from blank canvas to a shared room
+  caption: Watch the 60-second tour
+sections:
+  - id: canvas
+    layout: single
+    items:
+      - type: image
+        device: browser
+        title: Canvas and tools
+        alt: Drawing canvas with shape, text, and Freedraw tools
+        caption: Shapes, text, and freedraw on an infinite canvas.
+  - id: selection
+    layout: single
+    items:
+      - type: image
+        device: browser
+        title: Selection and resizing
+        alt: Selected shapes with resize handles and alignment guides
+        caption: Multi-select with handles, guides, and grouping.
+  - id: dashboard
+    layout: single
+    items:
+      - type: image
+        device: browser
+        title: Dashboard
+        alt: Dashboard listing saved scenes and shared rooms
+        caption: Scenes and rooms at a glance for signed-in users.
+  - id: room
+    layout: single
+    items:
+      - type: image
+        device: browser
+        title: Real-time room with cursors
+        alt: Shared room showing two collaborators cursors and selections
+        caption: Live cursors, previews, and selections per collaborator.
+  - id: export
+    layout: single
+    items:
+      - type: image
+        device: browser
+        title: Export
+        alt: Export dialog with PNG, SVG, and scene-link options
+        caption: Images, vectors, and shareable scene links.
+  - id: clips
+    layout: grid
+    items:
+      - type: video
+        loop: true
+        title: Drawing a shape
+        alt: Short clip of drawing and styling a rectangle
+        caption: Draw, style, and arrange in seconds.
+      - type: video
+        loop: true
+        title: Two people in one room
+        alt: Short clip of two cursors editing the same canvas
+        caption: Presence and edits stay in sync across browsers.
+walkthroughs:
+  - id: canvas
+    title: Canvas and tools
+    caption: The editor surface and everything it can draw.
+    section: canvas
+    index: 0
+    featureLink: /projects/excalidraw/apps/web
+  - id: selection
+    title: Selection and resizing
+    caption: Handles, guides, and multi-select behavior.
+    section: selection
+    index: 0
+    featureLink: /projects/excalidraw/apps/web
+  - id: dashboard
+    title: Dashboard
+    caption: Saved scenes and rooms backed by the scenes API.
+    section: dashboard
+    index: 0
+    featureLink: /projects/excalidraw/apps/http-server
+  - id: room
+    title: Real-time room with cursors
+    caption: Socket rooms with presence that is never stored.
+    section: room
+    index: 0
+    featureLink: /projects/excalidraw/apps/ws-server
+  - id: export
+    title: Export
+    caption: Rendered output and portable scene links.
+    section: export
+    index: 0
+    featureLink: /projects/excalidraw/apps/web

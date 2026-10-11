@@ -1,0 +1,29 @@
+---
+title: features/statistics
+description: Summaries and calculations over local entries.
+workspace: .
+diagram: habitly-features-statistics
+owns:
+  - "Statistics screen composition"
+  - "Consistency, streak, and weekday calculations"
+  - "Per-habit and overall summaries"
+files:
+  - file: src/features/statistics/StatisticsUI.tsx
+    purpose: Statistics screen composition.
+  - file: src/features/statistics/calculations.ts
+    purpose: Weekly consistency and best weekday.
+  - file: src/features/statistics/analytics.ts
+    purpose: Per-habit and overall summaries.
+talksTo:
+  - label: Statistics and streaks
+    href: /projects/habitly/features/statistics
+sources:
+  - src/features/statistics/StatisticsUI.tsx
+  - src/features/statistics/calculations.ts
+  - src/features/statistics/analytics.ts
+---
+
+All math derives from local entries, never presentation state: scheduled
+check-in consistency through the current day, average weekly consistency
+for the month, totals, streaks, and the best weekday over the trailing
+thirty days.

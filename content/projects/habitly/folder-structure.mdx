@@ -1,0 +1,25 @@
+---
+title: Folder structure
+description: Where everything lives and why.
+sources:
+  - README.md
+  - implementation.md
+---
+
+Routes own the screens, features own the UI and logic, the database folder
+owns persistence, and services own the outside world:
+
+```text
+src/app             # gate, welcome, onboarding, five tabs, stack screens
+src/features        # one folder per capability, UI plus logic
+src/components      # shared interface primitives and decoration
+src/database        # versioned SQLite client and repositories
+src/services        # Firebase, cloud sync, reminders, notifications
+src/theme           # semantic design tokens
+src/utils           # date keys and the typed route table
+tests/              # domain and pager suites
+```
+
+Config and build files live at the root: the static manifest, the dynamic
+config that wires Firebase values, build profiles, lint and style tooling,
+and the Firestore rules. See [Config and tooling](/projects/habitly/config).

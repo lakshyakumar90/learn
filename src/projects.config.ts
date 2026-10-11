@@ -23,11 +23,22 @@
  *                  folder name in Title Case).
  * - rootPage:      docs slug that '.' workspace links point at.
  * - ignore:        directory basenames skipped while scanning sources.
+ * - platform:      'web' or 'mobile' (landing badge, demo frames).
+ * - cover:         optional cover image path under public/ for cards.
+ * - diagramLayers: layer keys shown in this project's diagram legend.
+ * - diagramLegend: solid/dashed line labels (and screen-reader hints).
  */
 
 export type ProjectSource =
   | { type: 'local'; path: string }
   | { type: 'git'; url: string; commit: string };
+
+export interface DiagramLegendText {
+  solid: string;
+  solidHint: string;
+  dashed: string;
+  dashedHint: string;
+}
 
 export interface ProjectConfig {
   id: string;
@@ -44,6 +55,10 @@ export interface ProjectConfig {
   titles?: Record<string, string>;
   rootPage?: string;
   ignore?: string[];
+  platform: 'web' | 'mobile';
+  cover?: string;
+  diagramLayers: string[];
+  diagramLegend: DiagramLegendText;
 }
 
 /** Registry categories shared by every project (checks + tables + map). */
@@ -65,8 +80,24 @@ export const CATEGORY_ORDER = [
   'Testing',
   'Linting and formatting',
   'Monorepo tooling',
+  'Mobile framework',
+  'Navigation',
+  'Local data',
+  'Device APIs',
+  'Styling',
+  'Animation and gestures',
+  'Auth and cloud',
   'Other',
 ];
+
+const WEB_LAYERS = ['browser', 'api', 'realtime', 'cache', 'database', 'shared'];
+
+const WEB_LEGEND: DiagramLegendText = {
+  solid: 'durable',
+  solidHint: 'durable data',
+  dashed: 'ephemeral',
+  dashedHint: 'ephemeral data',
+};
 
 export const PROJECTS: ProjectConfig[] = [
   {
@@ -122,6 +153,9 @@ export const PROJECTS: ProjectConfig[] = [
     },
     rootPage: 'monorepo',
     ignore: ['node_modules', 'dist', '.next', 'coverage', '.turbo', '.git'],
+    platform: 'web',
+    diagramLayers: WEB_LAYERS,
+    diagramLegend: WEB_LEGEND,
   },
   {
     id: 'devconnect',
@@ -141,6 +175,35 @@ export const PROJECTS: ProjectConfig[] = [
     },
     rootPage: 'project-structure',
     ignore: ['node_modules', 'dist', '.git', '.claude', '.codex', '.cursor', '.github', 'uploads'],
+    platform: 'web',
+    diagramLayers: WEB_LAYERS,
+    diagramLegend: WEB_LEGEND,
+  },
+  {
+    id: 'habitly',
+    title: 'Habitly',
+    description:
+      'A mobile habit tracker: offline-first habits and tasks with SQLite, reminders, stats, and optional Firebase cloud sync.',
+    tags: ['Expo', 'React Native', 'TypeScript', 'SQLite', 'Firebase'],
+    status: 'live',
+    documentedCommit: '99a2c3d',
+    repo: 'https://github.com/lakshyakumar90/habit-tracker',
+    source: { type: 'git', url: 'https://github.com/lakshyakumar90/habit-tracker', commit: '99a2c3d' },
+    workspaces: ['.'],
+    scanDir: '.',
+    titles: {
+      '.': 'Habitly app',
+    },
+    rootPage: 'project-structure',
+    ignore: ['node_modules', 'dist', '.git', '.claude', '.codex', '.cursor', '.vscode', '.expo'],
+    platform: 'mobile',
+    diagramLayers: ['screens', 'features', 'localdata', 'device', 'cloud'],
+    diagramLegend: {
+      solid: 'on-device data',
+      solidHint: 'data stored on the device (SQLite)',
+      dashed: 'cloud sync',
+      dashedHint: 'optional cloud sync, not always active',
+    },
   },
   // __NEW_PROJECTS__ (appended by `pnpm new project <slug>`)
 ];

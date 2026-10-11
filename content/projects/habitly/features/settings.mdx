@@ -1,0 +1,26 @@
+---
+title: Settings
+description: Profile, appearance, data, and permissions.
+diagram: habitly-slice-settings
+owns:
+  - "Profile name editing"
+  - "Light, dark, and system appearance with accent color"
+  - "Local-data explanation panel"
+  - "Notification permission and test scheduling"
+  - "JSON and CSV export via file, share, or clipboard"
+files:
+  - file: src/app/settings.tsx
+    purpose: Settings screen with backup, export, notifications.
+talksTo:
+  - label: Export flow
+    href: /projects/habitly/how-it-works#flow=hb-export
+  - label: Cloud account and sync
+    href: /projects/habitly/features/cloud-sync
+sources:
+  - src/app/settings.tsx
+---
+
+Settings is the control room: who you are, how the app looks, what it may
+do, and where your data goes. Export builds portable JSON or CSV from the
+same repository reads the screens use, then shares the file or copies the
+text. The backup panel reports guest or live sync status.

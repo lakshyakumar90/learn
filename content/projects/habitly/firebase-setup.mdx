@@ -1,0 +1,29 @@
+---
+title: Firebase setup
+description: Console steps and build wiring, placeholders only.
+sources:
+  - FIREBASE_SETUP.md
+  - app.config.js
+  - firestore.rules
+---
+
+Placeholder values only — the real services file and local env file are
+ignored and must stay that way. What the setup notes require:
+
+1. Enable Google sign-in and set a support email in the console.
+2. Create the Firestore database and publish the repo's rules, which
+   isolate each account to its own data with a deletion marker.
+3. Register the Android package with signing fingerprints, then download a
+   fresh services file after any fingerprint change.
+4. Add web domains to authorized domains for web sign-in.
+
+The dynamic config reads the Firebase values plus the services file path
+on the build worker and refuses builds with anything missing. Firestore
+stores habits, entries, tasks, and preferences under each account;
+listeners restore other devices' edits; same-record conflicts resolve in
+write-acceptance order. Analytics is not initialized.
+
+Last verified 2026-10-11. See the
+[Firebase Android setup](https://firebase.google.com/docs/android/setup)
+and [Firestore rules](https://firebase.google.com/docs/firestore/security/get-started)
+docs for the console-side steps.

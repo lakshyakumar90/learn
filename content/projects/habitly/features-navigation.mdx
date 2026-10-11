@@ -1,0 +1,24 @@
+---
+title: features/navigation
+description: Pager math and return-to-tab behaviour.
+workspace: .
+diagram: habitly-features-navigation
+owns:
+  - "Offset-to-page index math for the pager"
+  - "Hardware back-button returns from stack screens"
+files:
+  - file: src/features/navigation/pager.ts
+    purpose: Page index math, tested.
+  - file: src/features/navigation/returnToTab.ts
+    purpose: Back navigation to the originating tab.
+talksTo:
+  - label: Screens and navigation
+    href: /projects/habitly/screens
+sources:
+  - src/features/navigation/pager.ts
+  - src/features/navigation/returnToTab.ts
+---
+
+Small pure helpers with tests: one maps scroll offsets to page indexes, the
+other sends the hardware back button to the tab a stack screen came from,
+falling back to Today.

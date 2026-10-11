@@ -1,0 +1,36 @@
+---
+title: Habits
+description: Types, schedules, check-offs, and history.
+diagram: habitly-slice-habits
+owns:
+  - "Four types with targets and units"
+  - "Every-day and weekday schedules"
+  - "Archive, restore, and explicit delete"
+  - "Detail calendars with history editing"
+files:
+  - file: src/app/(tabs)/habits.tsx
+    purpose: Filtered habit list route.
+  - file: src/app/habit/[id].tsx
+    purpose: Habit detail route.
+  - file: src/features/habits/HabitForm.tsx
+    purpose: Create and edit form.
+  - file: src/features/habits/HabitRow.tsx
+    purpose: Check-off row.
+  - file: src/features/habits/domain.ts
+    purpose: Streak and completion rules.
+talksTo:
+  - label: Check-off flow
+    href: /projects/habitly/how-it-works#flow=hb-habit-checkoff
+  - label: Statistics and streaks
+    href: /projects/habitly/features/statistics
+sources:
+  - src/features/habits/HabitForm.tsx
+  - src/features/habits/HabitRow.tsx
+  - src/features/habits/domain.ts
+---
+
+Check-off, quantity, duration, and counter habits share one completion
+contract: at most one entry per local date, targets decide done, archives
+keep history while deletes remove it. Detail screens add streaks,
+completion rate, and a month calendar where any date can gain or lose a
+check-in.

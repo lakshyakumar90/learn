@@ -1,0 +1,42 @@
+---
+title: Config and tooling
+description: Manifests, builds, styles, lint, and sync rules.
+workspace: .
+diagram: habitly-config
+owns:
+  - "Static manifest: name, platforms, icons, plugins"
+  - "Dynamic config wiring Firebase values and sign-in plugin"
+  - "Build profiles for development, preview, and production"
+  - "Style pipeline, lint config, and Firestore rules"
+files:
+  - file: app.json
+    purpose: Static manifest and plugin list.
+  - file: app.config.js
+    purpose: Firebase values and conditional plugin.
+  - file: eas.json
+    purpose: Build profiles and environments.
+  - file: metro.config.js
+    purpose: Bundler with NativeWind and WASM assets.
+  - file: postcss.config.mjs
+    purpose: Tailwind PostCSS wiring.
+  - file: eslint.config.js
+    purpose: Flat lint config.
+  - file: firebase.json
+    purpose: Firebase project wiring.
+  - file: firestore.rules
+    purpose: Per-account data isolation rules.
+talksTo:
+  - label: EAS profiles
+    href: /projects/habitly/eas-profiles
+  - label: Firebase setup
+    href: /projects/habitly/firebase-setup
+sources:
+  - app.json
+  - app.config.js
+  - eas.json
+  - firestore.rules
+---
+
+The dynamic config rejects EAS builds with missing Firebase values, and
+the Firestore rules restrict each account to its own data with a deletion
+marker that blocks re-uploads from stale clients.

@@ -1,0 +1,40 @@
+import type { DiagramSpec } from './types';
+
+export const habitlySystemSpec: DiagramSpec = {
+  id: 'habitly-system',
+  project: 'habitly',
+  title: 'Habitly high-level system',
+  nodes: [
+    { id: 'welcome', label: 'Welcome', layer: 'screens' },
+    { id: 'tabs', label: 'Tabs', layer: 'screens' },
+    { id: 'details', label: 'Details', layer: 'screens' },
+    { id: 'feature-ui', label: 'Feature UI', layer: 'features' },
+    { id: 'app-state', label: 'App state', layer: 'features' },
+    { id: 'domain', label: 'Domain logic', layer: 'features' },
+    { id: 'repos', label: 'Repositories', layer: 'localdata' },
+    { id: 'sqlite', label: 'SQLite', layer: 'localdata' },
+    { id: 'outbox', label: 'Outbox', layer: 'localdata' },
+    { id: 'reminders', label: 'Reminders', layer: 'device' },
+    { id: 'firestore', label: 'Firestore', layer: 'cloud', external: true },
+  ],
+  edges: [
+    { from: 'welcome', to: 'feature-ui', kind: 'solid', label: 'onboards' },
+    { from: 'tabs', to: 'feature-ui', kind: 'solid', label: 'shows' },
+    { from: 'details', to: 'feature-ui', kind: 'solid', label: 'edits' },
+    { from: 'feature-ui', to: 'app-state', kind: 'solid', label: 'updates' },
+    { from: 'feature-ui', to: 'domain', kind: 'solid', label: 'computes' },
+    { from: 'app-state', to: 'repos', kind: 'solid', label: 'persists' },
+    { from: 'repos', to: 'sqlite', kind: 'solid', label: 'writes' },
+    { from: 'repos', to: 'reminders', kind: 'solid', label: 'schedules' },
+    { from: 'outbox', to: 'firestore', kind: 'dashed', label: 'syncs' },
+    { from: 'firestore', to: 'sqlite', kind: 'dashed', label: 'restores' },
+  ],
+  sources: [
+    'README.md',
+    'implementation.md',
+    'src/app/_layout.tsx',
+    'src/features/app/AppProvider.tsx',
+    'src/database/client.ts',
+    'src/services/cloudSync.ts',
+  ],
+};

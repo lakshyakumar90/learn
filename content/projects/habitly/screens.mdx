@@ -1,0 +1,18 @@
+---
+title: Screens and navigation
+description: Every route and how it is reached.
+diagram: habitly-navigation
+sources:
+  - src/app/_layout.tsx
+  - src/app/(tabs)/_layout.tsx
+  - src/utils/routes.ts
+---
+
+The launch gate sends first runs to welcome and onboarding, and returning
+users straight to Today. Five tabs — Today, Habits, Tasks, Stats, Profile —
+share one swipeable pager with a floating bar; detail screens for habits,
+tasks, statistics, history, and achievements open as stack cards on top.
+Search and settings are stack screens too, reachable from the tabs.
+
+Every route literal lives in a checked route table, so renames break the
+build instead of the navigation.

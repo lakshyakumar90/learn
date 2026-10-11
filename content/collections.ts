@@ -15,6 +15,8 @@ export interface ProjectCard {
   href: string;
   cta: string;
   status: CardStatus;
+  platform: 'web' | 'mobile';
+  cover?: string;
 }
 
 export interface TopicCard {
@@ -46,6 +48,8 @@ export const projectCards: ProjectCard[] = [
     href: `/projects/${p.id}`,
     cta: 'Read the docs',
     status: 'live' as CardStatus,
+    platform: p.platform,
+    cover: p.cover,
   })),
   ...PROJECTS.filter((p) => p.status !== 'live').map((p) => ({
     slug: p.id,
@@ -55,6 +59,8 @@ export const projectCards: ProjectCard[] = [
     href: '/projects',
     cta: 'Coming soon',
     status: 'soon' as CardStatus,
+    platform: p.platform,
+    cover: p.cover,
   })),
 ];
 

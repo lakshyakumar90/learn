@@ -29,7 +29,11 @@ project elsewhere.
 4. `pnpm check-sources` — fails when a cited source path, diagram id, flow
    id, or talksTo link does not resolve (paths resolve under the owning
    project's source root, whether local or cached).
-5. `pnpm build-search-index` — writes `public/search-index.json` with a
+5. `pnpm check-demo` — validates every `content/projects/<id>/demo.yaml`
+   (alt/caption required, featureLinks resolve, local files exist; fails a
+   single file over 90 MB, warns over 500 KB images / 25 MB videos, and
+   reports remaining placeholder counts).
+6. `pnpm build-search-index` — writes `public/search-index.json` with a
    project badge per project page.
 
 Where a local source is absent (deploy clones only this repo), the steps
@@ -49,6 +53,14 @@ reuse the committed `generated/` files instead of failing.
 Never copy uploaded files, PDFs, images, or env values into the site.
 `.env` contents stay out; only variable names and placeholders are
 documented.
+
+## Demo media
+
+Each project's `demo.yaml` drives its Demo page. Replacing a placeholder
+takes two steps: drop the file into `public/media/<project>/` and set its
+`src` in `demo.yaml`. Do not commit large videos to git (GitHub rejects
+files over 100 MB) — use YouTube or another host, or Git LFS — and prefer
+WebP/AVIF for images.
 
 ## Scaffolding
 

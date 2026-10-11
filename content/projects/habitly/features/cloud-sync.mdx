@@ -1,0 +1,37 @@
+---
+title: Cloud account and sync
+description: Google sign-in with Firestore sync, when configured.
+diagram: habitly-slice-cloud
+owns:
+  - "Native Google sign-in feeding Firebase credentials"
+  - "Per-account databases with one-time guest import"
+  - "Outbox uploads, pulls, and live listeners"
+  - "Guarded deletion through the trusted endpoint"
+files:
+  - file: src/features/account/CloudAccountProvider.tsx
+    purpose: Account lifecycle and sync bridge.
+  - file: src/services/firebase.ts
+    purpose: Configuration gate.
+  - file: src/services/cloudSync.ts
+    purpose: Sync engine and statuses.
+  - file: src/services/accountBootstrap.ts
+    purpose: Guest import for new accounts.
+  - file: src/services/accountDeletion.ts
+    purpose: Server-confirmed deletion call.
+talksTo:
+  - label: Cloud sync flow
+    href: /projects/habitly/how-it-works#flow=hb-cloud-sync
+  - label: Firebase setup
+    href: /projects/habitly/firebase-setup
+sources:
+  - src/features/account/CloudAccountProvider.tsx
+  - src/services/cloudSync.ts
+  - src/services/firebase.ts
+---
+
+Only what the code implements: Google sign-in (native on device, popup on
+web), per-account SQLite files, an outbox that uploads before any pull,
+listeners that restore other devices' edits, and deletion that demands a
+fresh sign-in and server confirmation. Same-record conflicts resolve in
+the order Firestore accepts writes. None of this runs without Firebase
+values and a proper build — otherwise the app stays a guest.

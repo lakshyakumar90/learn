@@ -1,0 +1,33 @@
+---
+title: Status and scope
+description: What works today, what needs setup, what is out of scope.
+sources:
+  - README.md
+  - features.md
+  - FIREBASE_SETUP.md
+---
+
+## Works today
+
+Guest onboarding with a resumable five-step flow, the Today dashboard with
+progress and streaks, habits in four types with weekday schedules, habit
+detail with calendars and history editing, tasks with repeats and subtasks,
+statistics and best-weekday summaries, local search, appearance and accent
+settings, JSON and CSV export, and local reminders once notification
+permission is granted on a native build.
+
+## Needs configuration
+
+Google sign-in, Firestore sync, and account deletion need Firebase values
+and a development or production build — Expo Go cannot run the native
+sign-in module. The preview channel already carries those values; later
+channels need the same eight variables before building. See
+[Firebase setup](/projects/habitly/firebase-setup).
+
+## Out of scope
+
+Email sign-in is not implemented — only Google. Push notifications are not
+implemented — reminders are local and scheduled. There is no Supabase
+integration anywhere in the code despite the README naming it. AI coaching,
+social features, health integrations, widgets, subscriptions, and a web
+dashboard are out of scope per the feature notes.

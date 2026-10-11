@@ -1,0 +1,28 @@
+---
+title: Tasks
+description: Dated, repeatable tasks with subtasks.
+diagram: habitly-slice-tasks
+owns:
+  - "Due dates, notes, priorities, and lists"
+  - "Subtasks and repeat rules"
+  - "Today, Upcoming, and Completed views"
+files:
+  - file: src/app/(tabs)/tasks.tsx
+    purpose: Task list route.
+  - file: src/app/task/[id].tsx
+    purpose: Task detail route.
+  - file: src/features/tasks/TaskForm.tsx
+    purpose: Create and edit form.
+  - file: src/features/tasks/types.ts
+    purpose: Repeat and subtask shapes.
+talksTo:
+  - label: Today dashboard
+    href: /projects/habitly/features/today
+sources:
+  - src/features/tasks/TaskForm.tsx
+  - src/features/tasks/types.ts
+---
+
+Tasks take arbitrary due dates with optional times, priorities, lists,
+subtasks, and repeats that recompute due dates per cycle. Completion
+clears one-shot reminders and keeps repeating ones on their cycle.

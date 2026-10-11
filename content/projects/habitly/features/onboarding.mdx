@@ -1,0 +1,29 @@
+---
+title: Onboarding and guest profile
+description: Five steps to a working guest profile.
+diagram: habitly-slice-onboarding
+owns:
+  - "Welcome art and entry"
+  - "Five resumable personalization steps"
+  - "Guest profile completion"
+files:
+  - file: src/app/welcome.tsx
+    purpose: Welcome screen route.
+  - file: src/app/onboarding.tsx
+    purpose: Flow host route.
+  - file: src/features/onboarding/OnboardingFlow.tsx
+    purpose: Step state and persistence.
+  - file: src/features/onboarding/types.ts
+    purpose: Name, age, interests, source, motivation.
+talksTo:
+  - label: First launch flow
+    href: /projects/habitly/how-it-works#flow=hb-first-launch
+sources:
+  - src/app/welcome.tsx
+  - src/features/onboarding/OnboardingFlow.tsx
+---
+
+Name, age range, interests, discovery source, and optional motivation —
+each answer saved locally so setup survives interruption. The last step
+offers Google sign-in where configured, or a guest profile that works
+immediately and offline.

@@ -1,0 +1,21 @@
+---
+title: Installation
+description: How to run Habitly locally.
+sources:
+  - README.md
+  - app.json
+---
+
+You need Node.js 22.13 or newer with pnpm:
+
+```bash
+pnpm install
+pnpm start
+```
+
+Open the project in an Android development build or Expo Go. The basics —
+welcome, onboarding, habits, tasks, stats — run in Expo Go. Anything needing
+a native module needs a development build instead: Google sign-in cannot run
+in Expo Go, and local reminders need a native build with notification
+permission. See [Status and scope](/projects/habitly/status-scope) for what
+works where.

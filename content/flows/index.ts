@@ -7,6 +7,12 @@ import { dcConnectionFlow } from './dc-connection';
 import { dcChatFlow } from './dc-chat';
 import { dcPostFlow } from './dc-post';
 import { dcNotifyFlow } from './dc-notify';
+import { hbFirstLaunchFlow } from './hb-first-launch';
+import { hbHabitCheckoffFlow } from './hb-habit-checkoff';
+import { hbRemindersFlow } from './hb-reminders';
+import { hbStatisticsFlow } from './hb-statistics';
+import { hbExportFlow } from './hb-export';
+import { hbCloudSyncFlow } from './hb-cloud-sync';
 
 /**
  * Every animated end-to-end flow, keyed by tab id.
@@ -22,6 +28,12 @@ export const flowSpecs: Record<string, FlowSpec> = {
   'dc-chat': dcChatFlow,
   'dc-post': dcPostFlow,
   'dc-notify': dcNotifyFlow,
+  'hb-first-launch': hbFirstLaunchFlow,
+  'hb-habit-checkoff': hbHabitCheckoffFlow,
+  'hb-reminders': hbRemindersFlow,
+  'hb-statistics': hbStatisticsFlow,
+  'hb-export': hbExportFlow,
+  'hb-cloud-sync': hbCloudSyncFlow,
 };
 
 export const flowOrder = ['guest', 'signedin', 'room'] as const;

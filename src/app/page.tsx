@@ -33,7 +33,7 @@ export default function Home() {
             <SectionHead
               eyebrow="Projects"
               title="Real codebases, documented end to end"
-              line="Two live projects today; more systems joining the shelf."
+              line="Three live projects today; more systems joining the shelf."
             />
             <div className="mt-6 grid gap-3 md:grid-cols-3">
               {projectCards.map((p) =>
@@ -45,7 +45,27 @@ export default function Home() {
                   >
                     <p className="inline-block rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100">
                       Live
+                    </p>{' '}
+                    <p className="inline-block rounded-full border px-2.5 py-0.5 text-xs font-medium opacity-70">
+                      {p.platform === 'mobile' ? 'Mobile' : 'Web'}
                     </p>
+                    {p.cover ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={p.cover}
+                        alt={`${p.name} cover`}
+                        loading="lazy"
+                        decoding="async"
+                        className="mt-3 aspect-[16/10] w-full rounded-lg border object-cover"
+                      />
+                    ) : (
+                      <span
+                        aria-hidden
+                        className="mt-3 flex aspect-[16/10] w-full items-center justify-center rounded-lg border bg-stone-100 text-2xl font-semibold opacity-70 dark:bg-stone-900"
+                      >
+                        {p.name.slice(0, 1)}
+                      </span>
+                    )}
                     <p className="mt-3 text-xl font-semibold">{p.name}</p>
                     <p className="mt-1 text-sm opacity-70">{p.line}</p>
                     {p.tags.length > 0 ? (

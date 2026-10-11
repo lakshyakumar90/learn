@@ -1,0 +1,32 @@
+---
+title: Statistics and streaks
+description: Consistency math over local entries.
+diagram: habitly-slice-statistics
+owns:
+  - "Scheduled check-in consistency through today"
+  - "Average weekly consistency for the month"
+  - "Totals, streaks, and best weekday"
+files:
+  - file: src/app/(tabs)/stats.tsx
+    purpose: Statistics route.
+  - file: src/app/statistics/[id].tsx
+    purpose: Per-habit summary route.
+  - file: src/app/statistics/history/[id].tsx
+    purpose: Month history route.
+  - file: src/features/statistics/StatisticsUI.tsx
+    purpose: Screen composition.
+  - file: src/features/statistics/calculations.ts
+    purpose: Consistency and weekday math.
+  - file: src/features/statistics/analytics.ts
+    purpose: Habit and overall summaries.
+talksTo:
+  - label: Statistics flow
+    href: /projects/habitly/how-it-works#flow=hb-statistics
+sources:
+  - src/features/statistics/calculations.ts
+  - src/features/statistics/analytics.ts
+---
+
+Consistency counts scheduled check-ins completed through the current day —
+future days never dilute the score. Best weekday looks back thirty days.
+Per-habit screens reuse the same summaries with their own history view.

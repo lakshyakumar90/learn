@@ -1,0 +1,30 @@
+---
+title: Project structure
+description: A single app, not a monorepo.
+sources:
+  - README.md
+  - package.json
+  - pnpm-workspace.yaml
+---
+
+Despite living next to a `pnpm-workspace.yaml`, this is **not a monorepo**.
+There is one manifest at the root and one app under `src/`; the workspace
+file holds only package-manager settings (allowed builds and an override).
+Install once at the root and run everything from there.
+
+```text
+.
+├── src/app          # file-based routes: gate, welcome, tabs, stacks
+├── src/features     # account, app state, habits, navigation, onboarding, statistics, tasks
+├── src/components   # shared interface and decorative pieces
+├── src/database     # SQLite client plus repositories
+├── src/services     # Firebase, sync, reminders, notifications
+├── src/theme        # design tokens
+├── src/utils        # dates and typed routes
+├── tests/           # node:test suites
+└── app.json, app.config.js, eas.json, firestore.rules ...
+```
+
+Cloud and device integrations live behind small modules in
+[Services](/projects/habitly/services). Start with the
+[Screens](/projects/habitly/screens) route map.

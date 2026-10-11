@@ -142,7 +142,7 @@ export function FlowPlayer({ project = 'excalidraw' }: { project?: string }) {
           <FlowNarration />
           <FlowControls flowId={FLOW_ID} total={steps.length} canAnimate={canAnimate} />
           <FlowSteps flowId={FLOW_ID} steps={steps} />
-          <DiagramLegend />
+          <DiagramLegend project={project} />
         </div>
         <FlowTimer total={steps.length} canAnimate={canAnimate} />
       </div>
@@ -165,7 +165,7 @@ export function FlowPlayer({ project = 'excalidraw' }: { project?: string }) {
               fitSignal={open}
             />
             <div className="border-t px-4 py-2">
-              <DiagramLegend />
+              <DiagramLegend project={project} />
             </div>
           </div>
           <aside

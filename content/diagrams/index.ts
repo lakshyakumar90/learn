@@ -39,6 +39,32 @@ import { devconnectFeatFeedSpec } from './devconnect-feat-feed';
 import { devconnectFeatJobsSpec } from './devconnect-feat-jobs';
 import { devconnectFeatNotificationsSpec } from './devconnect-feat-notifications';
 import { devconnectFeatChatSpec } from './devconnect-feat-chat';
+import { habitlySystemSpec } from './habitly-system';
+import { habitlyAppSpec } from './habitly-app';
+import { habitlyDatabaseSpec } from './habitly-database';
+import { habitlyServicesSpec } from './habitly-services';
+import { habitlyFeaturesAccountSpec } from './habitly-features-account';
+import { habitlyFeaturesAppSpec } from './habitly-features-app';
+import { habitlyFeaturesHabitsSpec } from './habitly-features-habits';
+import { habitlyFeaturesTasksSpec } from './habitly-features-tasks';
+import { habitlyFeaturesNavigationSpec } from './habitly-features-navigation';
+import { habitlyFeaturesOnboardingSpec } from './habitly-features-onboarding';
+import { habitlyFeaturesStatisticsSpec } from './habitly-features-statistics';
+import { habitlyComponentsSpec } from './habitly-components';
+import { habitlyThemeSpec } from './habitly-theme';
+import { habitlyUtilsSpec } from './habitly-utils';
+import { habitlyTestsSpec } from './habitly-tests';
+import { habitlyConfigSpec } from './habitly-config';
+import { habitlyNavigationSpec } from './habitly-navigation';
+import { habitlySliceOnboardingSpec } from './habitly-slice-onboarding';
+import { habitlySliceHabitsSpec } from './habitly-slice-habits';
+import { habitlySliceTasksSpec } from './habitly-slice-tasks';
+import { habitlySliceTodaySpec } from './habitly-slice-today';
+import { habitlySliceStatisticsSpec } from './habitly-slice-statistics';
+import { habitlySliceRemindersSpec } from './habitly-slice-reminders';
+import { habitlySliceSearchSpec } from './habitly-slice-search';
+import { habitlySliceSettingsSpec } from './habitly-slice-settings';
+import { habitlySliceCloudSpec } from './habitly-slice-cloud';
 
 /**
  * Every reusable diagram, keyed by the id used in MDX (`<Diagram id="web" />`).
@@ -85,6 +111,32 @@ export const diagramSpecs: Record<string, DiagramSpec> = {
   'devconnect-feat-jobs': devconnectFeatJobsSpec,
   'devconnect-feat-notifications': devconnectFeatNotificationsSpec,
   'devconnect-feat-chat': devconnectFeatChatSpec,
+  'habitly-system': habitlySystemSpec,
+  'habitly-app': habitlyAppSpec,
+  'habitly-database': habitlyDatabaseSpec,
+  'habitly-services': habitlyServicesSpec,
+  'habitly-features-account': habitlyFeaturesAccountSpec,
+  'habitly-features-app': habitlyFeaturesAppSpec,
+  'habitly-features-habits': habitlyFeaturesHabitsSpec,
+  'habitly-features-tasks': habitlyFeaturesTasksSpec,
+  'habitly-features-navigation': habitlyFeaturesNavigationSpec,
+  'habitly-features-onboarding': habitlyFeaturesOnboardingSpec,
+  'habitly-features-statistics': habitlyFeaturesStatisticsSpec,
+  'habitly-components': habitlyComponentsSpec,
+  'habitly-theme': habitlyThemeSpec,
+  'habitly-utils': habitlyUtilsSpec,
+  'habitly-tests': habitlyTestsSpec,
+  'habitly-config': habitlyConfigSpec,
+  'habitly-navigation': habitlyNavigationSpec,
+  'habitly-slice-onboarding': habitlySliceOnboardingSpec,
+  'habitly-slice-habits': habitlySliceHabitsSpec,
+  'habitly-slice-tasks': habitlySliceTasksSpec,
+  'habitly-slice-today': habitlySliceTodaySpec,
+  'habitly-slice-statistics': habitlySliceStatisticsSpec,
+  'habitly-slice-reminders': habitlySliceRemindersSpec,
+  'habitly-slice-search': habitlySliceSearchSpec,
+  'habitly-slice-settings': habitlySliceSettingsSpec,
+  'habitly-slice-cloud': habitlySliceCloudSpec,
 };
 
 export function getDiagramSpec(id: string): DiagramSpec | undefined {

@@ -1,0 +1,24 @@
+---
+title: tests/
+description: Domain and pager suites on node:test.
+workspace: .
+diagram: habitly-tests
+owns:
+  - "Habit domain rules: schedules, streaks, completion"
+  - "Pager index math"
+files:
+  - file: tests/habits.test.ts
+    purpose: Domain rule coverage.
+  - file: tests/pager.test.ts
+    purpose: Pager math coverage.
+talksTo:
+  - label: Checks
+    href: /projects/habitly/checks
+sources:
+  - tests/habits.test.ts
+  - tests/pager.test.ts
+---
+
+Plain `node:test` suites run through `tsx` with no test framework to
+install. They pin the trickiest pure logic: streaks across non-scheduled
+days and page indexes from scroll offsets.

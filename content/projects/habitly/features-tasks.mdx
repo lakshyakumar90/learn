@@ -1,0 +1,24 @@
+---
+title: features/tasks
+description: Task form and task shapes.
+workspace: .
+diagram: habitly-features-tasks
+owns:
+  - "Task creation and editing form"
+  - "Task shapes: repeats, subtasks, reminders, lists"
+files:
+  - file: src/features/tasks/TaskForm.tsx
+    purpose: Create and edit form.
+  - file: src/features/tasks/types.ts
+    purpose: Task, subtask, and repeat shapes.
+talksTo:
+  - label: Tasks
+    href: /projects/habitly/features/tasks
+sources:
+  - src/features/tasks/TaskForm.tsx
+  - src/features/tasks/types.ts
+---
+
+Tasks carry due dates and times, notes, priority, lists, subtasks, icons,
+repeat rules, and reminder offsets. Repeats recompute their due date and
+completion per cycle in the repository reader.

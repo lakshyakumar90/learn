@@ -1,0 +1,18 @@
+---
+title: High-level architecture
+description: The system in one diagram.
+diagram: habitly-system
+sources:
+  - README.md
+  - implementation.md
+  - src/app/_layout.tsx
+---
+
+Screens render feature UI, feature UI updates app state, app state persists
+through repositories into SQLite. Reminder times flow sideways into the
+device layer, which reconciles them with OS alarms. Nothing leaves the
+device unless a signed-in account exists — then the outbox carries edits to
+Firestore and listeners bring other devices' edits back.
+
+Solid lines are on-device data; dashed lines are optional cloud sync, only
+active for signed-in accounts with Firebase configured.

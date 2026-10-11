@@ -1,0 +1,40 @@
+---
+title: src/services
+description: Firebase, sync, reminders, notifications.
+workspace: .
+diagram: habitly-services
+owns:
+  - "Firebase initialization gated on public values"
+  - "Outbox-driven Firestore sync with listeners"
+  - "One-time guest data import for new cloud accounts"
+  - "Server-confirmed account deletion calls"
+  - "Device reminder reconcile and OS notification plumbing"
+files:
+  - file: src/services/firebase.ts
+    purpose: Firebase setup and configuration gate.
+  - file: src/services/cloudSync.ts
+    purpose: Outbox flush, pull, listeners, statuses.
+  - file: src/services/accountBootstrap.ts
+    purpose: Guest-to-cloud import for new accounts.
+  - file: src/services/accountDeletion.ts
+    purpose: Trusted-endpoint deletion call.
+  - file: src/services/deviceReminders.ts
+    purpose: Reminder reconcile and suspension.
+  - file: src/services/notifications.ts
+    purpose: Scheduling, permission, cancellation.
+talksTo:
+  - label: Cloud account and sync
+    href: /projects/habitly/features/cloud-sync
+  - label: Reminders
+    href: /projects/habitly/features/reminders
+sources:
+  - src/services/firebase.ts
+  - src/services/cloudSync.ts
+  - src/services/deviceReminders.ts
+  - src/services/notifications.ts
+---
+
+Services never own UI. Firebase stays dormant without its values; sync
+uploads outbox rows first so remote snapshots cannot overwrite local edits,
+then pulls, then subscribes; reminders reconcile stored times against OS
+alarms and never block data work when scheduling fails.

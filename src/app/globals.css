@@ -123,6 +123,11 @@ body {
   --dg-cache: #db2777;
   --dg-database: #16a34a;
   --dg-shared: #7c3aed;
+  --dg-screens: #2563eb;
+  --dg-features: #9333ea;
+  --dg-localdata: #059669;
+  --dg-device: #d97706;
+  --dg-cloud: #0284c7;
   --dg-node-bg: #ffffff;
   --dg-node-border: #d6d3d1;
   --dg-edge: #78716c;
@@ -135,6 +140,11 @@ body {
   --dg-cache: #f9a8d4;
   --dg-database: #86efac;
   --dg-shared: #c4b5fd;
+  --dg-screens: #93c5fd;
+  --dg-features: #d8b4fe;
+  --dg-localdata: #6ee7b7;
+  --dg-device: #fbbf24;
+  --dg-cloud: #7dd3fc;
   --dg-node-bg: #1c1917;
   --dg-node-border: #44403c;
   --dg-edge: #a8a29e;

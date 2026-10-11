@@ -1,0 +1,27 @@
+---
+title: Reminders
+description: Local scheduled notifications, reconciled.
+diagram: habitly-slice-reminders
+owns:
+  - "Habit reminders on weekday schedules"
+  - "Task reminders on due times"
+  - "Daily summary and motivational nudges"
+  - "Reconcile against OS alarms on every relevant change"
+files:
+  - file: src/services/deviceReminders.ts
+    purpose: Reconcile and suspension logic.
+  - file: src/services/notifications.ts
+    purpose: Scheduling and permission plumbing.
+talksTo:
+  - label: Reminders flow
+    href: /projects/habitly/how-it-works#flow=hb-reminders
+sources:
+  - src/services/deviceReminders.ts
+  - src/services/notifications.ts
+---
+
+All reminders are local and scheduled — no push service exists. Times and
+OS identifiers persist in SQLite; the reconcile pass schedules what is
+missing and drops what is stale whenever data, accounts, or sync change.
+Habit reminders repeat weekly, tasks use date triggers, and two optional
+daily nudges cover summary and motivation.

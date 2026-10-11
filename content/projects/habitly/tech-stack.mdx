@@ -1,0 +1,15 @@
+---
+title: Tech stack
+description: Every external library, grouped by category, with its reason.
+sources:
+  - package.json
+---
+
+Every library below is declared in the workspace manifest — names, version
+ranges, and categories come from the data, and the build fails if the list
+drifts. "Used in" points at the folders that import each library. Libraries
+marked "Declared but not used in source" sit in the manifest but no scanned
+source imports them — mostly Expo SDK surface wired through native config
+rather than TypeScript.
+
+<TechStackIndex project="habitly" />

@@ -1,0 +1,31 @@
+---
+title: features/onboarding
+description: Welcome art and the five-step flow.
+workspace: .
+diagram: habitly-features-onboarding
+owns:
+  - "Welcome screen art and entry"
+  - "Five personalization steps with progress"
+  - "Step chrome, theme, and answer shapes"
+files:
+  - file: src/features/onboarding/WelcomeScreen.tsx
+    purpose: Welcome art and entry point.
+  - file: src/features/onboarding/OnboardingFlow.tsx
+    purpose: Step state and answer persistence.
+  - file: src/features/onboarding/OnboardingChrome.tsx
+    purpose: Shared step framing.
+  - file: src/features/onboarding/theme.ts
+    purpose: Step-specific styling.
+  - file: src/features/onboarding/types.ts
+    purpose: Answer option shapes.
+talksTo:
+  - label: Onboarding and guest profile
+    href: /projects/habitly/features/onboarding
+sources:
+  - src/features/onboarding/WelcomeScreen.tsx
+  - src/features/onboarding/OnboardingFlow.tsx
+---
+
+Five steps — name, age range, interests, discovery source, motivation —
+each saved locally so an interrupted setup resumes. The flow ends at the
+account choice: Google sign-in when configured, or a working guest profile.

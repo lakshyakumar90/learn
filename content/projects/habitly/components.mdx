@@ -1,0 +1,30 @@
+---
+title: src/components
+description: Shared interface primitives and decoration.
+workspace: .
+diagram: habitly-components
+owns:
+  - "Primitives, sheets, dialogs, and switches"
+  - "Decorative background art"
+files:
+  - file: src/components/ui/Primitives.tsx
+    purpose: Shared interface building blocks.
+  - file: src/components/ui/ActionSheet.tsx
+    purpose: Custom in-app sheets.
+  - file: src/components/ui/DateTimeDialogs.tsx
+    purpose: Custom calendar and time pickers.
+  - file: src/components/ui/SmoothSwitch.tsx
+    purpose: Animated toggle switch.
+  - file: src/components/decorative/BackgroundBlobs.tsx
+    purpose: Pastel background fields.
+talksTo:
+  - label: Routes by purpose
+    href: /projects/habitly/app
+sources:
+  - src/components/ui/Primitives.tsx
+  - src/components/decorative/BackgroundBlobs.tsx
+---
+
+No native alert dialogs: sheets, calendars, and time pickers are custom
+in-app components. Touch targets stay at least 44 points with labels on
+icon-only controls.
