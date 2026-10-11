@@ -101,7 +101,7 @@ export function Diagram({ id }: { id: string }) {
         description={`Interactive diagram: ${spec.title}. Plus and minus zoom, zero fits, arrow keys pan, Escape closes. Selecting a node highlights its edges.`}
         panKeys
       >
-        <div className="flex min-h-0 flex-1 flex-col">
+        <div className="w-full">
           <DiagramCanvas
             spec={spec}
             placed={placed}
@@ -111,9 +111,8 @@ export function Diagram({ id }: { id: string }) {
             activeEdgeKeys={activeEdgeKeys}
             selectable
             onSelectNode={setSelected}
-            minimap
             fitSignal={open}
-            heightClass="h-[38dvh] min-h-[260px] w-full lg:h-full lg:min-h-0"
+            heightClass="h-[38dvh] min-h-[260px] w-full lg:h-[62vh]"
             label={`${spec.title} diagram, fullscreen. Plus and minus zoom, zero fits, arrow keys pan.`}
             loadingText={`Laying out ${spec.title}…`}
           />

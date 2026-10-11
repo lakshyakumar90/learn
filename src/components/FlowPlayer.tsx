@@ -144,13 +144,14 @@ export function FlowPlayer() {
         description="Interactive flow. Space plays or pauses, left and right arrows change steps, plus and minus zoom, zero fits, Escape closes."
         panKeys={false}
       >
-        <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-          <div className="flex min-h-0 flex-1 flex-col">
+        <div className="w-full">
+        <div className="flex w-full flex-col lg:flex-row">
+          <div className="flex w-full flex-col">
             <FlowCanvas
               flowId={FLOW_ID}
               modal
               canAnimate={canAnimate}
-              heightClass="h-[38dvh] min-h-[260px] w-full lg:h-full lg:min-h-0"
+              heightClass="h-[38dvh] min-h-[260px] w-full lg:h-[62vh]"
               fitSignal={open}
             />
             <div className="border-t px-4 py-2">
@@ -159,13 +160,14 @@ export function FlowPlayer() {
           </div>
           <aside
             aria-label="Flow narration and steps"
-            className="flex min-h-0 w-full flex-col gap-4 overflow-y-auto border-t p-4 lg:w-84 lg:border-l lg:border-t-0"
+            className="flex min-h-0 w-full flex-col gap-4 overflow-y-auto border-t p-4 lg:w-84 lg:border-l lg:border-t-0 lg:max-h-[70vh]"
           >
             <FlowTabs flowId={FLOW_ID} arrowNav={false} />
             <FlowNarration large />
             <FlowControls flowId={FLOW_ID} total={steps.length} canAnimate={canAnimate} />
             <FlowSteps flowId={FLOW_ID} steps={steps} large />
           </aside>
+        </div>
         </div>
         <FlowModalHotkeys total={steps.length} canAnimate={canAnimate} />
       </ExpandedView>

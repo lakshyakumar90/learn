@@ -163,7 +163,6 @@ export function FlowCanvas({ flowId, modal, canAnimate, height, heightClass, fit
       activeEdgeKeys={activeEdges}
       selectable={modal}
       onSelectNode={modal ? setSelected : undefined}
-      minimap={modal}
       fitSignal={fitSignal}
       height={height}
       heightClass={heightClass}

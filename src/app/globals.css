@@ -73,8 +73,16 @@
   border-color: var(--color-fd-primary);
 }
 
-/* Decorative knowledge-map edge animation (landing hero). */
-@keyframes map-dash {
+/*
+ * Modal body centering that stays scroll-safe: content shorter than the
+ * viewport centers; taller content top-aligns so nothing is ever cut off
+ * (plain `center` would hide the top behind an unreachable scroll).
+ */
+.modal-body-safe {
+  justify-content: safe center;
+}
+
+/* Decorative knowledge-map edge animation (landing hero). */@keyframes map-dash {
   to {
     stroke-dashoffset: -24;
   }

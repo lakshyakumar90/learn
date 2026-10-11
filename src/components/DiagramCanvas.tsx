@@ -3,7 +3,6 @@
 import { useEffect, useRef } from 'react';
 import {
   Background,
-  MiniMap,
   ReactFlow,
   ViewportPortal,
   useReactFlow,
@@ -26,7 +25,6 @@ interface DiagramCanvasProps {
   activeEdgeKeys?: Set<string>;
   selectable?: boolean;
   onSelectNode?: (id: string | null) => void;
-  minimap?: boolean;
   /** Rendered inside a ViewportPortal (flow packet). Scales with zoom. */
   overlay?: React.ReactNode;
   /** Change to refit (e.g. modal open state). */
@@ -55,7 +53,6 @@ export function DiagramCanvas({
   activeEdgeKeys,
   selectable = false,
   onSelectNode,
-  minimap = false,
   overlay,
   fitSignal,
   height,
@@ -130,15 +127,6 @@ export function DiagramCanvas({
           onNodeClick={onNodeClick}
         >
           <Background gap={22} size={1} color="var(--dg-node-border)" bgColor="transparent" />
-          {minimap ? (
-            <MiniMap
-              pannable
-              zoomable
-              nodeColor="var(--dg-edge)"
-              maskColor="var(--dg-node-bg)"
-              className="!m-2 rounded-lg border"
-            />
-          ) : null}
           {overlay ? <ViewportPortal>{overlay}</ViewportPortal> : null}
         </ReactFlow>
       ) : (

@@ -129,7 +129,7 @@ export function ExpandedView({
                 <X size={18} aria-hidden />
               </Dialog.Close>
             </div>
-            <div className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:overflow-visible">{children}</div>
+            <div className="modal-body-safe flex min-h-0 flex-1 flex-col overflow-y-auto lg:overflow-visible">{children}</div>
           </ReactFlowProvider>
         </Dialog.Content>
       </Dialog.Portal>
