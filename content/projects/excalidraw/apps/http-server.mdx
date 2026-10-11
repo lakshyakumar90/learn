@@ -1,0 +1,56 @@
+---
+title: HTTP server
+description: Authenticated HTTP API for scenes, rooms, invites, files, and private library items.
+diagram: http-server
+owns:
+  - "Scene CRUD and guest import"
+  - "Room CRUD, presence tickets, files, and scene patching"
+  - "Room invitations, join codes, and member management"
+  - "Private library item CRUD"
+files:
+  - file: src/app.ts
+    purpose: Route mounting and middleware wiring.
+  - file: src/middleware.ts
+    purpose: Request authentication.
+  - file: src/invitationRateLimit.ts
+    purpose: Invite request rate limits.
+  - file: src/routes/scenes.ts
+    purpose: Scene routes.
+  - file: src/routes/rooms.ts
+    purpose: Room routes.
+  - file: src/routes/roomInvites.ts
+    purpose: Invite, join-code, and member management routes.
+  - file: src/routes/roomRouteUtils.ts
+    purpose: Shared room authorization, join-code, and rate-limit helpers.
+  - file: src/routes/library.ts
+    purpose: Library routes.
+  - file: src/routes/guestImport.ts
+    purpose: Guest import routes.
+  - file: src/services/
+    purpose: Reserved folder holding only its README for now.
+talksTo:
+  - label: Web
+    href: /projects/excalidraw/apps/web
+  - label: Database
+    href: /projects/excalidraw/packages/db
+  - label: Backend common
+    href: /projects/excalidraw/packages/backend-common
+  - label: Auth
+    href: /projects/excalidraw/packages/auth
+  - label: Redis
+    href: /projects/excalidraw/packages/redis
+  - label: Validations
+    href: /projects/excalidraw/packages/validations
+sources:
+  - apps/http-server/README.md
+  - apps/http-server/src/README.md
+  - apps/http-server/src/routes/README.md
+  - apps/http-server/src/routes/scenes.ts
+  - apps/http-server/src/routes/rooms.ts
+  - apps/http-server/src/routes/roomInvites.ts
+---
+
+Routes live under `/scenes`, `/library`, and `/room`, all behind authentication,
+plus health and account endpoints. Rooms also issue the presence tickets the browser
+uses to open its WebSocket connection. Shared room checks live in the route utils;
+the write path itself lives in backend-common.

@@ -1,0 +1,42 @@
+---
+title: apps/
+description: The runnable services.
+diagram: apps-overview
+owns:
+  - "Web editor, dashboard, and room pages"
+  - "Authenticated HTTP API for scenes, rooms, invites, files, and libraries"
+  - "Authenticated WebSocket transport for rooms"
+  - "Background worker flushing room snapshots to the database"
+files:
+  - file: web/
+    purpose: Next.js editor, account dashboard, and room access interface.
+  - file: http-server/
+    purpose: Authenticated HTTP API for scenes, rooms, invites, files, and private library items.
+  - file: ws-server/
+    purpose: Authenticated room WebSocket transport for presence, scene changes, selections, and laser trails.
+  - file: flush-worker/
+    purpose: BullMQ worker that flushes Redis room state to durable Prisma snapshots.
+talksTo:
+  - label: packages/ overview
+    href: /projects/excalidraw/packages
+  - label: Web
+    href: /projects/excalidraw/apps/web
+  - label: HTTP server
+    href: /projects/excalidraw/apps/http-server
+  - label: WebSocket server
+    href: /projects/excalidraw/apps/ws-server
+  - label: Flush worker
+    href: /projects/excalidraw/apps/flush-worker
+sources:
+  - apps/README.md
+  - apps/web/package.json
+  - apps/http-server/package.json
+  - apps/ws-server/package.json
+  - apps/flush-worker/package.json
+---
+
+Each service lists its workspace dependencies in its own `package.json`; the diagram
+shows the main ones. The web editor imports the engine, the shared models, and auth.
+The HTTP and WebSocket servers share the backend collaboration helpers, and both
+reach the database and Redis packages. The flush worker touches only Redis and the
+database.

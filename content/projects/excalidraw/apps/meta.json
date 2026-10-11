@@ -1,0 +1,4 @@
+{
+  "title": "apps/",
+  "pages": ["index", "web", "http-server", "ws-server", "flush-worker"]
+}

@@ -1,0 +1,22 @@
+---
+title: Tooling configs
+description: Shared ESLint and TypeScript configurations.
+owns:
+  - "The internal ESLint configuration collection"
+  - "Base, Next.js, and React-library TypeScript configurations"
+files:
+  - file: eslint-config/README.md
+    purpose: Internal ESLint configurations.
+  - file: typescript-config/base.json
+    purpose: Base TypeScript config.
+  - file: typescript-config/nextjs.json
+    purpose: Next.js TypeScript config.
+  - file: typescript-config/react-library.json
+    purpose: React library TypeScript config.
+sources:
+  - packages/eslint-config/README.md
+  - packages/typescript-config/README.md
+---
+
+These two packages hold no runtime code — only the lint and compiler settings the
+apps and libraries extend. They take no workspace dependencies.

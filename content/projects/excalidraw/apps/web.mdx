@@ -1,0 +1,52 @@
+---
+title: Web
+description: Next.js editor, account dashboard, and room access interface.
+diagram: web
+owns:
+  - "The drawing editor and its toolbar, canvas, and panels"
+  - "Account and dashboard pages (scenes, rooms, invitations)"
+  - "Room pages with live presence, previews, and selections"
+  - "IndexedDB persistence: autosave, drafts, and the sync outbox"
+files:
+  - file: src/
+    purpose: Editor, dashboard, and room interface source.
+  - file: src/lib/sync/
+    purpose: Room sync orchestrator, commit outbox, previews, and reconciliation.
+  - file: src/lib/persistence/
+    purpose: Autosave, IndexedDB access, imports, and exports.
+  - file: src/components/
+    purpose: Canvas, editor, toolbar, presence, dashboard, and room UI.
+  - file: src/hooks/
+    purpose: Canvas, dashboard, and sync hooks.
+  - file: public/
+    purpose: Static assets.
+  - file: package.json
+    purpose: Workspace scripts and dependencies.
+  - file: vitest.config.ts
+    purpose: Test runner config.
+talksTo:
+  - label: HTTP server
+    href: /projects/excalidraw/apps/http-server
+  - label: WebSocket server
+    href: /projects/excalidraw/apps/ws-server
+  - label: Common
+    href: /projects/excalidraw/packages/common
+  - label: Engine
+    href: /projects/excalidraw/packages/engine
+  - label: Auth
+    href: /projects/excalidraw/packages/auth
+sources:
+  - apps/web/README.md
+  - apps/web/src/README.md
+  - apps/web/src/lib/sync/README.md
+  - apps/web/src/lib/sync/roomSync.ts
+  - apps/web/src/lib/sync/outbox.ts
+  - apps/web/src/lib/sync/commits.ts
+  - apps/web/src/lib/persistence/README.md
+---
+
+Guest drawings stay on the device in IndexedDB. Signed-in work goes through the
+room sync orchestrator, which keeps a shared room connection, an IndexedDB draft,
+and a persistent outbox of committed edits. Committed edits are durable; cursor
+positions, previews, selections, and laser trails are ephemeral frames that are
+never stored.

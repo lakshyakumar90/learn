@@ -1,0 +1,24 @@
+---
+title: End-to-end flow
+description: Follow one action through the whole system, step by step.
+sources:
+  - apps/web/src/lib/sync/roomSync.ts
+  - apps/web/src/lib/sync/outbox.ts
+  - apps/web/src/lib/sync/commits.ts
+  - apps/web/src/lib/persistence/indexedDb.ts
+  - apps/http-server/src/routes/scenes.ts
+  - apps/http-server/src/routes/rooms.ts
+  - apps/ws-server/src/server.ts
+  - packages/backend-common/src/collaboration.ts
+  - packages/redis/src/index.ts
+  - apps/flush-worker/src/index.ts
+  - packages/common/src/sync.ts
+---
+
+Pick a tab and press Play. Each step lights up the nodes involved and narrates what
+moves: a guest drawing that never leaves the device, a signed-in save through the
+HTTP server into the database, or a room edit travelling from one browser through
+the socket, Redis, and the flush worker into Postgres while cursors and previews
+take a separate path that is never stored.
+
+<FlowPlayer />

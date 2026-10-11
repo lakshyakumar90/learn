@@ -1,0 +1,420 @@
+{
+  "libraries": [
+    {
+      "id": "typescript",
+      "displayName": "TypeScript",
+      "category": "Language and build",
+      "why": "Compiles the workspace and type-checks every package.",
+      "homepage": "https://www.typescriptlang.org",
+      "featured": [
+        "apps/ws-server",
+        "apps/flush-worker",
+        "packages/auth",
+        "packages/db",
+        "packages/redis",
+        "packages/ui"
+      ]
+    },
+    {
+      "id": "tsx",
+      "displayName": "tsx",
+      "category": "Language and build",
+      "why": "Runs and watches TypeScript sources for development and tests.",
+      "homepage": "https://tsx.is",
+      "featured": [
+        "apps/http-server",
+        "apps/ws-server",
+        "apps/flush-worker",
+        "packages/db",
+        "packages/redis"
+      ]
+    },
+    {
+      "id": "@types/node",
+      "displayName": "@types/node",
+      "category": "Language and build",
+      "why": "Type declarations for Node.js built-ins.",
+      "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    {
+      "id": "@types/react",
+      "displayName": "@types/react",
+      "category": "Language and build",
+      "why": "Type declarations for React.",
+      "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    {
+      "id": "@types/react-dom",
+      "displayName": "@types/react-dom",
+      "category": "Language and build",
+      "why": "Type declarations for React DOM.",
+      "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    {
+      "id": "@types/express",
+      "displayName": "@types/express",
+      "category": "Language and build",
+      "why": "Type declarations for Express.",
+      "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    {
+      "id": "@types/cors",
+      "displayName": "@types/cors",
+      "category": "Language and build",
+      "why": "Type declarations for CORS.",
+      "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    {
+      "id": "@types/ws",
+      "displayName": "@types/ws",
+      "category": "Language and build",
+      "why": "Type declarations for ws.",
+      "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    {
+      "id": "@types/bcrypt",
+      "displayName": "@types/bcrypt",
+      "category": "Language and build",
+      "why": "Type declarations for bcrypt.",
+      "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    {
+      "id": "@types/jsonwebtoken",
+      "displayName": "@types/jsonwebtoken",
+      "category": "Language and build",
+      "why": "Type declarations for jsonwebtoken.",
+      "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    {
+      "id": "@types/pg",
+      "displayName": "@types/pg",
+      "category": "Language and build",
+      "why": "Type declarations for node-postgres.",
+      "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    {
+      "id": "next",
+      "displayName": "Next.js",
+      "category": "Frontend framework",
+      "why": "Serves the editor, dashboard, and room pages.",
+      "homepage": "https://nextjs.org",
+      "featured": [
+        "apps/web"
+      ]
+    },
+    {
+      "id": "react",
+      "displayName": "React",
+      "category": "Frontend framework",
+      "why": "Renders the editor, dashboard, and room interface.",
+      "homepage": "https://react.dev",
+      "featured": [
+        "apps/web",
+        "packages/ui"
+      ],
+      "uses": {
+        "packages/ui": "Types the shared button, card, and code primitives."
+      }
+    },
+    {
+      "id": "react-dom",
+      "displayName": "React DOM",
+      "category": "Frontend framework",
+      "why": "Renders React trees into the browser document.",
+      "homepage": "https://react.dev",
+      "featured": [
+        "apps/web"
+      ]
+    },
+    {
+      "id": "tailwindcss",
+      "displayName": "Tailwind CSS",
+      "category": "UI and styling",
+      "why": "Utility styles for the editor stylesheets.",
+      "homepage": "https://tailwindcss.com",
+      "featured": [
+        "apps/web"
+      ]
+    },
+    {
+      "id": "@tailwindcss/postcss",
+      "displayName": "Tailwind PostCSS plugin",
+      "category": "UI and styling",
+      "why": "Wires Tailwind into the Next.js PostCSS build.",
+      "homepage": "https://tailwindcss.com"
+    },
+    {
+      "id": "jotai",
+      "displayName": "Jotai",
+      "category": "State",
+      "why": "Declared in apps/web but never imported in source.",
+      "homepage": "https://jotai.org"
+    },
+    {
+      "id": "ws",
+      "displayName": "ws",
+      "category": "Realtime and queues",
+      "why": "WebSocket server and test client for room transport.",
+      "homepage": "https://github.com/websockets/ws",
+      "featured": [
+        "apps/ws-server"
+      ]
+    },
+    {
+      "id": "bullmq",
+      "displayName": "BullMQ",
+      "category": "Realtime and queues",
+      "why": "Durable flush queue between Redis and the worker.",
+      "homepage": "https://bullmq.io",
+      "featured": [
+        "packages/redis"
+      ]
+    },
+    {
+      "id": "ioredis",
+      "displayName": "ioredis",
+      "category": "Realtime and queues",
+      "why": "Redis client behind live snapshots and pub/sub.",
+      "homepage": "https://www.npmjs.com/package/ioredis",
+      "featured": [
+        "packages/redis"
+      ]
+    },
+    {
+      "id": "express",
+      "displayName": "Express",
+      "category": "Backend framework",
+      "why": "HTTP server behind the scenes, rooms, and library APIs.",
+      "homepage": "https://expressjs.com",
+      "featured": [
+        "apps/http-server"
+      ]
+    },
+    {
+      "id": "cors",
+      "displayName": "CORS",
+      "category": "Backend framework",
+      "why": "Enables cross-origin requests from the web app.",
+      "homepage": "https://github.com/expressjs/cors",
+      "featured": [
+        "apps/http-server"
+      ]
+    },
+    {
+      "id": "pg",
+      "displayName": "node-postgres",
+      "category": "Database and ORM",
+      "why": "Postgres driver behind the database client pool.",
+      "homepage": "https://node-postgres.com",
+      "featured": [
+        "packages/db"
+      ]
+    },
+    {
+      "id": "@prisma/orm-postgres",
+      "displayName": "Prisma ORM",
+      "category": "Database and ORM",
+      "why": "Typed query runtime behind the database client.",
+      "homepage": "https://prisma.io",
+      "featured": [
+        "packages/db"
+      ]
+    },
+    {
+      "id": "prisma",
+      "displayName": "Prisma CLI",
+      "category": "Database and ORM",
+      "why": "Command line behind the database migration scripts.",
+      "homepage": "https://prisma.io",
+      "featured": [
+        "packages/db"
+      ]
+    },
+    {
+      "id": "@prisma/cli-engine",
+      "displayName": "Prisma CLI engine",
+      "category": "Database and ORM",
+      "why": "Engine behind the Prisma project config.",
+      "homepage": "https://prisma.io"
+    },
+    {
+      "id": "better-auth",
+      "displayName": "Better Auth",
+      "category": "Auth and email",
+      "why": "Email sign-in, verification mail, and Google OAuth.",
+      "homepage": "https://better-auth.com",
+      "featured": [
+        "packages/auth"
+      ]
+    },
+    {
+      "id": "bcrypt",
+      "displayName": "bcrypt",
+      "category": "Auth and email",
+      "why": "Hashes and verifies account passwords.",
+      "homepage": "https://github.com/kelektiv/node.bcrypt.js",
+      "featured": [
+        "packages/auth"
+      ]
+    },
+    {
+      "id": "jsonwebtoken",
+      "displayName": "jsonwebtoken",
+      "category": "Auth and email",
+      "why": "Signs presence tickets and room invitations.",
+      "homepage": "https://github.com/auth0/node-jsonwebtoken",
+      "featured": [
+        "packages/auth"
+      ]
+    },
+    {
+      "id": "dotenv",
+      "displayName": "dotenv",
+      "category": "Auth and email",
+      "why": "Loads local environment files in development.",
+      "homepage": "https://github.com/motdotla/dotenv",
+      "featured": [
+        "packages/auth",
+        "packages/db"
+      ],
+      "uses": {
+        "packages/db": "Loads the database connection string locally."
+      }
+    },
+    {
+      "id": "zod",
+      "displayName": "Zod",
+      "category": "Validation",
+      "why": "Defines reusable request validation schemas.",
+      "homepage": "https://zod.dev",
+      "featured": [
+        "packages/validations",
+        "apps/http-server"
+      ],
+      "uses": {
+        "apps/http-server": "Validates guest-import payloads."
+      }
+    },
+    {
+      "id": "vitest",
+      "displayName": "Vitest",
+      "category": "Testing",
+      "why": "Runs the unit and regression test suites.",
+      "homepage": "https://vitest.dev",
+      "featured": [
+        "packages/common",
+        "packages/engine"
+      ]
+    },
+    {
+      "id": "eslint",
+      "displayName": "ESLint",
+      "category": "Linting and formatting",
+      "why": "Lints the codebase from the shared configs.",
+      "homepage": "https://eslint.org",
+      "featured": [
+        "packages/eslint-config"
+      ]
+    },
+    {
+      "id": "@eslint/js",
+      "displayName": "ESLint JS config",
+      "category": "Linting and formatting",
+      "why": "Recommended rules inside the base config.",
+      "homepage": "https://eslint.org",
+      "featured": [
+        "packages/eslint-config"
+      ]
+    },
+    {
+      "id": "eslint-config-prettier",
+      "displayName": "ESLint Prettier config",
+      "category": "Linting and formatting",
+      "why": "Disables style rules that fight the formatter.",
+      "homepage": "https://github.com/prettier/eslint-config-prettier"
+    },
+    {
+      "id": "eslint-plugin-only-warn",
+      "displayName": "Only-warn plugin",
+      "category": "Linting and formatting",
+      "why": "Keeps every lint finding as a warning.",
+      "homepage": "https://www.npmjs.com/package/eslint-plugin-only-warn"
+    },
+    {
+      "id": "eslint-plugin-react-hooks",
+      "displayName": "React Hooks plugin",
+      "category": "Linting and formatting",
+      "why": "Enforces the React hooks rules.",
+      "homepage": "https://react.dev",
+      "featured": [
+        "packages/eslint-config"
+      ]
+    },
+    {
+      "id": "eslint-plugin-turbo",
+      "displayName": "Turbo plugin",
+      "category": "Linting and formatting",
+      "why": "Guards against undeclared environment variables.",
+      "homepage": "https://turbo.build"
+    },
+    {
+      "id": "@next/eslint-plugin-next",
+      "displayName": "Next.js ESLint plugin",
+      "category": "Linting and formatting",
+      "why": "Next.js rules for linted apps.",
+      "homepage": "https://nextjs.org"
+    },
+    {
+      "id": "eslint-config-next",
+      "displayName": "Next.js ESLint config",
+      "category": "Linting and formatting",
+      "why": "Next.js lint rules for the web app.",
+      "homepage": "https://nextjs.org/docs/app/api-reference/config/eslint"
+    },
+    {
+      "id": "@babel/eslint-parser",
+      "displayName": "Babel ESLint parser",
+      "category": "Linting and formatting",
+      "why": "Parses TypeScript for the shared lint config.",
+      "homepage": "https://babeljs.io"
+    },
+    {
+      "id": "@babel/preset-typescript",
+      "displayName": "Babel TypeScript preset",
+      "category": "Linting and formatting",
+      "why": "Teaches the parser TypeScript syntax.",
+      "homepage": "https://babeljs.io"
+    },
+    {
+      "id": "@babel/core",
+      "displayName": "Babel core",
+      "category": "Linting and formatting",
+      "why": "Babel core behind the TypeScript parser.",
+      "homepage": "https://babeljs.io"
+    },
+    {
+      "id": "globals",
+      "displayName": "Globals",
+      "category": "Linting and formatting",
+      "why": "Browser and worker globals for linted files.",
+      "homepage": "https://github.com/sindresorhus/globals",
+      "featured": [
+        "packages/eslint-config"
+      ]
+    },
+    {
+      "id": "prettier",
+      "displayName": "Prettier",
+      "category": "Linting and formatting",
+      "why": "Formats TypeScript and Markdown behind the format script.",
+      "homepage": "https://prettier.io"
+    },
+    {
+      "id": "turbo",
+      "displayName": "Turbo",
+      "category": "Monorepo tooling",
+      "why": "Orchestrates workspace builds, tests, and development.",
+      "homepage": "https://turbo.build"
+    }
+  ]
+}

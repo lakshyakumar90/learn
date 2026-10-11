@@ -1,0 +1,79 @@
+---
+title: Environment variables
+description: One table per service, with defaults and requirements.
+owns:
+  - "Every variable each service reads"
+  - "Which values must match across services"
+talksTo:
+  - label: Deployment overview
+    href: /projects/excalidraw/deployment-overview
+  - label: Backend on Render
+    href: /projects/excalidraw/deployment-backend
+  - label: Frontend
+    href: /projects/excalidraw/deployment-frontend
+  - label: Auth
+    href: /projects/excalidraw/packages/auth
+sources:
+  - .env.example
+  - apps/http-server/.env.example
+  - apps/ws-server/.env.example
+  - apps/web/.env.example
+  - packages/db/.env.example
+  - packages/db/src/prisma/db.ts
+  - packages/auth/src/server.ts
+  - packages/auth/src/presenceTicket.ts
+  - packages/auth/src/roomInvitation.ts
+---
+
+<Callout type="warn" title="Secrets">
+Never commit real values. Service-local files override the shared root file.
+Use placeholders like `<random-32+-chars>` for every secret.
+</Callout>
+
+## HTTP service
+
+| Variable | Purpose | Notes |
+| --- | --- | --- |
+| `DATABASE_URL` | Postgres connection | Required — the client throws without it. |
+| `REDIS_URL` | Redis connection for rate limits and events | Required. |
+| `PORT` | Listen port | Default `5000`. |
+| `BETTER_AUTH_URL` | Public API origin for auth | Default `http://localhost:PORT`. |
+| `BETTER_AUTH_SECRET` | Auth signing | Required, use `<random-32+-chars>`. |
+| `WEB_ORIGIN` | Web origin for CORS and cookies | Default `http://localhost:3000`; must be the deployed web URL. |
+| `PRESENCE_TICKET_SECRET` | WebSocket ticket signing | Required, must match the WS service. |
+| `ROOM_INVITE_SECRET` | Invite signing | Optional — falls back to `BETTER_AUTH_SECRET`. |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth | Optional; Google is enabled only when both are set. |
+| `RESEND_API_KEY` / `EMAIL_FROM` | Verification email | Required in production; in development the link is logged. |
+
+## WebSocket service
+
+| Variable | Purpose | Notes |
+| --- | --- | --- |
+| `DATABASE_URL` | Access checks | Required. |
+| `REDIS_URL` | Live snapshots and presence | Required. |
+| `PRESENCE_TICKET_SECRET` | Ticket verification | Required, must match the HTTP service. |
+| `WS_PORT` | Listen port | Default `8080`; separate from `PORT`. |
+| `WEB_ORIGIN` | Allowed origin | Default `http://localhost:3000`. |
+| `WS_ALLOWED_ORIGINS` | Extra allowed origins | Optional, comma-separated. |
+
+## Flush worker
+
+| Variable | Purpose | Notes |
+| --- | --- | --- |
+| `DATABASE_URL` | Revision writes | Required. |
+| `REDIS_URL` | Snapshot reads and queue | Required. |
+
+## Web app (`NEXT_PUBLIC_*`, build-time)
+
+| Variable | Purpose | Notes |
+| --- | --- | --- |
+| `NEXT_PUBLIC_API_URL` | HTTP service URL | Default `http://localhost:5000`; changing it needs a redeploy. |
+| `NEXT_PUBLIC_WS_URL` | WebSocket URL | Default `ws://localhost:8080`; changing it needs a redeploy. |
+| `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED` | Google sign-in button | Off unless exactly `true`. |
+
+Last verified: 2026-10-11.
+
+## Provider docs
+
+- [Render environment variables](https://docs.render.com/environment-variables)
+- [Vercel environment variables](https://vercel.com/docs/projects/environment-variables)

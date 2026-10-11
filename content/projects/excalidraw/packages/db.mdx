@@ -1,0 +1,46 @@
+---
+title: Database
+description: The sole Prisma schema, database client, repositories, migration graph, and schema snapshots.
+diagram: db
+owns:
+  - "The only Prisma schema in the repo — nothing else may define models"
+  - "Scene revision storage with retention of the latest revisions"
+  - "Room access: roles, membership, and ownership checks"
+  - "Library item storage"
+  - "The shared database client every service connects through"
+files:
+  - file: src/prisma/db.ts
+    purpose: Shared client connection.
+  - file: src/prisma/sceneSync.ts
+    purpose: Scene revision reads, appends, and retention.
+  - file: src/prisma/roomAccess.ts
+    purpose: Room roles and membership.
+  - file: src/prisma/library.ts
+    purpose: Library item storage.
+  - file: src/prisma/contract.prisma
+    purpose: Schema contract snapshot.
+  - file: prisma.config.ts
+    purpose: Prisma tooling config.
+talksTo:
+  - label: HTTP server
+    href: /projects/excalidraw/apps/http-server
+  - label: Flush worker
+    href: /projects/excalidraw/apps/flush-worker
+  - label: Backend common
+    href: /projects/excalidraw/packages/backend-common
+  - label: Auth
+    href: /projects/excalidraw/packages/auth
+sources:
+  - packages/db/README.md
+  - packages/db/src/README.md
+  - packages/db/src/prisma/README.md
+  - packages/db/src/prisma/db.ts
+  - packages/db/src/prisma/sceneSync.ts
+  - packages/db/src/prisma/roomAccess.ts
+  - packages/db/src/prisma/library.ts
+---
+
+Durable room state is a versioned chain of scene revisions, each stamped with its
+actor. The flush worker appends new revisions only when the stored head is behind
+and prunes everything but the latest ones. Servers enforce owner, editor, and
+viewer permissions on every access.

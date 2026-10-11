@@ -1,8 +1,98 @@
 @import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf9f7;
+  --foreground: #1c1917;
+  /* Docs shell: fixed sidebar + ~740px centre column + right TOC */
+  --fd-layout-width: 80rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-fd-primary, #4f46e5);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/*
+ * Desktop docs navbar compensation: the sticky navbar is 3.5rem tall.
+ * The docs container sets --fd-docs-row-1 INLINE to
+ * var(--fd-banner-height, 0px), so a stylesheet cannot override the row
+ * directly — but setting --fd-banner-height cascades into it, pushing the
+ * fixed sidebar and TOC below the navbar instead of under it.
+ * The negative margin keeps total page height at exactly 100dvh + content.
+ */
+@media (min-width: 768px) {
+  .docs-with-navbar {
+    --fd-banner-height: 3.5rem;
+    margin-bottom: -3.5rem;
+  }
+
+  /*
+   * Pin the fixed rails directly below the navbar. Plain (unlayered)
+   * author CSS beats the framework utilities, and these rules depend on
+   * no variable chain: the sidebar and the "On this page" column stay
+   * put while only the centre column scrolls.
+   */
+  #nd-docs-layout [data-sidebar-placeholder] {
+    top: 3.5rem;
+    height: calc(100dvh - 3.5rem);
+  }
+
+  #nd-docs-layout #nd-toc {
+    top: 3.5rem;
+    height: calc(100dvh - 3.5rem);
+  }
+}
+
+/*
+ * Search dialog input: never draw its own box. (The global
+ * :focus-visible outline reads as a white rounded border on the
+ * autofocused field in dark mode.) Focus is shown on the row instead.
+ */
+.static-search-input,
+.static-search-input:focus,
+.static-search-input:focus-visible {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
+}
+
+.static-search-box:focus-within {
+  border-color: var(--color-fd-primary);
+}
+
+/* Decorative knowledge-map edge animation (landing hero). */
+@keyframes map-dash {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+.map-flow {
+  animation: map-dash 1.4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-flow {
+    animation: none;
+  }
+}
+
+.dark {
+  --background: #0c0a09;
+  --foreground: #e7e5e4;
 }
 
 @theme inline {
@@ -12,15 +102,32 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Diagram layer colours, themed through CSS variables */
+:root {
+  --dg-browser: #4f46e5;
+  --dg-api: #0d9488;
+  --dg-realtime: #d97706;
+  --dg-cache: #db2777;
+  --dg-database: #16a34a;
+  --dg-shared: #7c3aed;
+  --dg-node-bg: #ffffff;
+  --dg-node-border: #d6d3d1;
+  --dg-edge: #78716c;
+}
+
+.dark {
+  --dg-browser: #a5b4fc;
+  --dg-api: #5eead4;
+  --dg-realtime: #fbbf24;
+  --dg-cache: #f9a8d4;
+  --dg-database: #86efac;
+  --dg-shared: #c4b5fd;
+  --dg-node-bg: #1c1917;
+  --dg-node-border: #44403c;
+  --dg-edge: #a8a29e;
 }

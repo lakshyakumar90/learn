@@ -1,0 +1,40 @@
+---
+title: Backend common
+description: Server-only collaboration and access operations shared by HTTP, WebSocket, and worker apps.
+diagram: backend-common
+owns:
+  - "Applying room commits: roles, dedupe, validation, reconcile, persist"
+  - "Attaching image files to scenes within size and count caps"
+  - "Reading the sync head for snapshots, warming the live store"
+  - "Shared WebSocket transport helpers: heartbeat, origins, limits, close codes"
+files:
+  - file: src/collaboration.ts
+    purpose: Commit, file-attach, and sync-read operations.
+  - file: src/presenceTransport.ts
+    purpose: Helpers shared by the HTTP ticket issuer and the presence server.
+  - file: src/index.ts
+    purpose: Package entry.
+talksTo:
+  - label: HTTP server
+    href: /projects/excalidraw/apps/http-server
+  - label: WebSocket server
+    href: /projects/excalidraw/apps/ws-server
+  - label: Flush worker
+    href: /projects/excalidraw/apps/flush-worker
+  - label: Database
+    href: /projects/excalidraw/packages/db
+  - label: Redis
+    href: /projects/excalidraw/packages/redis
+  - label: Common
+    href: /projects/excalidraw/packages/common
+sources:
+  - packages/backend-common/README.md
+  - packages/backend-common/src/README.md
+  - packages/backend-common/src/collaboration.ts
+  - packages/backend-common/src/presenceTransport.ts
+---
+
+There is exactly one write path for room data, and all three backend services use
+it: the commit is checked against the caller's role, replayed mutations are
+dropped, the batch is validated and reconciled, and the result lands in the live
+store, falling back to the database when Redis is unavailable.

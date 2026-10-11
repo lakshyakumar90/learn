@@ -1,0 +1,73 @@
+---
+title: Backend on Render
+description: HTTP service, WebSocket service, and flush worker as Render services.
+owns:
+  - "The scenes/rooms API as a Render web service"
+  - "The room transport as a Render web service"
+  - "Snapshot flushes as an always-on Render worker"
+talksTo:
+  - label: Deployment overview
+    href: /projects/excalidraw/deployment-overview
+  - label: Environment variables
+    href: /projects/excalidraw/deployment-env
+  - label: Cold starts and keep-alive
+    href: /projects/excalidraw/deployment-cold-starts
+  - label: HTTP server
+    href: /projects/excalidraw/apps/http-server
+  - label: WebSocket server
+    href: /projects/excalidraw/apps/ws-server
+  - label: Flush worker
+    href: /projects/excalidraw/apps/flush-worker
+sources:
+  - apps/http-server/package.json
+  - apps/http-server/src/index.ts
+  - apps/http-server/src/app.ts
+  - apps/ws-server/package.json
+  - apps/ws-server/src/index.ts
+  - apps/ws-server/src/server.ts
+  - apps/flush-worker/package.json
+  - apps/flush-worker/src/index.ts
+---
+
+All three backend services build with `tsc -b` and start with `node dist/index.js`.
+Only Web Service, Postgres, Key Value, and static sites support free instances, so
+on the free tier every service here is a Render web service — the background-worker
+service type is paid-only.
+
+<Steps>
+<Step>
+**Deploy the HTTP service.**
+
+Build `tsc -b`, start `node dist/index.js`, listening port from `PORT` (default
+5000). It exposes `/health`, which is also the keep-alive target. Give it
+`DATABASE_URL`, `REDIS_URL`, and the auth, origin, ticket, email, and OAuth
+variables from the environment page.
+</Step>
+<Step>
+**Deploy the WebSocket service.**
+
+Build `tsc -b`, start `node dist/index.js`, listening port from `WS_PORT`
+(default 8080, a separate variable from `PORT`). It answers only WebSocket
+upgrades and exposes no HTTP route. Give it `DATABASE_URL`, `REDIS_URL`,
+`PRESENCE_TICKET_SECRET` (must match the HTTP service), `WEB_ORIGIN`, and
+`WS_ALLOWED_ORIGINS`.
+</Step>
+<Step>
+**Deploy the flush worker as an always-on service.**
+
+Same build and start commands. It runs a continuous BullMQ process against
+`DATABASE_URL` and `REDIS_URL`, so it needs paid uptime — pinging cannot run it
+(see the keep-alive page). Without it, room state stays in Redis and snapshots
+never become durable revisions.
+</Step>
+</Steps>
+
+Last verified: 2026-10-11. Free-tier limits change — check the providers before
+relying on any number.
+
+## Provider docs
+
+- [Render web services](https://docs.render.com/web-services)
+- [Deploy a Node Express app](https://docs.render.com/deploy-node-express-app)
+- [Render background workers](https://docs.render.com/background-workers)
+- [Render free instances](https://docs.render.com/free)

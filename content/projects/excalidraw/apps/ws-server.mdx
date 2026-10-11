@@ -1,0 +1,39 @@
+---
+title: WebSocket server
+description: Authenticated room WebSocket transport for presence, scene changes, selections, and laser trails.
+diagram: ws-server
+owns:
+  - "Ticket-checked room upgrades with owner, editor, and viewer roles"
+  - "Presence: pointers, viewports, joins, and leaves"
+  - "Collaboration: sync snapshots, commits, previews, selections, and laser"
+  - "In-memory room connections plus Redis-backed room state"
+files:
+  - file: src/index.ts
+    purpose: Service entry.
+  - file: src/server.ts
+    purpose: Room WebSocket transport.
+  - file: src/roomStore.ts
+    purpose: In-memory room connections (presence + collaboration).
+talksTo:
+  - label: Web
+    href: /projects/excalidraw/apps/web
+  - label: HTTP server
+    href: /projects/excalidraw/apps/http-server
+  - label: Backend common
+    href: /projects/excalidraw/packages/backend-common
+  - label: Redis
+    href: /projects/excalidraw/packages/redis
+  - label: Auth
+    href: /projects/excalidraw/packages/auth
+sources:
+  - apps/ws-server/README.md
+  - apps/ws-server/src/README.md
+  - apps/ws-server/src/server.ts
+  - apps/ws-server/src/roomStore.ts
+---
+
+The server speaks two protocols over one socket family: presence frames and
+collaboration frames, each validated and rate-limited. Commits are applied through
+the shared collaboration service and acknowledged per mutation; previews and
+selections are fanned out to the room and never stored. One connection entry
+represents one tab, never one user.

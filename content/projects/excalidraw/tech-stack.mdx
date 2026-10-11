@@ -1,0 +1,18 @@
+---
+title: Tech stack
+description: Every external library, grouped by category, with its reason.
+sources:
+  - package.json
+  - pnpm-workspace.yaml
+  - turbo.json
+  - apps/web/package.json
+  - apps/http-server/package.json
+  - apps/ws-server/package.json
+  - apps/flush-worker/package.json
+---
+
+Every library below is declared in some workspace manifest — names, version
+ranges, and categories come from the data, and the build fails if the list
+drifts. "Used in" points at the folders that import each library.
+
+<TechStackIndex />

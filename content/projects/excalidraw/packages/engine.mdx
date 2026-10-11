@@ -1,0 +1,44 @@
+---
+title: Engine
+description: Browser-independent drawing geometry, tools, renderer, scene capture, and history.
+diagram: engine
+owns:
+  - "Drawing tools: shapes, lines, arrows, curves, freedraw, frames, text"
+  - "Geometry: bounds, hit-testing, rotation, strokes, simplification"
+  - "The renderer: sketch paths, transforms, culling, and SVG output"
+  - "Scene state: layout, records, previews, and history"
+files:
+  - file: src/tools/
+    purpose: One tool per shape plus the tool manager.
+  - file: src/geometry/
+    purpose: Bounds, hit tests, curves, strokes, and simplification.
+  - file: src/renderer/
+    purpose: Element dispatch, sketch paths, transforms, and render loop.
+  - file: src/scene/
+    purpose: Scene state, layout, previews, records, and history.
+  - file: src/element/
+    purpose: Element factory.
+  - file: src/text/
+    purpose: Text measurement.
+  - file: src/viewport/
+    purpose: Viewport math and touch handling.
+  - file: src/utils/
+    purpose: Small shared helpers.
+talksTo:
+  - label: Web
+    href: /projects/excalidraw/apps/web
+  - label: Common
+    href: /projects/excalidraw/packages/common
+sources:
+  - packages/engine/README.md
+  - packages/engine/src/README.md
+  - packages/engine/src/tools/README.md
+  - packages/engine/src/geometry/README.md
+  - packages/engine/src/renderer/README.md
+  - packages/engine/src/scene/README.md
+---
+
+The engine never touches the network or the DOM data layer: tools produce geometry,
+the scene keeps state and history, and the renderer turns state into sketch-style
+paths with a seeded randomizer so strokes look hand-drawn but render identically.
+Frames stay flat and axis-aligned by construction.

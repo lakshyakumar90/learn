@@ -1,0 +1,70 @@
+---
+title: Verify and troubleshoot
+description: Deployment checks first, then fixes for what usually breaks.
+owns:
+  - "The end-to-end deployment checklist"
+  - "Fixes for the five most common failures"
+talksTo:
+  - label: Deployment overview
+    href: /projects/excalidraw/deployment-overview
+  - label: Environment variables
+    href: /projects/excalidraw/deployment-env
+  - label: Cold starts and keep-alive
+    href: /projects/excalidraw/deployment-cold-starts
+  - label: End-to-end flow
+    href: /projects/excalidraw/end-to-end
+sources:
+  - apps/http-server/src/app.ts
+  - apps/ws-server/src/server.ts
+  - apps/flush-worker/src/index.ts
+  - apps/web/src/lib/sync/roomSync.ts
+---
+
+## Deployment checks
+
+<Steps>
+<Step>
+**Migrations applied.**
+
+`db:migrate` ran clean against the Neon database from `packages/db`.
+</Step>
+<Step>
+**HTTP service answers.**
+
+Its public `/health` URL returns a response, and the scenes API works behind
+authentication.
+</Step>
+<Step>
+**WebSocket service upgrades.**
+
+A room page connects, presence appears, and commits reconcile across two tabs.
+</Step>
+<Step>
+**Flush worker running.**
+
+Room edits become durable scene revisions in Postgres — not just Redis state.
+</Step>
+<Step>
+**Web app wired.**
+
+The deployed editor points at the deployed API and WebSocket URLs, and sign-in
+plus invites work end to end.
+</Step>
+</Steps>
+
+## Troubleshooting
+
+| Symptom | Likely cause and fix |
+| --- | --- |
+| First request slow | Cold start — the service was spun down and takes about a minute to wake. Narrow it with a keep-alive window. |
+| WebSocket won't connect | Wrong port (`WS_PORT`, not `PORT`), `wss://` vs `ws://` mismatch, or origin not allowed — check `WEB_ORIGIN` and `WS_ALLOWED_ORIGINS`. |
+| CORS or cookie errors | `WEB_ORIGIN` does not match the deployed web URL, or `BETTER_AUTH_URL` points at the wrong origin. |
+| Changes not persisting | The flush worker is not running — room state is sitting in Redis only. |
+| `NEXT_PUBLIC_*` change not applied | Those values bake in at build time — redeploy the web app. |
+
+Last verified: 2026-10-11.
+
+## Provider docs
+
+- [Render free instances](https://docs.render.com/free)
+- [Render dashboard usage](https://dashboard.render.com/billing#included-usage)

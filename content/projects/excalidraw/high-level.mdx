@@ -1,0 +1,20 @@
+---
+title: High-level architecture
+description: The whole system in one diagram.
+diagram: system
+sources:
+  - README.md
+  - apps/web/README.md
+  - apps/http-server/README.md
+  - apps/ws-server/README.md
+  - apps/flush-worker/README.md
+  - packages/redis/README.md
+---
+
+The browser holds the editor, a sync outbox, and IndexedDB. Signed-in saves travel
+through the HTTP server into Postgres. Room work travels through the WebSocket
+server into Redis, and the flush worker later writes durable snapshots from Redis
+back into Postgres.
+
+Solid lines are durable data — committed elements and database rows. Dashed lines
+are ephemeral — presence, previews, and other live state that is never stored.

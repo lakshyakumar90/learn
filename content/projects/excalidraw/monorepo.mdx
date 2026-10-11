@@ -1,0 +1,25 @@
+---
+title: Monorepo
+description: Runnable services in apps/, shared libraries in packages/.
+sources:
+  - README.md
+  - apps/README.md
+---
+
+There are two top-level folders. `apps/` holds the runnable services: the web editor,
+the HTTP server, the WebSocket server, and the flush worker. `packages/` holds the
+shared libraries they all build on: element models and protocols, the drawing engine,
+server-only collaboration helpers, the database client, authentication, Redis access,
+validation schemas, UI primitives, and the shared tooling configs.
+
+Each service is started and checked with its own workspace filter command, and the
+root dev command starts everything together with build dependencies. See the
+[apps/ overview](/projects/excalidraw/apps) and the
+[packages/ overview](/projects/excalidraw/packages) for who depends on whom.
+
+## Shared tooling
+
+The root manifest holds only development tooling — the orchestrator, the
+compiler, and the formatter every workspace builds through:
+
+<DependencyTable workspace="root" />

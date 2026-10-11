@@ -1,0 +1,51 @@
+---
+title: Common
+description: Platform-neutral element models, collaboration protocols, validation, and reconciliation.
+diagram: common
+owns:
+  - "Element models shared by the editor and the servers"
+  - "Sync rules: normalization, ordering, tombstones, and winner-picking"
+  - "Client/server message shapes for collaboration and presence"
+  - "Validation for sync batches and collab frames"
+files:
+  - file: src/sync.ts
+    purpose: Normalization, ordering, tombstones, and reconciliation.
+  - file: src/syncValidate.ts
+    purpose: Sync element and batch validation.
+  - file: src/collab.ts
+    purpose: Collaboration protocol re-export.
+  - file: src/presence.ts
+    purpose: Presence message shapes and validation.
+  - file: src/laser.ts
+    purpose: Laser trail types.
+  - file: src/library.ts
+    purpose: Library item models.
+  - file: src/types.ts
+    purpose: Shared types.
+  - file: src/constants.ts
+    purpose: Shared limits.
+  - file: src/element/
+    purpose: Element model entry and types.
+talksTo:
+  - label: Engine
+    href: /projects/excalidraw/packages/engine
+  - label: Backend common
+    href: /projects/excalidraw/packages/backend-common
+  - label: Web
+    href: /projects/excalidraw/apps/web
+  - label: WebSocket server
+    href: /projects/excalidraw/apps/ws-server
+sources:
+  - packages/common/README.md
+  - packages/common/src/README.md
+  - packages/common/src/sync.ts
+  - packages/common/src/syncValidate.ts
+  - packages/common/src/collab.ts
+  - packages/common/src/presence.ts
+  - packages/common/src/laser.ts
+---
+
+Room commits reconcile deterministically per element: both sides apply the same
+winner-picking rules, so concurrent edits converge without a central lock. The
+protocol caps everything it carries — elements per commit, preview sizes, selection
+ids — and the validators enforce those caps on both ends of the socket.

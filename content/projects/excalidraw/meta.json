@@ -1,0 +1,28 @@
+{
+  "title": "Excalidraw",
+  "pages": [
+    "---Get Started---",
+    "index",
+    "tech-stack",
+    "installation",
+    "monorepo",
+    "---Architecture---",
+    "folder-structure",
+    "high-level",
+    "low-level",
+    "---Folders---",
+    "apps",
+    "packages",
+    "---How It Works---",
+    "end-to-end",
+    "---Deployment---",
+    "deployment-overview",
+    "deployment-database",
+    "deployment-backend",
+    "deployment-frontend",
+    "deployment-env",
+    "deployment-cold-starts",
+    "deployment-cloudflare",
+    "deployment-verify"
+  ]
+}

@@ -1,0 +1,50 @@
+---
+title: Deployment overview
+description: What runs where, and what is free versus paid.
+diagram: hosting-map
+owns:
+  - "The free-tier hosting split across four providers"
+  - "Which service is paid and which services sleep"
+talksTo:
+  - label: Database and Redis
+    href: /projects/excalidraw/deployment-database
+  - label: Backend on Render
+    href: /projects/excalidraw/deployment-backend
+  - label: Frontend
+    href: /projects/excalidraw/deployment-frontend
+  - label: High-level architecture
+    href: /projects/excalidraw/high-level
+sources:
+  - README.md
+  - apps/web/package.json
+  - apps/http-server/package.json
+  - apps/ws-server/package.json
+  - apps/flush-worker/package.json
+---
+
+The system splits across four hosts. The browser loads the web app from Vercel,
+then talks to an HTTP service and a WebSocket service on Render, which read and
+write Neon Postgres and Upstash Redis. A Render flush worker moves room snapshots
+from Redis into Postgres.
+
+| Service | Host | Cost |
+| --- | --- | --- |
+| Web app | Vercel | Free |
+| HTTP service | Render web service | Free, sleeps when idle |
+| WebSocket service | Render web service | Free, sleeps when idle |
+| Flush worker | Render | Paid (needs to run continuously) |
+| Postgres | Neon | Free tier |
+| Redis | Upstash | Free tier |
+
+Free means limited: Render sleeps idle web services and rations instance hours,
+Neon and Upstash cap their free tiers. Nothing here is production-grade, and every
+limit below can change — re-check the linked docs before you rely on a number.
+
+Last verified: 2026-10-11.
+
+## Provider docs
+
+- [Render free instances](https://docs.render.com/free)
+- [Vercel Hobby plan](https://vercel.com/docs/plans/hobby)
+- [Neon pricing](https://neon.com/pricing)
+- [Upstash pricing](https://upstash.com/pricing)

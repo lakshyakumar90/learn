@@ -1,0 +1,40 @@
+---
+title: Auth
+description: Better Auth configuration, browser auth client, email delivery, and authentication helpers.
+diagram: auth
+owns:
+  - "Server-side auth configuration with email verification"
+  - "The browser auth client the editor signs in through"
+  - "Presence tickets the WebSocket server verifies on upgrade"
+  - "Room invitation helpers with email delivery"
+files:
+  - file: src/server.ts
+    purpose: Server auth configuration and verification email.
+  - file: src/client.ts
+    purpose: Browser auth client.
+  - file: src/presenceTicket.ts
+    purpose: Presence ticket issue and verify helpers.
+  - file: src/roomInvitation.ts
+    purpose: Room invitation helpers.
+talksTo:
+  - label: Web
+    href: /projects/excalidraw/apps/web
+  - label: HTTP server
+    href: /projects/excalidraw/apps/http-server
+  - label: WebSocket server
+    href: /projects/excalidraw/apps/ws-server
+  - label: Database
+    href: /projects/excalidraw/packages/db
+sources:
+  - packages/auth/README.md
+  - packages/auth/src/README.md
+  - packages/auth/src/server.ts
+  - packages/auth/src/client.ts
+  - packages/auth/src/presenceTicket.ts
+  - packages/auth/src/roomInvitation.ts
+---
+
+Signing in is email-based with verification links; Google OAuth is optional. Rooms
+never take a password or a session cookie over the socket: the HTTP server issues a
+short-lived presence ticket, and the WebSocket server verifies it during the upgrade
+before checking room access.

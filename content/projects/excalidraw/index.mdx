@@ -1,0 +1,30 @@
+---
+title: Introduction
+description: A collaborative drawing workspace, documented folder by folder.
+sources:
+  - README.md
+---
+
+This project is a TypeScript drawing application with guest storage on the device,
+authenticated scenes, real-time rooms, a hand-drawn renderer, and Redis write-behind
+persistence.
+
+These notes describe what each folder owns and how the folders talk to each other.
+They never explain code — for behaviour, read the linked sources in the repo itself.
+Where the repo was unclear, the page says so.
+
+Start with [Installation](/projects/excalidraw/installation), then the
+[Monorepo](/projects/excalidraw/monorepo) layout, then the
+[High-level architecture](/projects/excalidraw/high-level).
+
+## Tech stack at a glance
+
+The codebase is TypeScript throughout, running on Node 24 or newer with pnpm
+workspaces. The drawing engine is custom code on the canvas API — no drawing
+library appears in any workspace manifest.
+
+<StackMap />
+
+<StackMatrix />
+
+The full list lives on the [Tech stack](/projects/excalidraw/tech-stack) page.

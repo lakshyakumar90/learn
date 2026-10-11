@@ -1,0 +1,67 @@
+---
+title: Cloudflare
+description: What Cloudflare can and cannot do for this project.
+owns:
+  - "The honest verdict on each Cloudflare option"
+  - "The recommended free and production-like setups"
+talksTo:
+  - label: Deployment overview
+    href: /projects/excalidraw/deployment-overview
+  - label: Frontend
+    href: /projects/excalidraw/deployment-frontend
+  - label: Cold starts and keep-alive
+    href: /projects/excalidraw/deployment-cold-starts
+  - label: Web
+    href: /projects/excalidraw/apps/web
+sources:
+  - apps/web/package.json
+  - apps/web/.env.example
+  - apps/http-server/package.json
+  - apps/ws-server/package.json
+  - apps/flush-worker/package.json
+---
+
+| Use | Verdict | Cost |
+| --- | --- | --- |
+| Frontend on Workers via the OpenNext adapter | Feasible and free-tier friendly, but untested with this app | Free tier |
+| Cron Trigger keep-alive Worker | Yes — see the keep-alive page | Free tier |
+| DNS and CDN with a custom domain in front of Render | Optional; verify WebSocket traffic through the proxy first | Free tier |
+| Express HTTP server on Workers | Not a drop-in — Workers are not a long-running Node runtime | N/A |
+| `ws` WebSocket server on Workers | Not a drop-in, same reason | N/A |
+| BullMQ flush worker on Workers | Not a drop-in, same reason | N/A |
+| Backend on Cloudflare Containers | Possible, but not free — Containers need the Workers Paid plan and bill per running time, with no inbound raw TCP | Paid |
+| WebSocket server rebuilt on Durable Objects | Possible as a redesign (SQLite-backed objects are on the free plan), not as a deployment | Free tier, rewrite required |
+
+<Steps>
+<Step>
+**For the frontend, read Cloudflare's current Next.js guide first.**
+
+It may recommend a different adapter for new apps. Remember `NEXT_PUBLIC_*`
+values are build-time variables, and flag this app as needing a full test pass
+— sign-in, rooms, and presence — before trusting it there.
+</Step>
+<Step>
+**For the backend, do not lift and shift.**
+
+The HTTP server, the WebSocket server, and the flush worker all assume a
+continuously running Node process. Say it plainly: that is a redesign project
+(Durable Objects for realtime state, Queues for flush work), not a deployment
+afternoon.
+</Step>
+</Steps>
+
+Recommended setup: free demo stays Vercel plus Render HTTP and WS plus Neon plus
+Upstash plus a keep-alive window. Production-like adds an always-on paid worker
+so snapshots never wait on a sleeping process.
+
+Last verified: 2026-10-11. Free-tier limits change — check the providers before
+relying on any number.
+
+## Provider docs
+
+- [Cloudflare Next.js guide](https://developers.cloudflare.com/workers/framework-guides/web-apps/nextjs/)
+- [OpenNext Cloudflare adapter](https://opennext.js.org/cloudflare)
+- [Cloudflare Workers pricing](https://developers.cloudflare.com/workers/platform/pricing/)
+- [Cloudflare Workers limits](https://developers.cloudflare.com/workers/platform/limits/)
+- [Durable Objects](https://developers.cloudflare.com/durable-objects/)
+- [Cloudflare Containers](https://developers.cloudflare.com/containers/)

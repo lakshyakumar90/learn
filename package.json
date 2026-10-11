@@ -4,24 +4,47 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "pnpm extract-deps && pnpm check-deps && pnpm check-sources && pnpm build-search-index",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check-sources": "tsx scripts/check-sources.ts",
+    "extract-deps": "tsx scripts/extract-deps.ts",
+    "check-deps": "tsx scripts/check-deps.ts",
+    "build-search-index": "tsx scripts/build-search-index.ts",
+    "new": "tsx scripts/new-project.ts",
+    "postinstall": "fumadocs-mdx"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.2.0",
+    "@types/mdx": "^2.0.14",
+    "@xyflow/react": "^12.12.0",
+    "elkjs": "^0.12.0",
+    "fumadocs-core": "^16.17.1",
+    "fumadocs-mdx": "^15.4.7",
+    "fumadocs-ui": "^16.17.1",
+    "lucide-react": "^1.55.0",
+    "motion": "^14.1.0",
     "next": "16.4.0",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "web-worker": "^1.5.0",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
+    "gray-matter": "^4.0.3",
+    "js-yaml": "^5.4.3",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.23.15",
+    "typescript": "^5",
+    "zod": "^4.6.5"
   },
   "packageManager": "pnpm@10.27.0"
 }

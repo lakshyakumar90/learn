@@ -1,0 +1,155 @@
+---
+title: Cold starts and keep-alive
+description: Why free services sleep, the hours math, and how to ping them awake.
+diagram: keep-alive
+owns:
+  - "The free-tier sleep and hour limits, stated plainly"
+  - "A daily ping window that fits the allowance"
+  - "Three keep-alive options with steps"
+talksTo:
+  - label: Deployment overview
+    href: /projects/excalidraw/deployment-overview
+  - label: Backend on Render
+    href: /projects/excalidraw/deployment-backend
+  - label: Verify and troubleshoot
+    href: /projects/excalidraw/deployment-verify
+sources:
+  - apps/http-server/src/app.ts
+  - apps/http-server/src/index.ts
+  - apps/ws-server/src/server.ts
+  - apps/ws-server/src/index.ts
+  - apps/flush-worker/src/index.ts
+  - packages/redis/src/index.ts
+---
+
+Render spins a free web service down after 15 minutes without inbound traffic,
+and waking takes roughly a minute. Each workspace gets 750 free instance hours a
+month, shared by all free web services; spun-down services use no hours, and
+exceeding the allowance suspends every free service until next month. Render may
+also restart a free service at any time.
+
+## The hours math
+
+Hours equal services times hours per day times days:
+
+| Services awake | Hours/day | Days | Hours/month |
+| --- | --- | --- | --- |
+| 2 | 24 | 31 | ~1,488 — over the 750 limit |
+| 1 | 24 | 31 | ~744 — leaves nothing for others |
+| 2 | 8 | 30 | ~480 — fits with room to spare |
+
+Keeping both services awake around the clock is not possible on free. Ping only
+inside a daily window instead — 8 hours a day for both services costs about 480
+hours a month. Ping every 10 minutes, which sits safely under the 15-minute idle
+limit. Never ping `/robots.txt`: while a service is spun down, Render answers
+that path itself and the service never wakes.
+
+Target the HTTP service's `/health`. For the WS service, ping its public HTTP
+URL — but know what it does: the WS server answers only WebSocket upgrades, so a
+plain GET gets no application response (checked against the code with a local
+bare-server test). The inbound connection still counts as traffic; confirm the
+service really stays awake in the Render dashboard during your window.
+
+## Option 1: Cloudflare Worker with a Cron Trigger
+
+Free and precise. The Worker fetches both URLs on a schedule; both URLs come
+from env vars.
+
+```js
+export default {
+  // The WS URL never answers — its server only speaks WebSocket
+  // upgrades — so each fetch gets a guard; the connection itself
+  // is what counts as traffic.
+  async scheduled(event, env, ctx) {
+    const urls = [env.HTTP_HEALTH_URL, env.WS_PUBLIC_URL].filter(Boolean);
+    const ping = (url) =>
+      fetch(url, { signal: AbortSignal.timeout(30_000) }).catch(() => {});
+    ctx.waitUntil(Promise.all(urls.map(ping)));
+  },
+};
+```
+
+```jsonc
+{
+  "name": "render-keepalive",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-11",
+  "triggers": {
+    // Every 10 minutes, 04:00–12:00 UTC (an 8-hour window).
+    "crons": ["*/10 4-11 * * *"]
+  },
+  "vars": {
+    "HTTP_HEALTH_URL": "https://<http-service>.onrender.com/health",
+    "WS_PUBLIC_URL": "https://<ws-service>.onrender.com/"
+  }
+}
+```
+
+<Steps>
+<Step>
+**Convert the window to UTC.**
+
+Cron Triggers run in UTC. Subtract your offset from both ends of your 8-hour
+window — 08:00–16:00 at UTC+2 becomes 06:00–14:00 UTC, written as `*/10 6-13
+* * *`. Half-hour zones should round the window out to whole hours, and zones
+with daylight saving need the cron adjusted twice a year.
+</Step>
+<Step>
+**Deploy with Wrangler and check the first runs.**
+
+Trigger changes can take several minutes to propagate. Watch the Worker's cron
+events, then confirm both Render services show traffic in the dashboard during
+the window.
+</Step>
+</Steps>
+
+The Workers free plan allows 100,000 requests a day — a few hundred pings barely
+register. Cron triggers per account are capped at a small number, so one Worker
+pinging both URLs is the right shape.
+
+<Callout type="warn" title="What pinging cannot fix">
+The flush worker is a continuously running BullMQ process, not an HTTP service,
+so pinging does not run it. While it is not running, flushes are delayed or
+lost and room state sits in Redis only. Free Redis can also lose data on
+restart, which is why this guide uses Upstash over TCP instead of Render Key Value.
+</Callout>
+
+## Option 2: cron-job.org
+
+<Steps>
+<Step>
+**Create one job per URL.**
+
+One job fetches the HTTP `/health` URL, another the WS public URL, each every
+10 minutes.
+</Step>
+<Step>
+**Set active hours in your own timezone and turn on failure notifications.**
+
+Expect the WS job to report failures — that URL never answers, as explained
+above — so judge health from the Render dashboard, not the WS job status.
+</Step>
+</Steps>
+
+## Option 3: Monitors or GitHub Actions
+
+UptimeRobot-style monitors work the same way: ping `/health` every 10 minutes
+inside the window. A GitHub Actions schedule can also curl both URLs, but
+scheduled runs are not time-precise, so keep the 10-minute cadence with margin.
+
+<Callout type="info" title="Stay within the terms">
+Free tiers are for demos and hobbies. Ping the smallest window you need, and
+check each provider's terms rather than stretching them.
+</Callout>
+
+Last verified: 2026-10-11. Free-tier limits change — check the providers before
+relying on any number.
+
+## Provider docs
+
+- [Render free instances](https://docs.render.com/free)
+- [Cloudflare Cron Triggers](https://developers.cloudflare.com/workers/configuration/cron-triggers/)
+- [Cloudflare Workers pricing](https://developers.cloudflare.com/workers/platform/pricing/)
+- [Cloudflare Workers limits](https://developers.cloudflare.com/workers/platform/limits/)
+- [Wrangler configuration](https://developers.cloudflare.com/workers/wrangler/configuration/)
+- [cron-job.org](https://cron-job.org)

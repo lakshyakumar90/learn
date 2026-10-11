@@ -1,0 +1,40 @@
+import type { DiagramSpec } from './types';
+
+export const systemSpec: DiagramSpec = {
+  id: 'system',
+  title: 'High-level system',
+  nodes: [
+    { id: 'editor', label: 'Editor', layer: 'browser' },
+    { id: 'indexeddb', label: 'IndexedDB', layer: 'browser' },
+    { id: 'outbox', label: 'Sync outbox', layer: 'browser' },
+    { id: 'http', label: 'HTTP server', layer: 'api' },
+    { id: 'ws', label: 'WS server', layer: 'realtime' },
+    { id: 'redis', label: 'Redis', layer: 'cache' },
+    { id: 'worker', label: 'Flush worker', layer: 'api' },
+    { id: 'postgres', label: 'Postgres', layer: 'database' },
+  ],
+  edges: [
+    { from: 'editor', to: 'indexeddb', kind: 'solid', label: 'autosave' },
+    { from: 'editor', to: 'outbox', kind: 'solid', label: 'commits' },
+    { from: 'outbox', to: 'http', kind: 'solid', label: 'save' },
+    { from: 'http', to: 'postgres', kind: 'solid', label: 'scenes' },
+    { from: 'editor', to: 'ws', kind: 'solid', label: 'commit' },
+    { from: 'editor', to: 'ws', kind: 'dashed', label: 'presence' },
+    { from: 'ws', to: 'redis', kind: 'solid', label: 'snapshots' },
+    { from: 'ws', to: 'editor', kind: 'dashed', label: 'broadcast' },
+    { from: 'redis', to: 'worker', kind: 'solid', label: 'queue' },
+    { from: 'worker', to: 'postgres', kind: 'solid', label: 'flush' },
+  ],
+  sources: [
+    'README.md',
+    'apps/web/README.md',
+    'apps/http-server/README.md',
+    'apps/ws-server/README.md',
+    'apps/flush-worker/README.md',
+    'packages/redis/README.md',
+    'apps/ws-server/src/server.ts',
+    'packages/redis/src/index.ts',
+    'apps/flush-worker/src/index.ts',
+    'apps/web/src/lib/sync/outbox.ts',
+  ],
+};

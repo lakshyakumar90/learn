@@ -1,0 +1,30 @@
+---
+title: Flush worker
+description: BullMQ worker that flushes Redis room state to durable Prisma snapshots.
+diagram: flush-worker
+owns:
+  - "Scheduled flushes of dirty rooms from Redis to Postgres"
+  - "Recovery sweeps that re-schedule anything left dirty"
+  - "Room message and memory metrics logging"
+files:
+  - file: src/index.ts
+    purpose: Worker entry, flush callback, timers, and shutdown.
+  - file: package.json
+    purpose: Workspace scripts and dependencies.
+  - file: tsconfig.json
+    purpose: TypeScript config.
+talksTo:
+  - label: Redis
+    href: /projects/excalidraw/packages/redis
+  - label: Database
+    href: /projects/excalidraw/packages/db
+sources:
+  - apps/flush-worker/README.md
+  - apps/flush-worker/src/README.md
+  - apps/flush-worker/src/index.ts
+---
+
+The worker reads each dirty snapshot, inserts a new scene revision only when the
+database is behind, and retains the latest revisions. It touches nothing live:
+presence and previews never pass through here, so a room can be busy without ever
+being flushed mid-thought — the debounce decides when a snapshot is durable.

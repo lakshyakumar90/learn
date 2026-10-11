@@ -1,0 +1,59 @@
+---
+title: Database and Redis
+description: Neon Postgres, Upstash Redis, then run the migrations.
+owns:
+  - "Durable scene revisions on Neon Postgres"
+  - "Live room state on Upstash Redis over TCP"
+  - "Schema migrations through the db package scripts"
+talksTo:
+  - label: Deployment overview
+    href: /projects/excalidraw/deployment-overview
+  - label: Database package
+    href: /projects/excalidraw/packages/db
+  - label: Redis package
+    href: /projects/excalidraw/packages/redis
+  - label: Environment variables
+    href: /projects/excalidraw/deployment-env
+sources:
+  - packages/db/README.md
+  - packages/db/src/prisma/README.md
+  - packages/db/package.json
+  - packages/db/.env.example
+  - packages/db/src/prisma/db.ts
+---
+
+Postgres is the durable authority and Redis the live one, so give each a managed
+home: a Neon Postgres database and an Upstash Redis database, both reachable over
+their TCP connection strings. Do not use Render's free Key Value for rooms — it
+keeps state in memory only and loses everything on restart.
+
+<Steps>
+<Step>
+**Create the Neon database and copy its connection string.**
+
+It becomes `DATABASE_URL` for every backend service. The database client throws
+without it.
+</Step>
+<Step>
+**Create the Upstash Redis database and copy its connection string.**
+
+It becomes `REDIS_URL` for every backend service. Use the TCP URL, not an HTTP one.
+</Step>
+<Step>
+**Run the migrations from `packages/db`.**
+
+Run `db:emit`, then `db:migration-check`, then `db:migrate` for a fresh database.
+For an existing database, verify migration and schema state first instead of
+resetting it.
+</Step>
+</Steps>
+
+Last verified: 2026-10-11. Free-tier limits change — check the providers before
+relying on any number.
+
+## Provider docs
+
+- [Neon docs](https://neon.com/docs)
+- [Neon pricing](https://neon.com/pricing)
+- [Upstash Redis docs](https://upstash.com/docs/redis)
+- [Upstash pricing](https://upstash.com/pricing)

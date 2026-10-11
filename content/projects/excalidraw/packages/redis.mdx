@@ -1,0 +1,33 @@
+---
+title: Redis
+description: Redis live room state, pub/sub, rate limiting, and write-behind queue integration.
+diagram: redis
+owns:
+  - "Live room snapshots with atomic revision-checked writes"
+  - "The dirty-room set and the debounced flush queue"
+  - "The room event bus for cross-server fan-out"
+  - "Participant lists with join, renew, and leave"
+  - "Per-bucket message rate limits"
+files:
+  - file: src/index.ts
+    purpose: Room state, pub/sub, queue, and rate-limit operations.
+talksTo:
+  - label: WebSocket server
+    href: /projects/excalidraw/apps/ws-server
+  - label: Flush worker
+    href: /projects/excalidraw/apps/flush-worker
+  - label: Backend common
+    href: /projects/excalidraw/packages/backend-common
+  - label: HTTP server
+    href: /projects/excalidraw/apps/http-server
+sources:
+  - packages/redis/README.md
+  - packages/redis/src/README.md
+  - packages/redis/src/index.ts
+---
+
+Redis is the live authority and Postgres the durable one. Snapshot writes are
+atomic with a Lua version check; when a write lands, the room joins the dirty set
+and a coalesced flush job is scheduled — debounced, with a maximum wait, and forced
+when the last participant leaves. Rate budgets are per connection for ephemeral
+frames and stricter for commits.

@@ -1,0 +1,19 @@
+---
+title: Validations
+description: Reusable request validation schemas.
+owns:
+  - "Request validation schemas shared by the HTTP server"
+files:
+  - file: src/types.ts
+    purpose: Shared validation types.
+talksTo:
+  - label: HTTP server
+    href: /projects/excalidraw/apps/http-server
+sources:
+  - packages/validations/README.md
+  - packages/validations/src/README.md
+  - packages/validations/src/types.ts
+---
+
+This is a small package with a single job: keep request shapes in one place so the
+HTTP routes validate the same way. The HTTP server is its listed consumer.

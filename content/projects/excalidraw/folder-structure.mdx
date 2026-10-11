@@ -1,0 +1,17 @@
+---
+title: Folder structure
+description: Where everything lives and why.
+sources:
+  - README.md
+  - apps/README.md
+---
+
+The repo separates things that run from things that are reused. Everything that runs —
+the editor, the API, the realtime transport, the background worker — lives in
+`apps/`. Everything reused by more than one of those — models, engine, database,
+auth, Redis, validation, UI, configs — lives in `packages/`.
+
+Each maintained source folder carries its own README listing its files and
+subfolders; the folder pages in this guide quote those lists. Open the
+[apps/ overview](/projects/excalidraw/apps) for the services and the
+[packages/ overview](/projects/excalidraw/packages) for the libraries.

@@ -1,0 +1,51 @@
+---
+title: packages/
+description: The shared libraries every service builds on.
+diagram: packages-overview
+owns:
+  - "Platform-neutral models, protocols, and reconciliation"
+  - "Browser-independent drawing engine"
+  - "Server-only collaboration and access operations"
+  - "The sole database client and schema"
+  - "Authentication, Redis access, validation, UI, and configs"
+files:
+  - file: common/
+    purpose: Cross-platform types, protocols, validation, reconciliation.
+  - file: engine/
+    purpose: Geometry, tools, rendering, scene capture, history.
+  - file: backend-common/
+    purpose: Backend-only shared collaboration/access operations.
+  - file: db/
+    purpose: Sole Prisma schema/client/repositories/migration graph.
+  - file: auth/
+    purpose: Authentication client/server and email integration.
+  - file: redis/
+    purpose: Live state, pub/sub, queue and rate limiting.
+  - file: validations/
+    purpose: Reusable request validation schemas.
+  - file: ui/
+    purpose: Shared UI primitives.
+  - file: eslint-config/
+    purpose: Internal ESLint configurations.
+  - file: typescript-config/
+    purpose: Shared TypeScript configurations.
+talksTo:
+  - label: apps/ overview
+    href: /projects/excalidraw/apps
+  - label: Common
+    href: /projects/excalidraw/packages/common
+  - label: Engine
+    href: /projects/excalidraw/packages/engine
+  - label: Database
+    href: /projects/excalidraw/packages/db
+sources:
+  - README.md
+  - packages/common/package.json
+  - packages/engine/package.json
+  - packages/backend-common/package.json
+---
+
+The rule from the contributing guide: cross-platform reuse goes in common,
+server-only reuse in backend-common, authentication in auth, and durable database
+operations in db. Only five packages take workspace dependencies; the rest stand
+alone. The diagram shows the main uses.

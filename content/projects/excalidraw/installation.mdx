@@ -1,0 +1,17 @@
+---
+title: Installation
+description: What you need and which commands start the project.
+sources:
+  - README.md
+---
+
+You need Node.js 24+, pnpm 11.25.0, PostgreSQL 15+, and Redis. Email delivery is
+needed for verification and invites; Google OAuth is optional.
+
+Setup follows the root README: install dependencies at the repository root, copy the
+environment examples into place, prepare the database from `packages/db`, then run the
+dev command at the root, which starts the web app, the HTTP server, the WebSocket
+server, and the snapshot flush worker together.
+
+By default the editor runs on port 3000 (with the dashboard on the same port), the
+HTTP API on port 5000, the WebSocket server on port 8080, and Redis on port 6379.

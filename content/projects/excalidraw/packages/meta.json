@@ -1,0 +1,15 @@
+{
+  "title": "packages/",
+  "pages": [
+    "index",
+    "common",
+    "engine",
+    "backend-common",
+    "db",
+    "auth",
+    "redis",
+    "validations",
+    "ui",
+    "tooling"
+  ]
+}

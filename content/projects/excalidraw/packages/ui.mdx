@@ -1,0 +1,23 @@
+---
+title: UI
+description: Shared UI primitives.
+owns:
+  - "Button, card, and code primitives for app interfaces"
+files:
+  - file: src/button.tsx
+    purpose: Shared button primitive.
+  - file: src/card.tsx
+    purpose: Shared card primitive.
+  - file: src/code.tsx
+    purpose: Shared code primitive.
+sources:
+  - packages/ui/README.md
+  - packages/ui/src/README.md
+  - packages/ui/src/button.tsx
+  - packages/ui/src/card.tsx
+  - packages/ui/src/code.tsx
+---
+
+Nothing under `apps/` imports this package today — the web editor builds its UI
+from its own components. The primitives are documented here so a future page has a
+place to point at.
