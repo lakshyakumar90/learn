@@ -111,6 +111,15 @@ function readmeRole(dir: string): string {
 
 function main(): void {
   if (!existsSync(TARGET)) {
+    // Deploy environments (e.g. Vercel) clone only this repo, so the
+    // sibling project is absent. Reuse the committed generated files,
+    // which were verified where the sibling exists.
+    const depsJson = join(OUT, 'deps.json');
+    const libsJson = join(OUT, 'libraries.json');
+    if (existsSync(depsJson) && existsSync(libsJson)) {
+      console.log('extract-deps: sibling repo absent, reusing committed generated/deps.json');
+      return;
+    }
     console.error(`extract-deps: documented repo not found at ${TARGET}`);
     process.exit(1);
   }

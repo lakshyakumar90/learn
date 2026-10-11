@@ -25,6 +25,16 @@ const TARGET = resolve(ROOT, siteConfig.excalidrawDir as string);
 const errors: string[] = [];
 const fail = (message: string) => errors.push(message);
 
+// Deploy environments (e.g. Vercel) clone only this repo. When the sibling
+// project is absent, sibling-path existence checks are skipped with a
+// warning; every structural check below still runs.
+const TARGET_MISSING = !existsSync(TARGET);
+if (TARGET_MISSING) {
+  console.warn(
+    `check-sources: sibling repo absent at ${TARGET} — skipping cited-path existence checks (verified where the sibling exists)`,
+  );
+}
+
 function walk(dir: string, ext: string[], out: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
     const full = join(dir, name);
@@ -39,6 +49,7 @@ function walk(dir: string, ext: string[], out: string[] = []): string[] {
 }
 
 function checkSourceExists(path: string, citedIn: string): void {
+  if (TARGET_MISSING) return;
   const full = resolve(TARGET, path);
   if (!existsSync(full)) {
     fail(`${citedIn}: source does not exist in ${siteConfig.excalidrawDir}: ${path}`);
@@ -127,10 +138,6 @@ try {
   }
 } catch {
   // No flows yet — step 6 adds them.
-}
-
-if (!existsSync(TARGET)) {
-  fail(`documented repo not found at ${TARGET} (siteConfig.excalidrawDir)`);
 }
 
 if (errors.length > 0) {
