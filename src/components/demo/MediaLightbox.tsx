@@ -80,7 +80,7 @@ export function MediaLightbox({
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
         <Dialog.Content
           aria-label={entry ? entry.caption : 'Media viewer'}
-          className="fixed left-1/2 top-1/2 z-50 flex max-h-[92vh] w-[95vw] max-w-[1100px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border bg-[var(--dg-node-bg)] text-[var(--foreground)] shadow-2xl max-md:h-dvh max-md:w-screen max-md:rounded-none"
+          className="fixed left-1/2 top-1/2 z-50 flex h-[92dvh] max-h-[920px] w-[92vw] max-w-[960px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border bg-[var(--dg-node-bg)] text-[var(--foreground)] shadow-2xl max-md:h-dvh max-md:max-h-none max-md:w-screen max-md:rounded-none"
         >
           <div className="flex items-center gap-2 border-b px-3 py-2 sm:px-4">
             <Dialog.Title className="mr-auto min-w-0 truncate text-base font-semibold">
@@ -118,13 +118,13 @@ export function MediaLightbox({
               <X size={18} aria-hidden />
             </Dialog.Close>
           </div>
-          <div className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto bg-black/80 p-4">
+          <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-black/80 p-3 sm:p-4">
             {entry?.kind === 'image' ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={entry.src}
                 alt={entry.alt}
-                className="max-h-[75vh] w-auto max-w-full rounded-lg object-contain"
+                className="max-h-full w-auto max-w-full rounded-lg object-contain"
               />
             ) : entry ? (
               <video
@@ -133,7 +133,7 @@ export function MediaLightbox({
                 playsInline
                 preload="metadata"
                 aria-label={entry.alt}
-                className="max-h-[75vh] w-auto max-w-full rounded-lg"
+                className="max-h-full w-auto max-w-full rounded-lg"
               />
             ) : null}
           </div>

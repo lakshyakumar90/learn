@@ -14,13 +14,13 @@ export function DeviceFrame({
   children: ReactNode;
 }) {
   if (kind === 'phone') {
+    // No fake notch: every phone screenshot is a full-device capture
+    // with its own status bar, so extra chrome would stack up and push
+    // the content down with a dead gap.
     return (
       <div className="mx-auto w-full max-w-[270px] rounded-[2rem] border bg-stone-950 p-2 shadow-lg dark:bg-black">
-        <div className="mb-1.5 flex justify-center" aria-hidden>
-          <span className="h-4 w-24 rounded-full bg-stone-800 dark:bg-stone-700" />
-        </div>
         <div
-          className="overflow-hidden rounded-[1.5rem] bg-[var(--dg-node-bg)]"
+          className="overflow-hidden rounded-[1.4rem] bg-[var(--dg-node-bg)]"
           style={{ aspectRatio: DEMO_ASPECT.phone }}
         >
           {children}

@@ -83,7 +83,7 @@ export function DocsNavbar({ className = '' }: { className?: string }) {
 
   return (
     <header
-      className={`sticky top-0 z-40 border-b bg-[var(--background)]/90 backdrop-blur ${className}`}
+      className={`sticky top-0 z-40 border-b bg-[var(--background)] backdrop-blur ${className}`}
     >
       <nav
         aria-label="Site"

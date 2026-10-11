@@ -50,6 +50,15 @@
     top: 3.5rem;
     height: calc(100dvh - 3.5rem);
   }
+
+  /*
+   * Flat docs chrome: the sidebar uses the same background as the page
+   * instead of the framework card panel. The inline-start border stays
+   * so the rail keeps its visual separation.
+   */
+  #nd-docs-layout #nd-sidebar {
+    background-color: var(--background);
+  }
 }
 
 /*

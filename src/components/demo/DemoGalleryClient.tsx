@@ -87,6 +87,22 @@ export function DemoGalleryClient({ section }: { section: DemoSection }) {
     );
   }
 
+  if (section.layout === 'stack') {
+    return (
+      <div>
+        <div className="flex flex-col gap-8">
+          {section.items.map((item, i) => (
+            <div key={i}>
+              <DemoVideo item={item} onOpen={() => openAt(i)} />
+              <ItemCaption item={item} />
+            </div>
+          ))}
+        </div>
+        <MediaLightbox items={section.items} index={index} onIndex={setIndex} open={open} onOpenChange={setOpen} />
+      </div>
+    );
+  }
+
   const item = section.items[0];
   return (
     <div>

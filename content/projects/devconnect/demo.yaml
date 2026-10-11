@@ -2,8 +2,11 @@
 # public/media/devconnect/ — drop the file in and set its `src`.
 hero:
   type: video
-  alt: Sixty-second tour of DevConnect, from landing to a live chat message
+  alt: 'Sixty-second tour of DevConnect, from landing to a live chat message'
   caption: Watch the 60-second tour
+  src: 'https://cdn.sanity.io/files/5bhril9c/production/2ec40ade9c220a1726cb2938e671b506d4ca3487.mp4'
+  poster: >-
+    https://cdn.sanity.io/images/5bhril9c/production/35382df2a330471cc022ba0c6f7e840925766e79-1226x690.jpg
 sections:
   - id: landing
     layout: single
@@ -13,14 +16,18 @@ sections:
         title: Landing and sign-up
         alt: DevConnect landing page with sign-up form
         caption: Public landing with email registration and GitHub entry.
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/e172be07eddaab46ceec2c28c345fa6671849ace-1364x621.png
   - id: profile
     layout: single
     items:
       - type: image
         device: browser
         title: Profile
-        alt: Developer profile with bio, skills, GitHub stats, and avatar
+        alt: 'Developer profile with bio, skills, GitHub stats, and avatar'
         caption: Hand-written fields plus synced GitHub data.
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/d6e3963ffb62ff5442f9f6e9cf2586ae41d93cf1-1366x768.png
   - id: feed
     layout: single
     items:
@@ -29,6 +36,8 @@ sections:
         title: Feed
         alt: Feed of developer posts with likes and comments
         caption: Recent and top tabs over cursor-paged posts.
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/635fd3dd21c37dca867df0799ffacb620be521d2-1366x622.png
   - id: connections
     layout: grid
     items:
@@ -36,12 +45,16 @@ sections:
         device: browser
         title: Connections
         alt: Connections list of accepted developers
-        caption: Accepted connections, the main gate for chat.
+        caption: 'Accepted connections, the main gate for chat.'
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/8f5a2b12b676557675f1f570d8ec089cdbac968b-1362x618.png
       - type: image
         device: browser
         title: Requests
         alt: Incoming and sent connection requests
         caption: Incoming requests to accept and sent ones to track.
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/1817b01d0a0b5dab6fd7fa7fc09e82bdea26f167-1366x617.png
   - id: jobs
     layout: single
     items:
@@ -50,6 +63,8 @@ sections:
         title: Jobs
         alt: Job listings with filters and an application view
         caption: Listings with resume applications and poster-side status.
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/4bb08bb442184a1d3ec108dc6363e9f526a27079-1357x621.png
   - id: chat
     layout: single
     items:
@@ -57,20 +72,30 @@ sections:
         device: browser
         title: Real-time chat
         alt: Chat thread with typing indicator and read receipts
-        caption: Rooms, receipts, typing, and presence in one thread.
+        caption: 'Rooms, receipts, typing, and presence in one thread.'
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/76f4dc182969307af52d6addafbffc8a264e0979-1358x609.png
   - id: clips
-    layout: grid
+    layout: stack
     items:
       - type: video
         loop: true
         title: Sending a message
         alt: Short clip of sending a chat message and seeing it delivered
-        caption: Send, delivered, and read states in one exchange.
+        caption: 'Send, delivered, and read states in one exchange.'
+        src: >-
+          https://cdn.sanity.io/files/5bhril9c/production/b2bf68829830ed0a47a3f01bc4e84b6918260328.mp4
+        poster: >-
+          https://cdn.sanity.io/images/5bhril9c/production/9bddef5ac48285ee11ff4d86407fa8ddd3a77053-1364x768.jpg
       - type: video
         loop: true
         title: Accepting a request
         alt: Short clip of accepting a connection request
         caption: Accept flips the pair to connected and notifies both sides.
+        src: >-
+          https://cdn.sanity.io/files/5bhril9c/production/6f868785fb2c33e9f3e785716da66ff2bc6fcbff.mp4
+        poster: >-
+          https://cdn.sanity.io/images/5bhril9c/production/d15dc445ede313d56c74dace830c2e9a24d6e3ba-1364x768.jpg
 walkthroughs:
   - id: authentication
     title: Authentication
@@ -86,19 +111,19 @@ walkthroughs:
     featureLink: /projects/devconnect/features/profiles-uploads
   - id: connections
     title: Connections
-    caption: Requests, accepts, lists, and removal.
+    caption: 'Requests, accepts, lists, and removal.'
     section: connections
     index: 0
     featureLink: /projects/devconnect/features/connections
   - id: feed
     title: Feed and posts
-    caption: Publishing, feed tabs, likes, and comments.
+    caption: 'Publishing, feed tabs, likes, and comments.'
     section: feed
     index: 0
     featureLink: /projects/devconnect/features/feed-posts
   - id: jobs
     title: Jobs
-    caption: Listings, resume applications, and status tracking.
+    caption: 'Listings, resume applications, and status tracking.'
     section: jobs
     index: 0
     featureLink: /projects/devconnect/features/jobs
@@ -110,7 +135,7 @@ walkthroughs:
     featureLink: /projects/devconnect/features/notifications
   - id: chat
     title: Real-time chat
-    caption: Rooms, receipts, typing, and presence over sockets.
+    caption: 'Rooms, receipts, typing, and presence over sockets.'
     section: chat
     index: 0
     featureLink: /projects/devconnect/features/realtime-chat

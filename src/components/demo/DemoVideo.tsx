@@ -35,7 +35,7 @@ function YoutubeFacade({ item }: { item: DemoMediaItem }) {
   if (!id) return <Placeholder item={item} ratio={DEMO_ASPECT.video} />;
   if (!loaded) {
     return (
-      <div style={{ aspectRatio: DEMO_ASPECT.video }} className="relative h-full w-full">
+      <div style={{ aspectRatio: DEMO_ASPECT.video }} className="relative w-full">
         {item.poster ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -98,18 +98,22 @@ export function DemoVideo({
   if (item.type === 'youtube') return <YoutubeFacade item={item} />;
   if (item.type === 'video' && item.src) {
     return (
-      <video
-        src={item.src}
-        controls
-        playsInline
-        preload="metadata"
-        loop={item.loop === true && reduceMotion !== true}
-        autoPlay={false}
-        poster={item.poster}
-        aria-label={item.alt}
+      <div
+        className="w-full overflow-hidden rounded-lg bg-black"
         style={{ aspectRatio: DEMO_ASPECT.video }}
-        className="h-full w-full bg-black"
-      />
+      >
+        <video
+          src={item.src}
+          controls
+          playsInline
+          preload="metadata"
+          loop={item.loop === true && reduceMotion !== true}
+          autoPlay={false}
+          poster={item.poster}
+          aria-label={item.alt}
+          className="block h-full w-full"
+        />
+      </div>
     );
   }
   return (

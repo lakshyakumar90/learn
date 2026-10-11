@@ -2,8 +2,11 @@
 # public/media/excalidraw/ — drop the file in and set its `src`.
 hero:
   type: video
-  alt: Sixty-second tour of Excalidraw, from blank canvas to a shared room
+  alt: 'Sixty-second tour of Excalidraw, from blank canvas to a shared room'
   caption: Watch the 60-second tour
+  src: 'https://cdn.sanity.io/files/5bhril9c/production/373611a53e157b3b5d36a597b5d3bf9b5a630196.mp4'
+  poster: >-
+    https://cdn.sanity.io/images/5bhril9c/production/b4eabbc088148e7f0d2e571a0968d88581cf11cc-1364x768.jpg
 sections:
   - id: canvas
     layout: single
@@ -11,8 +14,10 @@ sections:
       - type: image
         device: browser
         title: Canvas and tools
-        alt: Drawing canvas with shape, text, and Freedraw tools
-        caption: Shapes, text, and freedraw on an infinite canvas.
+        alt: 'Drawing canvas with shape, text, and Freedraw tools'
+        caption: 'Shapes, text, and freedraw on an infinite canvas.'
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/7c03e69aa0867b09cd85e251a5f5485b78e559d2-1364x621.png
   - id: selection
     layout: single
     items:
@@ -20,7 +25,9 @@ sections:
         device: browser
         title: Selection and resizing
         alt: Selected shapes with resize handles and alignment guides
-        caption: Multi-select with handles, guides, and grouping.
+        caption: 'Multi-select with handles, guides, and grouping.'
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/074a9013c5fdf3cae4722d451c5a9c494b8ff6f0-1366x620.png
   - id: dashboard
     layout: single
     items:
@@ -29,6 +36,8 @@ sections:
         title: Dashboard
         alt: Dashboard listing saved scenes and shared rooms
         caption: Scenes and rooms at a glance for signed-in users.
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/7b76d74bace796f5ca987e0c0da9d8e3fa748c36-1348x619.png
   - id: room
     layout: single
     items:
@@ -36,28 +45,40 @@ sections:
         device: browser
         title: Real-time room with cursors
         alt: Shared room showing two collaborators cursors and selections
-        caption: Live cursors, previews, and selections per collaborator.
+        caption: 'Live cursors, previews, and selections per collaborator.'
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/3bc64280421e2efd39215b84a7c116b527f3ae78-1360x624.png
   - id: export
     layout: single
     items:
       - type: image
         device: browser
         title: Export
-        alt: Export dialog with PNG, SVG, and scene-link options
-        caption: Images, vectors, and shareable scene links.
+        alt: 'Export dialog with PNG, SVG, and scene-link options'
+        caption: 'Images, vectors, and shareable scene links.'
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/53ecca87be384fa365e086e44d80ca8fc2328280-1366x612.png
   - id: clips
-    layout: grid
+    layout: stack
     items:
       - type: video
         loop: true
         title: Drawing a shape
         alt: Short clip of drawing and styling a rectangle
-        caption: Draw, style, and arrange in seconds.
+        caption: 'Draw, style, and arrange in seconds.'
+        src: >-
+          https://cdn.sanity.io/files/5bhril9c/production/95c57e77d62f3f1309373890aef7acd1240eae35.mp4
+        poster: >-
+          https://cdn.sanity.io/images/5bhril9c/production/06a8a0af2de23c4ecb2f16bba15401c8c5e25e29-1364x768.jpg
       - type: video
         loop: true
         title: Two people in one room
         alt: Short clip of two cursors editing the same canvas
         caption: Presence and edits stay in sync across browsers.
+        src: >-
+          https://cdn.sanity.io/files/5bhril9c/production/2434ca34fb216af3229b87162f8ba6098dda7805.mp4
+        poster: >-
+          https://cdn.sanity.io/images/5bhril9c/production/d96ca4a01797a498bdd4db9fd27ae480e345cf14-1364x768.jpg
 walkthroughs:
   - id: canvas
     title: Canvas and tools
@@ -67,7 +88,7 @@ walkthroughs:
     featureLink: /projects/excalidraw/apps/web
   - id: selection
     title: Selection and resizing
-    caption: Handles, guides, and multi-select behavior.
+    caption: 'Handles, guides, and multi-select behavior.'
     section: selection
     index: 0
     featureLink: /projects/excalidraw/apps/web

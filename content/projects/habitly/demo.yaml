@@ -2,8 +2,11 @@
 # public/media/habitly/ — drop the file in and set its `src`.
 hero:
   type: video
-  alt: Sixty-second tour of Habitly, from welcome to synced statistics
+  alt: 'Sixty-second tour of Habitly, from welcome to synced statistics'
   caption: Watch the 60-second tour
+  src: 'https://cdn.sanity.io/files/5bhril9c/production/96f6c25679c9f501eebdee96ef65b626488b1414.mp4'
+  poster: >-
+    https://cdn.sanity.io/images/5bhril9c/production/1edca635730ad4a434f774815dd640434b628b34-576x1280.jpg
 sections:
   - id: welcome
     layout: single
@@ -13,35 +16,45 @@ sections:
         title: Welcome and onboarding
         alt: Habitly welcome screen with pastel art and a Get started button
         caption: Welcome art opens the five-step personalization flow.
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/31e7a956de1b2532202b76d8708a830d77765f1b-576x1280.jpg
   - id: today
     layout: single
     items:
       - type: image
         device: phone
         title: Today dashboard
-        alt: Today dashboard showing date, progress ring, streak, habits, and tasks
-        caption: Date, progress, streak, scheduled habits, and today's tasks.
+        alt: 'Today dashboard showing date, progress ring, streak, habits, and tasks'
+        caption: 'Date, progress, streak, scheduled habits, and today''s tasks.'
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/fad5f4b6d8b3cf115c95d2f2d5d82c1328c21b90-576x1280.jpg
   - id: habits
     layout: phone-carousel
     items:
       - type: image
         device: phone
         title: Habits list
-        alt: Habits list with All, Active, and Archived filters
+        alt: 'Habits list with All, Active, and Archived filters'
         caption: Filterable habit list with all four habit types.
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/7ba4ae573667091d9a23de6224aca1e8fbb64ac3-576x1280.jpg
       - type: image
         device: phone
         title: Habit detail and calendar
-        alt: Habit detail with streaks, completion rate, and contribution calendar
-        caption: Streaks, rate, schedule, and an editable month calendar.
+        alt: 'Habit detail with streaks, completion rate, and contribution calendar'
+        caption: 'Streaks, rate, schedule, and an editable month calendar.'
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/142c0057036f03f85ec757d21ecab94257e186a0-576x1280.jpg
   - id: tasks
     layout: single
     items:
       - type: image
         device: phone
         title: Tasks
-        alt: Task list with Today, Upcoming, and Completed views
-        caption: Dated tasks with repeats, subtasks, and priorities.
+        alt: 'Task list with Today, Upcoming, and Completed views'
+        caption: 'Dated tasks with repeats, subtasks, and priorities.'
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/328fe9bffed4138e1beaff6d1ac082d3abe91b44-576x1280.jpg
   - id: stats
     layout: single
     items:
@@ -49,33 +62,47 @@ sections:
         device: phone
         title: Statistics
         alt: Statistics screen with consistency charts and best weekday
-        caption: Consistency, streaks, and best-weekday summaries.
+        caption: 'Consistency, streaks, and best-weekday summaries.'
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/60913c2c64baa71767607b6a425018394ffe70b4-576x1280.jpg
   - id: settings
     layout: phone-carousel
     items:
       - type: image
         device: phone
         title: Settings and appearance
-        alt: Settings screen with appearance, accent color, and export options
-        caption: Profile, appearance, data, and permission controls.
+        alt: 'Settings screen with appearance, accent color, and export options'
+        caption: 'Profile, appearance, data, and permission controls.'
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/4d42b9339155084753fa8bcb1d546828e4c6fe82-576x1280.jpg
       - type: image
         device: phone
         title: Achievements
         alt: Achievements screen with streak milestones
         caption: Milestones earned from local entries.
+        src: >-
+          https://cdn.sanity.io/images/5bhril9c/production/3e2f459890d006d7ac0bc77841f4390de09aca12-576x1280.jpg
   - id: clips
-    layout: grid
+    layout: stack
     items:
       - type: video
         loop: true
         title: Checking off a habit
         alt: Short clip of tapping a habit row to check it off for today
         caption: One tap toggles today's check-off state.
+        src: >-
+          https://cdn.sanity.io/files/5bhril9c/production/b2967077b5e3dc40d8843f72cdcbce77f4226b9f.mp4
+        poster: >-
+          https://cdn.sanity.io/images/5bhril9c/production/3258be0349abffebe3947572c04c9f4463f5a3e2-576x1280.jpg
       - type: video
         loop: true
         title: Adding a reminder
         alt: Short clip of picking a reminder time for a habit
         caption: Reminder times persist with the schedule.
+        src: >-
+          https://cdn.sanity.io/files/5bhril9c/production/5266a341c3c2597208bc24de727700cb35a780bf.mp4
+        poster: >-
+          https://cdn.sanity.io/images/5bhril9c/production/2ad54dc6a2f05c95d64f486b3c72467ead769b87-576x1280.jpg
 walkthroughs:
   - id: onboarding
     title: Onboarding and guest profile
@@ -85,19 +112,19 @@ walkthroughs:
     featureLink: /projects/habitly/features/onboarding
   - id: habits
     title: Habits
-    caption: Four types, weekday schedules, archive and history editing.
+    caption: 'Four types, weekday schedules, archive and history editing.'
     section: habits
     index: 0
     featureLink: /projects/habitly/features/habits
   - id: tasks
     title: Tasks
-    caption: Due dates, repeats, subtasks, and three list views.
+    caption: 'Due dates, repeats, subtasks, and three list views.'
     section: tasks
     index: 0
     featureLink: /projects/habitly/features/tasks
   - id: today
     title: Today dashboard
-    caption: Progress, streak, due habits, and today's tasks in one read.
+    caption: 'Progress, streak, due habits, and today''s tasks in one read.'
     section: today
     index: 0
     featureLink: /projects/habitly/features/today
@@ -115,13 +142,13 @@ walkthroughs:
     featureLink: /projects/habitly/features/reminders
   - id: search
     title: Search
-    caption: One query across habits and tasks, fully local.
+    caption: 'One query across habits and tasks, fully local.'
     section: tasks
     index: 0
     featureLink: /projects/habitly/features/search
   - id: settings
     title: Settings
-    caption: Appearance, data controls, and JSON or CSV export.
+    caption: 'Appearance, data controls, and JSON or CSV export.'
     section: settings
     index: 0
     featureLink: /projects/habitly/features/settings

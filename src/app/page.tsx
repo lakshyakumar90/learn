@@ -3,12 +3,27 @@ import { ArrowRight } from 'lucide-react';
 import { DocsNavbar } from '@/components/DocsNavbar';
 import { LandingHero } from '@/components/LandingHero';
 import { Footer } from '@/components/Footer';
+import { CardHeroVideo } from '@/components/demo/CardHeroVideo';
+import { loadDemo } from '@/lib/demo-load';
 import {
   bookCards,
   howCards,
   projectCards,
   topicCards,
 } from '../../content/collections';
+
+/** Demo hero tour for a landing card; null when the hero has no video. */
+function heroFor(slug: string): { src: string; poster?: string; label: string } | null {
+  try {
+    const demo = loadDemo(slug);
+    if (demo.hero.type === 'video' && demo.hero.src) {
+      return { src: demo.hero.src, poster: demo.hero.poster, label: demo.hero.alt };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 function SectionHead({ eyebrow, title, line }: { eyebrow: string; title: string; line: string }) {
   return (
@@ -49,23 +64,30 @@ export default function Home() {
                     <p className="inline-block rounded-full border px-2.5 py-0.5 text-xs font-medium opacity-70">
                       {p.platform === 'mobile' ? 'Mobile' : 'Web'}
                     </p>
-                    {p.cover ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={p.cover}
-                        alt={`${p.name} cover`}
-                        loading="lazy"
-                        decoding="async"
-                        className="mt-3 aspect-[16/10] w-full rounded-lg border object-cover"
-                      />
-                    ) : (
-                      <span
-                        aria-hidden
-                        className="mt-3 flex aspect-[16/10] w-full items-center justify-center rounded-lg border bg-stone-100 text-2xl font-semibold opacity-70 dark:bg-stone-900"
-                      >
-                        {p.name.slice(0, 1)}
-                      </span>
-                    )}
+                    {(() => {
+                      const hero = heroFor(p.slug);
+                      if (hero) return <CardHeroVideo src={hero.src} poster={hero.poster} label={hero.label} />;
+                      if (p.cover) {
+                        return (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={p.cover}
+                            alt={`${p.name} cover`}
+                            loading="lazy"
+                            decoding="async"
+                            className="mt-3 aspect-[16/10] w-full rounded-lg border object-cover"
+                          />
+                        );
+                      }
+                      return (
+                        <span
+                          aria-hidden
+                          className="mt-3 flex aspect-[16/10] w-full items-center justify-center rounded-lg border bg-stone-100 text-2xl font-semibold opacity-70 dark:bg-stone-900"
+                        >
+                          {p.name.slice(0, 1)}
+                        </span>
+                      );
+                    })()}
                     <p className="mt-3 text-xl font-semibold">{p.name}</p>
                     <p className="mt-1 text-sm opacity-70">{p.line}</p>
                     {p.tags.length > 0 ? (

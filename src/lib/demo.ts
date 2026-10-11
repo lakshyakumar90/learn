@@ -24,7 +24,7 @@ export const DemoMediaItem = z.object({
 
 export const DemoSection = z.object({
   id: z.string(),
-  layout: z.enum(['phone-carousel', 'grid', 'single']),
+  layout: z.enum(['phone-carousel', 'grid', 'single', 'stack']),
   items: z.array(DemoMediaItem).min(1),
 });
 
