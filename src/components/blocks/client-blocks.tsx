@@ -35,3 +35,11 @@ export const ScenarioPlayer = dynamic(
   () => import('@/components/blocks/ScenarioPlayer').then((m) => m.ScenarioPlayer),
   {},
 ) as unknown as (props: ScenarioPlayerProps) => React.JSX.Element;
+
+export const QuestionBank = dynamic(
+  () => import('@/components/blocks/QuestionBank').then((m) => m.QuestionBank),
+  {},
+) as unknown as (props: {
+  questions: import('@/lib/interview').InterviewQuestion[];
+  topics: import('./QuestionBank').BankTopic[];
+}) => React.JSX.Element;

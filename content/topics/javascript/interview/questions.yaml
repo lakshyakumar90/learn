@@ -1,0 +1,2022 @@
+# Interview questions for the JavaScript topic. Single source of truth:
+# <InterviewQuestions topic="<slug>"/> renders a page's questions and the
+# question bank renders all of them. Answers stay under 120 words.
+- id: variables-1
+  topic: variables-scope-hoisting
+  level: basic
+  question: "What is the difference between var, let and const?"
+  answer: |
+    `var` is function-scoped and hoisted with the value `undefined`, so it can be
+    read before its declaration line. `let` and `const` are block-scoped and live
+    in the temporal dead zone until their declaration runs, so reading them early
+    throws. `const` additionally forbids reassignment, though it does not freeze
+    objects. Default to `const`, use `let` when the value must change.
+  followUps:
+    - "What is the temporal dead zone, exactly?"
+    - "Can you reassign a const object's properties?"
+  tags: ["scope", "hoisting"]
+- id: variables-2
+  topic: variables-scope-hoisting
+  level: basic
+  question: "What is hoisting?"
+  answer: |
+    Hoisting is how declarations are processed before code runs: function
+    declarations and `var` names are registered during the creation phase, so they
+    exist from the top of their scope. Only the declaration moves, never the
+    assignment — `var x = 1` reads as `undefined` before that line. `let` and
+    `const` are also registered but left uninitialized, which is why touching them
+    early throws a `ReferenceError` instead.
+  followUps:
+    - "Are function expressions hoisted too?"
+  tags: ["hoisting", "scope"]
+- id: variables-3
+  topic: variables-scope-hoisting
+  level: basic
+  question: "What will this log, and why: console.log(x); var x = 5?"
+  answer: |
+    It logs `undefined`, not an error. The declaration `var x` is hoisted to the
+    top of the scope, but the assignment `= 5` stays where it is, so at the
+    `console.log` line `x` exists with the value `undefined`. Change `var` to
+    `let` and the same code throws, because `let` variables sit in the temporal
+    dead zone until their declaration line executes.
+  followUps:
+    - "How would you fix it?"
+  tags: ["hoisting", "var"]
+- id: variables-4
+  topic: variables-scope-hoisting
+  level: intermediate
+  question: "What is the temporal dead zone?"
+  answer: |
+    The span of code between entering a block and executing a `let` or `const`
+    declaration. The name is already registered, so JavaScript knows it exists,
+    but it is deliberately uninitialized — any read or write throws
+    `ReferenceError: Cannot access before initialization`. It exists to catch the
+    classic `var` bug of silently reading `undefined`. The zone ends the moment
+    the declaration line runs.
+  followUps:
+    - "Why doesn't var have one?"
+  tags: ["scope", "let", "const"]
+- id: variables-5
+  topic: variables-scope-hoisting
+  level: basic
+  question: "What is the difference between function scope and block scope?"
+  answer: |
+    Function scope means a variable is visible everywhere inside the function
+    that declares it — that is how `var` behaves. Block scope means visibility
+    ends at the closing brace of the nearest block (`if`, `for`, or a bare
+    `{ }`) — that is how `let` and `const` behave. A `let` declared inside a
+    loop body, for example, is a fresh variable per iteration, which is why loop
+    closures work with `let` and break with `var`.
+  followUps:
+    - "Why does let fix the classic loop-with-setTimeout bug?"
+  tags: ["scope", "block"]
+- id: variables-6
+  topic: variables-scope-hoisting
+  level: intermediate
+  question: "Are function declarations hoisted? What about arrow functions in const?"
+  answer: |
+    Full function declarations are hoisted with their body, so you can call them
+    before their line in the source. An arrow function stored in `const` is not
+    callable early: only the `const` name is registered, and it sits in the
+    temporal dead zone until the assignment runs. Treat declarations as
+    available-everywhere helpers and `const` arrows as values that must be
+    defined before use.
+  followUps:
+    - "When would you prefer one over the other?"
+  tags: ["hoisting", "functions"]
+- id: variables-7
+  topic: variables-scope-hoisting
+  level: intermediate
+  question: "What is shadowing, and is it a problem?"
+  answer: |
+    Shadowing is declaring a variable with the same name as one in an outer
+    scope — the inner one wins inside its own scope. It is legal and sometimes
+    handy (a local `error` hiding an outer one), but it confuses readers and
+    linters flag it because a small edit can silently change which variable a
+    line touches. Rename one of them unless the shadowing is clearly deliberate.
+  followUps:
+    - "How does shadowing interact with closures?"
+  tags: ["scope"]
+- id: variables-8
+  topic: variables-scope-hoisting
+  level: basic
+  question: "Does const make an object immutable?"
+  answer: |
+    No. `const` only locks the binding — you cannot point the name at a
+    different object, but you can freely change the object's contents. To freeze
+    contents you need `Object.freeze`, and even that is shallow: nested objects
+    stay mutable. For a truly independent copy, clone first (`structuredClone`)
+    and keep the original `const`.
+  followUps:
+    - "What does Object.freeze miss?"
+  tags: ["const", "objects"]
+- id: types-1
+  topic: data-types-coercion
+  level: basic
+  question: "What is the difference between == and ===?"
+  answer: |
+    `===` compares without conversion: different types are never equal.
+    `==` converts first, using rules nobody fully remembers — `0 == ""` is true,
+    `null == undefined` is true, `[] == false` is true. Those surprises are the
+    whole case for `===`: it says exactly what it checks. Use `===` everywhere;
+    the rare deliberate use of `==` (comparing against `null`) deserves a
+    comment.
+  followUps:
+    - "Is there any == comparison you would keep?"
+  tags: ["equality", "coercion"]
+- id: types-2
+  topic: data-types-coercion
+  level: basic
+  question: "What does typeof return for the main types, including its famous quirk?"
+  answer: |
+    `typeof` returns `"undefined"`, `"boolean"`, `"number"`, `"bigint"`,
+    `"string"`, `"symbol"` and `"function"` correctly. The quirk:
+    `typeof null` is `"object"` — a bug from the first implementation that can
+    never be fixed without breaking the web. `typeof` also says `"object"` for
+    arrays, so pair it with `Array.isArray` when arrays matter.
+  followUps:
+    - "How do you reliably check for an array?"
+    - "How do you tell null apart from an object?"
+  tags: ["typeof", "types"]
+- id: types-3
+  topic: data-types-coercion
+  level: basic
+  question: "What is the difference between null and undefined?"
+  answer: |
+    `undefined` means no value was ever assigned — a missing argument, a missing
+    property, a function that returns nothing. `null` means someone deliberately
+    recorded "nothing here", like an empty cart slot waiting for an item. Rule of
+    thumb: JavaScript produces `undefined` on its own; `null` in your code should
+    always be a conscious choice.
+  followUps:
+    - "When would you return null from a function?"
+  tags: ["null", "undefined"]
+- id: types-4
+  topic: data-types-coercion
+  level: intermediate
+  question: "What is NaN and why does NaN !== NaN?"
+  answer: |
+    `NaN` is the number value for failed numeric work, like `Number("abc")`. It
+    is the only value that is not equal to itself, which is why `x !== x` was
+    once the NaN test. Today use `Number.isNaN(x)`: unlike the global `isNaN`,
+    it does not coerce first, so `Number.isNaN("abc")` is correctly false. Any
+    arithmetic touching `NaN` stays `NaN`, which is how one bad parse poisons a
+    whole total.
+  followUps:
+    - "What is the difference between isNaN and Number.isNaN?"
+  tags: ["NaN", "numbers"]
+- id: types-5
+  topic: data-types-coercion
+  level: basic
+  question: "Which values are falsy?"
+  answer: |
+    Exactly eight: `false`, `0`, `-0`, `0n`, `""`, `null`, `undefined` and
+    `NaN`. Everything else is truthy — including `"0"`, `"false"`, empty arrays
+    and empty objects, which trip up beginners daily. That is why `if (items)`
+    cannot detect an empty array; check `items.length` instead. When a value
+    like `0` or `""` is legitimate input, reach for `??` rather than `||`.
+  followUps:
+    - "Is an empty array truthy? Why does that matter?"
+  tags: ["truthy", "falsy"]
+- id: types-6
+  topic: data-types-coercion
+  level: intermediate
+  question: "When does the + operator concatenate and when does it add?"
+  answer: |
+    `+` adds only when both sides are already numbers (or bigints); if either
+    side is a string, it converts the other side and concatenates. So
+    `1 + 2` is `3` but `"1" + 2` is `"12"`, and `"5" - 2` is `3` because `-`
+    always converts to numbers. A form field total like `price + quantity`
+    silently becomes `"410"` instead of `5` — convert inputs with `Number()`
+    first.
+  followUps:
+    - "How would you debug a total showing 410 instead of 5?"
+  tags: ["coercion", "operators"]
+- id: types-7
+  topic: data-types-coercion
+  level: intermediate
+  question: "What is the difference between || and ??"
+  answer: |
+    `||` falls through on any falsy value, so `0 || 10` is `10` — wrong when
+    zero is a real setting. `??` falls through only on `null` and `undefined`,
+    so `0 ?? 10` stays `0`. Use `??` for defaults where `0`, `""` or `false`
+    are valid, and keep `||` for cases where any falsy value should trigger the
+    fallback.
+  followUps:
+    - "Can you mix ?? with && or || without parentheses?"
+  tags: ["operators", "nullish"]
+- id: types-8
+  topic: data-types-coercion
+  level: basic
+  question: "What is the difference between primitive and reference values?"
+  answer: |
+    Primitives (strings, numbers, booleans, `null`, `undefined`, symbols,
+    bigints) are copied by value: changing a copy never touches the original.
+    Objects, arrays and functions are references: two variables can point at
+    the same object, and a change through one is visible through the other.
+    That shared visibility is the source of most state bugs — and the reason
+    copying objects needs deliberate tools like spread or `structuredClone`.
+  followUps:
+    - "How do you copy an object safely?"
+  tags: ["types", "references"]
+- id: values-1
+  topic: values-references-copying
+  level: basic
+  question: "If two variables point at the same object, what happens when you change one?"
+  answer: |
+    Both see the change, because neither variable holds the object — each holds
+    a reference to one shared object in memory. This is why pushing into an
+    array passed as an argument mutates the caller's array. When you need
+    independence, create a new object: spread for one level, `structuredClone`
+    for the whole tree.
+  followUps:
+    - "How does this bite in React state updates?"
+  tags: ["references", "mutation"]
+- id: values-2
+  topic: values-references-copying
+  level: basic
+  question: "What is the difference between a shallow copy and a deep copy?"
+  answer: |
+    A shallow copy duplicates only the top level — nested objects are still
+    shared references, so editing `copy.address.city` changes the original too.
+    A deep copy duplicates every level, giving full independence. Spread
+    (`{...obj}`) and `Array.prototype.slice` are shallow; `structuredClone` is
+    a deep copy built into the language. Match the tool to how deep the edits
+    go.
+  followUps:
+    - "What does structuredClone fail to copy?"
+  tags: ["copying", "spread"]
+- id: values-3
+  topic: values-references-copying
+  level: intermediate
+  question: "What does structuredClone not handle?"
+  answer: |
+    `structuredClone` copies plain data beautifully but refuses functions (it
+    throws), drops DOM nodes, and turns class instances into plain objects —
+    methods and prototypes do not survive. It also cannot clone two objects
+    that reference each other in some older engines, though modern ones keep
+    the cycle. For state-shaped data it is the right default; for behavior
+    (functions, class instances), design the copy by hand.
+  followUps:
+    - "How would you clone an object that holds a function?"
+  tags: ["structuredClone", "copying"]
+- id: values-4
+  topic: values-references-copying
+  level: intermediate
+  question: "Why does editing a nested object change the original after a spread copy?"
+  answer: |
+    Spread copies property values, and for a nested object the "value" is a
+    reference to the same inner object — so the copy and the original share
+    that inner object. The fix is to spread at every level you edit, or
+    `structuredClone` the whole thing. A quick tell: if any level below the
+    top is an object you mutate, one spread is not enough.
+  followUps:
+    - "Show the one-line fix for a two-level update."
+  tags: ["spread", "mutation"]
+- id: values-5
+  topic: values-references-copying
+  level: basic
+  question: "How do you compare two objects for equality?"
+  answer: |
+    `===` on objects only asks "same reference?", so two identical-looking
+    objects are unequal. For a quick check, compare the fields you care about
+    directly, or `JSON.stringify` both (fragile: key order and `undefined`
+    values bite). Libraries offer deep-equal helpers, but in interviews the
+    expected answer is usually: compare field by field, or avoid needing to by
+    comparing ids.
+  followUps:
+    - "Why is JSON.stringify unreliable for this?"
+  tags: ["equality", "objects"]
+- id: values-6
+  topic: values-references-copying
+  level: intermediate
+  question: "Why is mutating function arguments considered bad practice?"
+  answer: |
+    Callers rarely expect their data changed as a side effect — a `sort(cart)`
+    that reorders the caller's array causes bugs far from the call site and
+    breaksUI frameworks that detect change by reference. Pure functions that
+    return new values are predictable and testable. When mutation is the point
+    (a cache, a builder), name the function so the mutation is obvious.
+  followUps:
+    - "Which array methods mutate and which return new arrays?"
+  tags: ["mutation", "functions"]
+- id: functions-1
+  topic: functions
+  level: basic
+  question: "What is the difference between a function declaration and a function expression?"
+  answer: |
+    A declaration (`function total() {}`) is hoisted whole, so it can run
+    before its line, and it gets its own `this`. An expression
+    (`const total = function () {}`) behaves like any other value: it must be
+    defined before use. In practice declarations suit standalone helpers and
+    expressions suit callbacks and anything passed around as data.
+  followUps:
+    - "Which one can you call before its line in the file?"
+  tags: ["functions", "hoisting"]
+- id: functions-2
+  topic: functions
+  level: basic
+  question: "How do arrow functions differ from regular functions?"
+  answer: |
+    Arrows are shorter and inherit `this` from where they are written instead
+    of getting their own — perfect for callbacks inside methods and array
+    helpers. The trade is that they cannot be constructors (`new` throws), have
+    no `arguments` object, and make poor object methods when you need dynamic
+    `this`. Default to arrows for callbacks; use `function` for methods and
+    anything constructed.
+  followUps:
+    - "Why does this break when you use an arrow as an object method?"
+  tags: ["arrow", "this"]
+- id: functions-3
+  topic: functions
+  level: basic
+  question: "What are default parameters and rest parameters?"
+  answer: |
+    Defaults fill in missing arguments: `function greet(name = "guest")`
+    uses `"guest"` when the caller passes `undefined` or nothing. Rest gathers
+    the leftover arguments into a real array: `function sum(...nums)` lets you
+    call `sum(1, 2, 3)` and loop `nums` directly. Together they replaced most
+    `arguments` juggling and manual `undefined` checks.
+  followUps:
+    - "What does rest give you that arguments does not?"
+  tags: ["parameters", "rest"]
+- id: functions-4
+  topic: functions
+  level: intermediate
+  question: "What is a callback, and what is a higher-order function?"
+  answer: |
+    A callback is a function handed to another function to run later — a click
+    handler, a `setTimeout` body, an array mapper. A higher-order function is
+    the other side: it takes a function in or returns one out, like `map`,
+    `filter`, or a `once` wrapper. The pair is JavaScript's main reuse
+    mechanism: behavior travels as values instead of being subclassed.
+  followUps:
+    - "Name three higher-order functions from the standard library."
+  tags: ["callbacks", "higher-order"]
+- id: functions-5
+  topic: functions
+  level: intermediate
+  question: "What is an IIFE and is it still useful?"
+  answer: |
+    An immediately invoked function expression — `(function () { ... })()` —
+    runs once and keeps its variables private. Before modules, it was THE scoping
+    tool: libraries wrapped everything in one to avoid globals. With ES modules
+    giving every file its own scope, IIFEs are mostly history — you will still
+    meet them in legacy code and interview trivia, rarely in new code.
+  followUps:
+    - "What replaced the IIFE's job?"
+  tags: ["scope", "IIFE"]
+- id: functions-6
+  topic: functions
+  level: basic
+  question: "What does the return value of Array.map do, and how is it different from forEach?"
+  answer: |
+    `map` builds and returns a NEW array with the callback applied to each
+    item, leaving the original untouched — that return value is the whole
+    point, so ignoring it is a bug smell. `forEach` returns `undefined` and is
+    for side effects only (logging, saving, DOM updates). If you are not using
+    `map`'s result, you wanted `forEach`; if you are pushing inside `forEach`,
+    you wanted `map`.
+  followUps:
+    - "Which one would you use to render a list of names?"
+  tags: ["arrays", "map"]
+- id: functions-7
+  topic: functions
+  level: intermediate
+  question: "Explain call, apply and bind."
+  answer: |
+    All three set what `this` means inside a function. `call` runs it now with
+    listed arguments (`fn.call(user, 1, 2)`); `apply` runs it now with an
+    arguments array (`fn.apply(user, [1, 2])`); `bind` does not run it at all —
+    it returns a new function with `this` permanently fixed, ideal for handlers
+    like `button.onclick = save.bind(form)`. Modern code mostly uses `bind` for
+    callbacks and arrows everywhere else.
+  followUps:
+    - "How would you borrow an array method for the arguments object?"
+  tags: ["this", "bind"]
+- id: functions-8
+  topic: functions
+  level: intermediate
+  question: "What is a pure function, and why do interviewers care?"
+  answer: |
+    A pure function always returns the same output for the same input and
+    touches nothing outside itself — no globals, no mutations, no network. They
+    are trivial to test, safe to memoize, and painless to parallelize, which is
+    why functional code and UI frameworks lean on them. The interview angle:
+    spotting impurity (a hidden mutation, a `Date.now()` inside) is often the
+    actual bug in the exercise.
+  followUps:
+    - "Is a function using Math.random pure?"
+  tags: ["purity", "testing"]
+- id: closures-1
+  topic: closures
+  level: basic
+  question: "What is a closure?"
+  answer: |
+    A closure is a function that remembers the variables from where it was
+    created, even after that outer function has finished. The inner function
+    carries a live link to those variables — not a snapshot — so later calls
+    see the latest values. Every callback, handler and private counter in
+    JavaScript leans on this: it is the language's built-in privacy and memory
+    mechanism.
+  followUps:
+    - "Does the closure copy the variables or link to them?"
+  tags: ["closures", "scope"]
+- id: closures-2
+  topic: closures
+  level: basic
+  question: "How do closures create private state?"
+  answer: |
+    Put a variable inside a function and return inner functions that use it:
+    outsiders can call those functions but never touch the variable directly.
+    A cart factory returning `add` and `total` keeps `items` hidden — no
+    property to poke, no global to clash. That is real encapsulation with zero
+    syntax: the scope boundary IS the privacy boundary.
+  followUps:
+    - "How is this different from a #private class field?"
+  tags: ["closures", "privacy"]
+- id: closures-3
+  topic: closures
+  level: intermediate
+  question: "Why does var in a loop break with setTimeout, and what are the fixes?"
+  answer: |
+    `var` is function-scoped, so all five iterations share ONE `i`; by the
+    time the timers run, the loop has finished and every callback logs `5`.
+    Three fixes: use `let` (fresh binding per iteration), wrap the body in an
+    IIFE capturing the current value, or pass `i` as an argument. Interviewers
+    want the mechanism (shared binding vs per-iteration binding), not just the
+    `let` spell.
+  followUps:
+    - "What does each timer log with let, exactly?"
+  tags: ["closures", "var", "async"]
+- id: closures-4
+  topic: closures
+  level: intermediate
+  question: "Do closures capture values or variables?"
+  answer: |
+    Variables — live links, not snapshots. If the outer variable changes after
+    the closure is created, the closure sees the new value on its next call.
+    This surprises people in loops (all callbacks sharing one `var`) and in
+    effects that read "stale" state. When you need a snapshot, copy the value
+    into a new variable (or a parameter) at capture time.
+  followUps:
+    - "How does this cause stale-state bugs in UI code?"
+  tags: ["closures", "scope"]
+- id: closures-5
+  topic: closures
+  level: basic
+  question: "Where do you meet closures in everyday code?"
+  answer: |
+    Everywhere a function outlives its creation: event handlers reading outer
+    settings, `setTimeout` callbacks, `fetch().then()` chains, array mappers
+    using outer totals, and module-level caches. If you have ever written a
+    button handler that remembers which item it belongs to, you have shipped a
+    closure — the interview just wants you to name the mechanism.
+  followUps:
+    - "Point to the closure in your last project."
+  tags: ["closures", "callbacks"]
+- id: closures-6
+  topic: closures
+  level: intermediate
+  question: "Can closures cause memory leaks?"
+  answer: |
+    Yes, when a long-lived closure holds a big variable nothing else needs —
+    a global cache of callbacks, a forgotten timer, an event listener on a
+    removed element. The garbage collector frees only unreachable memory, and
+    anything the closure can still reach counts as reachable. Fix: clear the
+    timer, remove the listener, or null the reference when the feature is done.
+  followUps:
+    - "How would you find which closure holds the memory?"
+  tags: ["closures", "memory"]
+- id: closures-7
+  topic: closures
+  level: intermediate
+  question: "What is the module pattern, in one sentence each for how and why?"
+  answer: |
+    How: wrap code in a function (or module) and expose only chosen functions,
+    keeping the rest in closure scope. Why: it gives private state and a tiny
+    public surface without any class machinery — the pattern behind countless
+    libraries before ES modules, and still the mental model for what a module
+    boundary does.
+  followUps:
+    - "What do ES modules add on top of this?"
+  tags: ["closures", "modules"]
+- id: closures-8
+  topic: closures
+  level: basic
+  question: "What does a counter function remember between calls?"
+  answer: |
+    Its closed-over variable. Each call to the outer factory creates a fresh
+    scope, so two counters from the same factory count independently — that
+    independence is the giveaway that closures link scopes, not code. If both
+    counters shared a number, the variable would be outside the factory, and
+    there would be no closure doing the remembering.
+  followUps:
+    - "How would you reset one counter without touching the other?"
+  tags: ["closures", "scope"]
+- id: closures-9
+  topic: closures
+  level: intermediate
+  question: "Why do React-style effects sometimes see stale values, in closure terms?"
+  answer: |
+    The effect callback closes over the render's variables — a snapshot of that
+    moment's props and state. If the effect runs later (a timer, a subscription
+    callback), it still reads the old render's values, not the current ones.
+    Fixes all follow the same idea: re-create the closure when values change
+    (dependencies), read latest values through a ref, or clean up the old
+    subscription first.
+  followUps:
+    - "What does the dependency list actually do?"
+  tags: ["closures", "async"]
+- id: closures-10
+  topic: closures
+  level: intermediate
+  question: "Explain debounce in terms of closures."
+  answer: |
+    Debounce returns a function that closes over a timer id. Each call clears
+    the pending timer and starts a new one, so the real work runs only after
+    calls stop for the wait period. The closed-over timer id is the entire
+    memory of the debouncer — without the closure there would be nowhere
+    private to keep it. Same story for throttle and `once`.
+  followUps:
+    - "What is the difference between debounce and throttle?"
+  tags: ["closures", "debounce"]
+- id: this-1
+  topic: this-keyword
+  level: basic
+  question: "What decides the value of this in a function?"
+  answer: |
+    The call site, not the definition site. The same function can see a
+    different `this` depending on how it is invoked — as a method, as a bare
+    call, or bound in advance. That single rule explains nearly every `this`
+    surprise: when context is lost, something changed how the function was
+    called, usually by passing it as a callback.
+  followUps:
+    - "How do arrow functions break this rule?"
+  tags: ["this", "calls"]
+- id: this-2
+  topic: this-keyword
+  level: basic
+  question: "What are the four rules of this?"
+  answer: |
+    New binding: `new` points `this` at the fresh object. Explicit: `call`,
+    `apply` or `bind` set it directly. Implicit: calling as `user.save()` sets
+    it to `user`. Default: a bare call gets `undefined` in strict mode (the
+    global object in sloppy mode). When rules collide, new beats explicit
+    beats implicit beats default — memorize that order and most puzzles solve
+    themselves.
+  followUps:
+    - "What happens when several rules apply at once?"
+  tags: ["this", "rules"]
+- id: this-3
+  topic: this-keyword
+  level: basic
+  question: "Why does this become undefined inside a callback like setTimeout?"
+  answer: |
+    Because passing `user.save` as a callback separates the function from its
+    object — `setTimeout` later invokes it as a bare function, so the implicit
+    rule no longer applies and strict mode gives `undefined`. Fixes: wrap it
+    (`() => user.save()`), which preserves the method-call form, or bind it
+    once (`user.save.bind(user)`). Losing the dot is losing the receiver.
+  followUps:
+    - "Which fix would you use in an event handler?"
+  tags: ["this", "callbacks"]
+- id: this-4
+  topic: this-keyword
+  level: intermediate
+  question: "How do arrow functions treat this?"
+  answer: |
+    They don't have one. An arrow inherits `this` from the surrounding scope
+    where it is written, permanently — `call` and `bind` cannot change it.
+    That makes arrows ideal for callbacks inside methods (the handler keeps the
+    component) and wrong for object methods or prototype functions that need a
+    dynamic receiver. If `this` must vary per call, write `function`.
+  followUps:
+    - "Can bind change an arrow's this?"
+  tags: ["this", "arrow"]
+- id: this-5
+  topic: this-keyword
+  level: intermediate
+  question: "What does bind return, and when do you reach for it?"
+  answer: |
+    `bind` returns a NEW function with `this` (and optionally leading
+    arguments) locked in; the original is untouched and nothing runs yet.
+    Reach for it when handing a method to someone else: event listeners,
+    timers, array callbacks, promises. One `bind` at handoff beats debugging a
+    mystery `undefined` three stack frames later.
+  followUps:
+    - "How is bind different from call?"
+  tags: ["this", "bind"]
+- id: this-6
+  topic: this-keyword
+  level: intermediate
+  question: "What is this inside a class, and where does it break?"
+  answer: |
+    In class methods `this` is the instance — until the method is detached. A
+    `button.onclick = panel.save` or `setTimeout(panel.save)` call loses the
+    receiver exactly like plain objects do. The standard fixes are binding in
+    the constructor, binding at handoff, or defining the handler as an arrow
+    field (which closes over the instance). Frameworks hit this constantly,
+    which is why the pattern is worth naming.
+  followUps:
+    - "Why do arrow-function class fields avoid the problem?"
+  tags: ["this", "classes"]
+- id: this-7
+  topic: this-keyword
+  level: basic
+  question: "What is this in strict mode versus sloppy mode for a bare call?"
+  answer: |
+    A bare call like `save()` gets `undefined` in strict mode and the global
+    object (`window`/`globalThis`) otherwise. Strict mode's `undefined` fails
+    fast and loud; sloppy mode silently reads and writes globals, hiding bugs.
+    Modules are always strict, so modern code sees `undefined` — treat a
+    surprise `undefined` this as a detached-method bug until proven otherwise.
+  followUps:
+    - "Are ES modules strict by default?"
+  tags: ["this", "strict"]
+- id: this-8
+  topic: this-keyword
+  level: intermediate
+  question: "How does new set this, step by step?"
+  answer: |
+    `new Cart()` creates a fresh empty object, links it to `Cart.prototype`,
+    runs the constructor with `this` pointing at that object, and returns it
+    (unless the constructor returns its own object). Forgetting `new` runs the
+    same function as a bare call — `this` is `undefined` in strict mode and
+    the constructor's assignments throw instead of building anything.
+  followUps:
+    - "What happens if you forget new?"
+  tags: ["this", "new"]
+- id: this-9
+  topic: this-keyword
+  level: intermediate
+  question: "Why do DOM event handlers get the element as this?"
+  answer: |
+    Because the browser invokes the listener as a method of the element — the
+    implicit rule again, with the element as receiver. Add the same listener
+    via an arrow wrapper and `this` becomes whatever surrounded the arrow,
+    which is why handler code mixing styles confuses readers. Modern handlers
+    usually ignore `this` entirely and use the event object (`event.target`)
+    instead — say so if the interviewer probes.
+  followUps:
+    - "Should new code rely on handler this?"
+  tags: ["this", "DOM"]
+- id: this-10
+  topic: this-keyword
+  level: basic
+  question: "Give a one-line rule for predicting this."
+  answer: |
+    Look at the call, not the function: `obj.fn()` means `obj`, bare `fn()`
+    means `undefined` (strict), `fn.call(x)` means `x`, `new Fn()` means the
+    new object, and arrows mean "whatever surrounded me". Say that sentence in
+    the interview, then apply it line by line — it resolves nearly every
+    textbook puzzle out loud.
+  followUps: []
+  tags: ["this", "rules"]
+- id: objects-1
+  topic: objects-prototypes-classes
+  level: basic
+  question: "How does property lookup work on an object?"
+  answer: |
+    JavaScript checks the object itself first; if the key is missing it walks
+    up the prototype chain — the object's prototype, then that prototype's
+    prototype — until it finds the key or reaches `null` (result:
+    `undefined`). Methods feel "shared" because they live on the prototype,
+    not on each instance. Shadowing happens when the object itself defines the
+    same key and stops the walk early.
+  followUps:
+    - "Where do array methods like map actually live?"
+  tags: ["prototypes", "lookup"]
+- id: objects-2
+  topic: objects-prototypes-classes
+  level: intermediate
+  question: "What is the prototype chain?"
+  answer: |
+    The linked list of objects JavaScript consults for missing properties:
+    instance → `Constructor.prototype` → `Object.prototype` → `null`. `new`
+    wires the link at creation; `class extends` wires a longer one. Lookup is
+    one-directional and read-only up the chain — assignment always lands on the
+    object itself. Draw it as three boxes with arrows and most prototype
+    questions answer themselves.
+  followUps:
+    - "What sits at the end of every chain?"
+  tags: ["prototypes", "chain"]
+- id: objects-3
+  topic: objects-prototypes-classes
+  level: basic
+  question: "What does the new keyword actually do?"
+  answer: |
+    Four things: it makes a fresh object, links it to the constructor's
+    `prototype`, runs the constructor with `this` set to that object, and
+    returns the object (unless the constructor returns its own). The linking
+    step is the whole point — it is what gives the instance its shared
+    methods. Everything `class` does is this procedure in cleaner clothes.
+  followUps:
+    - "What if the constructor returns an object explicitly?"
+  tags: ["new", "prototypes"]
+- id: objects-4
+  topic: objects-prototypes-classes
+  level: intermediate
+  question: "Are classes real, or syntax sugar over prototypes?"
+  answer: |
+    Mostly sugar with a few extras. `class Cart { total() {} }` creates the
+    same constructor-plus-prototype wiring you would write by hand, so
+    `instanceof` and the chain behave identically. The extras: classes throw
+    when called without `new`, methods are non-enumerable, and `extends`/`super`
+    wire inheritance with less boilerplate. Know both layers — write `class`,
+    debug in prototypes.
+  followUps:
+    - "What does extends compile down to, conceptually?"
+  tags: ["classes", "prototypes"]
+- id: objects-5
+  topic: objects-prototypes-classes
+  level: basic
+  question: "How do you create an object with a specific prototype?"
+  answer: |
+    `Object.create(proto)` makes an object whose prototype is exactly `proto`
+    — no constructor involved. It is the cleanest way to set up delegation
+    ("fall back to these defaults") and the textbook answer to "inherit
+    without new". For the common case, object literals (prototype:
+    `Object.prototype`) and classes cover everything; reach for
+    `Object.create` when the prototype itself is the point.
+  followUps:
+    - "When is Object.create better than a class?"
+  tags: ["prototypes", "objects"]
+- id: objects-6
+  topic: objects-prototypes-classes
+  level: intermediate
+  question: "What is the difference between __proto__, prototype and [[Prototype]]?"
+  answer: |
+    `[[Prototype]]` is the spec's name for the hidden link every object has.
+    `.prototype` is a regular property that exists only on functions, holding
+    the object future instances will link to. `__proto__` is the legacy
+    accessor exposing an instance's link — readable everywhere, deprecated for
+    setting (use `Object.getPrototypeOf` / `Object.create` instead).
+    Interviewers ask to check you don't set `__proto__` in new code.
+  followUps:
+    - "How do you read an object's prototype today?"
+  tags: ["prototypes"]
+- id: objects-7
+  topic: objects-prototypes-classes
+  level: basic
+  question: "How do object spread and Object.assign copy?"
+  answer: |
+    Both shallow-copy own enumerable properties into a target: later sources
+    overwrite earlier ones, getters run once and become plain values, and
+    nested objects stay shared. Neither copies prototypes — the result's
+    prototype is `Object.prototype`. Use them for flat merges and defaults;
+    for nested state, spread every edited level or `structuredClone`.
+  followUps:
+    - "What happens to getters during a spread?"
+  tags: ["spread", "copying"]
+- id: objects-8
+  topic: objects-prototypes-classes
+  level: intermediate
+  question: "When does instanceof lie to you?"
+  answer: |
+    `instanceof` walks the prototype chain, so it breaks across realms (an
+    array from an iframe fails `instanceof Array` here) and after manual
+    prototype surgery. It also returns true for parent classes, which surprises
+    people expecting exact-type checks. Prefer `Array.isArray` for arrays and
+    capability checks ("does it have .then?") over ancestry tests in
+    library code.
+  followUps:
+    - "How do you check an array across iframes?"
+  tags: ["instanceof", "prototypes"]
+- id: objects-9
+  topic: objects-prototypes-classes
+  level: intermediate
+  question: "What happens when you assign to a property the object inherits?"
+  answer: |
+    The assignment creates an OWN property on the object, shadowing the
+    inherited one — the prototype is never modified. That is why one instance
+    can override a shared default without affecting siblings. Deleting the own
+    property reveals the inherited value again, a trick that occasionally
+    appears in puzzles and almost never in production.
+  followUps:
+    - "Does assignment ever write through to the prototype?"
+  tags: ["prototypes", "objects"]
+- id: objects-10
+  topic: objects-prototypes-classes
+  level: basic
+  question: "How would you explain classes to someone who only knows objects?"
+  answer: |
+    A class is a factory plus a shared backpack: the constructor builds each
+    instance's own properties, and every method lives once on the prototype
+    backpack all instances share. `extends` just chains two backpacks. If you
+    can point at which properties are own (per-instance data) versus shared
+    (methods), you understand classes well enough for any interview.
+  followUps: []
+  tags: ["classes", "prototypes"]
+- id: arrays-1
+  topic: arrays
+  level: basic
+  question: "What do map, filter and reduce each return?"
+  answer: |
+    `map` returns a new array with the callback applied to every item —
+    same length, transformed values. `filter` returns a new array with only
+    the items whose callback returned truthy — shorter or equal. `reduce`
+    returns ONE value of your choosing (a total, an object, anything) built by
+    folding items left to right with an accumulator. All three leave the
+    original untouched; that non-mutation is half the reason they exist.
+  followUps:
+    - "When would you pick reduce over a loop?"
+  tags: ["arrays", "map", "reduce"]
+- id: arrays-2
+  topic: arrays
+  level: basic
+  question: "Which array methods mutate and which return new arrays?"
+  answer: |
+    Mutating: `push`, `pop`, `shift`, `unshift`, `splice`, `sort`, `reverse`,
+    `fill`. Non-mutating: `map`, `filter`, `reduce`, `find`, `slice`,
+    `concat`, `toSorted`, `toSpliced`, spread. The classic bug is `sort`ing
+    shared state in place. Modern style chains the non-mutating ones and
+    reserves mutation for local scratch arrays nobody else can see.
+  followUps:
+    - "What is the non-mutating version of sort?"
+  tags: ["arrays", "mutation"]
+- id: arrays-3
+  topic: arrays
+  level: intermediate
+  question: "What is the sort pitfall every interviewer mentions?"
+  answer: |
+    Default `sort` compares as STRINGS: `[10, 9, 80].sort()` gives
+    `[10, 80, 9]` because `"10" < "80" < "9"` lexicographically. Always pass a
+    comparator for numbers: `sort((a, b) => a - b)`. Second half of the
+    pitfall: `sort` mutates in place, so sort a copy (`[...items].sort(...)`
+    or `toSorted`) when the original must survive.
+  followUps:
+    - "How do you sort without mutating?"
+  tags: ["arrays", "sort"]
+- id: arrays-4
+  topic: arrays
+  level: basic
+  question: "What is the difference between find, filter and includes?"
+  answer: |
+    `find` returns the FIRST matching item (or `undefined`) — use it when you
+    want the thing itself. `filter` returns ALL matches as an array — use it
+    for lists. `includes` answers a yes/no question about a VALUE (`list.
+    includes(id)`), not a condition. Picking the right one signals you think
+    in return shapes, which is exactly what the question tests.
+  followUps:
+    - "How do you check a condition on every item?"
+  tags: ["arrays", "find"]
+- id: arrays-5
+  topic: arrays
+  level: intermediate
+  question: "How do you flatten nested arrays, and how deep can you go?"
+  answer: |
+    One level: `flat()` or `flatMap()` (map-then-flatten in a single pass —
+    ideal for "orders to items" transforms). Arbitrary depth: `flat(Infinity)`
+    or a recursive reduce. `flatMap` deserves special mention because it fuses
+    two passes into one and reads cleanly. Depth beyond two usually means the
+    data shape wants rethinking, not deeper flattening.
+  followUps:
+    - "What does flatMap do that map plus flat does not?"
+  tags: ["arrays", "flat"]
+- id: arrays-6
+  topic: arrays
+  level: basic
+  question: "How do you remove duplicates from an array?"
+  answer: |
+    `[...new Set(items)]` — `Set` keeps first-seen order and drops repeats in
+    one readable line. It compares by reference for objects, so identical
+    LOOKING objects survive; dedupe those by a key (`Map` by id) instead.
+    For the keyed case, build a `Map` and take its values — same one-pass
+    idea, explicit key.
+  followUps:
+    - "Why doesn't Set dedupe identical objects?"
+  tags: ["arrays", "Set"]
+- id: arrays-7
+  topic: arrays
+  level: intermediate
+  question: "Why is reduce powerful enough to replace map and filter?"
+  answer: |
+    Because `reduce` exposes the accumulator, and the accumulator can BE the
+    output array: push transformed items to mimic `map`, push conditionally to
+    mimic `filter`. Interviewers ask this to check you see past the "totals
+    only" stereotype. In real code still prefer `map`/`filter` — they declare
+    intent where `reduce` makes readers reconstruct it.
+  followUps:
+    - "When is reduce the wrong tool despite working?"
+  tags: ["arrays", "reduce"]
+- id: arrays-8
+  topic: arrays
+  level: intermediate
+  question: "How do you group items by a key?"
+  answer: |
+    With `Object.groupBy(items, item => item.key)` in modern engines, or a
+    `reduce` into an object of arrays everywhere else. Group-then-render
+    (orders by status, tasks by day) is a daily UI shape, so name it
+    confidently. Watch the edge: items missing the key land under
+    `"undefined"` — decide whether that bucket is a bug or a feature.
+  followUps:
+    - "How would you do it without Object.groupBy?"
+  tags: ["arrays", "reduce"]
+- id: arrays-9
+  topic: arrays
+  level: basic
+  question: "What does slice do that splice does not?"
+  answer: |
+    `slice` copies a section into a NEW array and never touches the original —
+    safe to use anywhere. `splice` edits the array IN PLACE (remove, insert,
+    replace) and returns the removed items. The names differ by one letter and
+    the behavior is opposite, which is precisely why interviewers pair them.
+    Default to `slice`; reach for `splice` only for deliberate in-place edits.
+  followUps:
+    - "How do you remove an item without mutating?"
+  tags: ["arrays", "mutation"]
+- id: arrays-10
+  topic: arrays
+  level: intermediate
+  question: "How do you turn an array into an object keyed by id?"
+  answer: |
+    `Object.fromEntries(items.map(i => [i.id, i]))` for the declarative
+    version, or a `reduce` accumulating into `{}`. It is the standard normalize
+    step before rendering keyed lists or caching by id. Guard the edge your
+    interviewer will probe: duplicate ids silently overwrite — decide last-wins
+    versus throw, and say which you chose.
+  followUps:
+    - "What breaks with duplicate ids?"
+  tags: ["arrays", "objects"]
+- id: syntax-1
+  topic: modern-syntax
+  level: basic
+  question: "What does destructuring buy you?"
+  answer: |
+    Names for the pieces, at the use site: `const { name, price } = item`
+    instead of three `item.` prefixes, with renaming (`{ name: label }`) and
+    defaults (`{ qty = 1 }`) built in. It shines in function parameters —
+    `render({ title, items })` documents the expected shape — and in swapping
+    values without a temp. Over-destructure (five levels deep) and readability
+    reverses, so stop at one or two levels.
+  followUps:
+    - "How do you rename while destructuring?"
+  tags: ["destructuring", "syntax"]
+- id: syntax-2
+  topic: modern-syntax
+  level: basic
+  question: "What is the difference between spread and rest?"
+  answer: |
+    Same `...` spelling, opposite jobs, told apart by position. Spread
+    EXPANDS: `[...old, item]` pouring values out. Rest GATHERS: `function
+    sum(...nums)` collecting leftovers in. Spread copies one level (nested
+    objects stay shared); rest always builds a true array. Say "expand versus
+    gather" and the follow-ups get easy.
+  followUps:
+    - "Is a rest parameter a real array?"
+  tags: ["spread", "rest"]
+- id: syntax-3
+  topic: modern-syntax
+  level: basic
+  question: "When do you use template literals beyond simple strings?"
+  answer: |
+    Any time a string has moving parts: readable interpolation (`Hi ${name},
+    ${count} items`), multi-line messages without `\n` juggling, and tagged
+    templates for escaping (SQL builders, CSS-in-JS). The interview trap is
+    nesting backticks or forgetting `${}` around expressions — both read fine
+    at a glance and fail at runtime, so slow down on template lines.
+  followUps:
+    - "How do you nest a template inside one?"
+  tags: ["strings", "syntax"]
+- id: syntax-4
+  topic: modern-syntax
+  level: basic
+  question: "What problem does optional chaining solve?"
+  answer: |
+    Deep access without the pyramid of guards: `order?.customer?.email`
+    short-circuits to `undefined` at the first missing link instead of
+    throwing. It also works for calls (`user.save?.()`) and brackets
+    (`cache?.[key]`). The catch: it hides WHICH link was missing, so for
+    required data prefer explicit checks that fail loudly over silent
+    `undefined` spreading downstream.
+  followUps:
+    - "What does it hide that explicit checks show?"
+  tags: ["optional-chaining", "syntax"]
+- id: syntax-5
+  topic: modern-syntax
+  level: intermediate
+  question: "What is the difference between ES modules and CommonJS?"
+  answer: |
+    ES modules use static `import`/`export` the bundler can analyze (tree
+    shaking, circular-import warnings); one file, one scope, always strict.
+    CommonJS uses runtime `require`/`module.exports` — flexible and dynamic,
+    but opaque to static analysis. Browsers and modern tooling speak ESM;
+    Node supports both, resolving `.mjs` versus `.cjs` (and `package.json`
+    `type`) when they collide.
+  followUps:
+    - "Can you require an ES module from CommonJS?"
+  tags: ["modules", "syntax"]
+- id: syntax-6
+  topic: modern-syntax
+  level: intermediate
+  question: "How do default and named exports differ, and which should you use?"
+  answer: |
+    Named exports (`export function total`) can be many per file, keep their
+    names (refactors and autocomplete survive), and tree-shake cleanly —
+    prefer them. Default exports (`export default`) allow one per file with any
+    local name at import, which reads nicely but hides renames and complicates
+    re-exports. Mixed style across a codebase is the real smell; pick named and
+    stay consistent.
+  followUps:
+    - "Why do barrel files slow down large apps?"
+  tags: ["modules", "exports"]
+- id: syntax-7
+  topic: modern-syntax
+  level: basic
+  question: "What is the spread-based update pattern for nested state?"
+  answer: |
+    Copy every level on the path to the change: `setUser({ ...user, address:
+    { ...user.address, city } })`. Each spread preserves the siblings at its
+    level while replacing the edited branch — the core immutable-update move in
+    UI code. It gets noisy past two levels, which is exactly when interviewers
+    expect you to mention a helper library or `structuredClone` instead of a
+    third nested spread.
+  followUps:
+    - "When does this pattern stop scaling?"
+  tags: ["spread", "state"]
+- id: stack-1
+  topic: call-stack
+  level: basic
+  question: "What is the call stack?"
+  answer: |
+    The to-do pile of running functions: every call pushes a frame (its
+    variables plus where to resume), every return pops it. It is why errors
+    print a "stack" of who-called-whom and why deep recursion crashes —
+    "Maximum call stack size exceeded" means the pile outgrew its fixed memory.
+    One thread, one stack, last-in-first-out: the whole mental model in a
+    sentence.
+  followUps:
+    - "What exactly is stored in a frame?"
+  tags: ["call-stack", "functions"]
+- id: stack-2
+  topic: call-stack
+  level: basic
+  question: "What is a stack overflow in JavaScript?"
+  answer: |
+    Calls piling faster than returns clear them, until the fixed-size stack
+    runs out — almost always runaway recursion with no (or unreachable) base
+    case. The engine throws `RangeError` and unwinds everything. Fixes: find
+    the missing base case, convert to iteration, or for legitimately deep work,
+    process in chunks so frames can pop between batches.
+  followUps:
+    - "How do you convert recursion to iteration?"
+  tags: ["call-stack", "recursion"]
+- id: stack-3
+  topic: call-stack
+  level: intermediate
+  question: "What is an execution context, in plain terms?"
+  answer: |
+    The engine's per-call workspace: the function's variables, its scope link,
+    its `this`, plus a bookmark for where to resume the caller. Creation (set
+    up the workspace, hoist declarations) runs before execution (run the
+    lines). Each stack frame IS an execution context in flight — two names for
+    the box your function runs inside.
+  followUps:
+    - "What happens during the creation phase?"
+  tags: ["call-stack", "scope"]
+- id: stack-4
+  topic: call-stack
+  level: intermediate
+  question: "Why does a long-running function freeze the page?"
+  answer: |
+    The single thread can only do one thing: while your function occupies the
+    stack, no rendering, no events, no timers fire — the page just sits.
+    Anything over ~50ms risks visible jank. Fixes follow one idea: get off the
+    stack — chunk the work with `setTimeout`, yield with `await`, or move it
+    to a worker. "Don't block" is the whole browser performance story in three
+    words.
+  followUps:
+    - "How long is too long for one task?"
+  tags: ["call-stack", "performance"]
+- id: stack-5
+  topic: call-stack
+  level: basic
+  question: "How do you read a stack trace?"
+  answer: |
+    Top frame threw; read downward for who called whom, file by file, newest
+    first. Your code is usually a few frames down under library internals —
+    scan for the first familiar filename. The line numbers point at the call
+    sites, and `Caused by` chains (or `AggregateError` errors arrays) mean
+    keep reading past the first trace. Practice on one real trace beats
+    memorizing the format.
+  followUps:
+    - "Which frame do you look at first?"
+  tags: ["debugging", "call-stack"]
+- id: stack-6
+  topic: call-stack
+  level: intermediate
+  question: "Is recursion ever the right tool in JavaScript?"
+  answer: |
+    Yes for naturally nested data — trees, DOM walks, nested comments — where
+    recursion mirrors the shape and stays shallow. No for long flat sequences
+    (use loops) or unbounded depth (chunk it). Tail-call optimization would
+    save deep recursion, but engines don't implement it, so depth is always
+    bounded by the stack — say that sentence and the interviewer knows you get
+    it.
+  followUps:
+    - "Why can't you rely on tail-call optimization?"
+  tags: ["recursion", "call-stack"]
+- id: loop-1
+  topic: event-loop
+  level: basic
+  question: "What is the event loop, in one paragraph?"
+  answer: |
+    JavaScript runs one thing at a time, so waiting is delegated: timers,
+    network and events register callbacks and free the thread. The event loop
+    is the permanent scheduler asking "is the stack empty, and is anything
+    due?" — running due callbacks, then microtasks, then checking for render,
+    forever. Async code is just callbacks the loop runs later; nothing ever
+    runs in parallel with your code.
+  followUps:
+    - "What runs first after the current script: a timer or a promise?"
+  tags: ["event-loop", "async"]
+- id: loop-2
+  topic: event-loop
+  level: intermediate
+  question: "What is the difference between the task queue and the microtask queue?"
+  answer: |
+    Both hold callbacks, but microtasks (promise reactions, `queueMicrotask`)
+    drain COMPLETELY after every task before anything else — including render.
+    Tasks (`setTimeout`, events, network callbacks) run one per loop turn.
+    Consequence: a promise scheduled alongside a timer always wins, and a
+    microtask that keeps queueing microtasks starves rendering. "Microtasks
+    VIP-drain, tasks take turns" is the sentence to remember.
+  followUps:
+    - "Can microtasks starve rendering? How?"
+  tags: ["event-loop", "microtasks"]
+- id: loop-3
+  topic: event-loop
+  level: basic
+  question: "In what order do sync code, a promise and a setTimeout run?"
+  answer: |
+    Sync first (it owns the thread), then the promise reaction, then the
+    timer — even with zero delay, because the timer must wait a full loop turn
+    while the microtask drains immediately after the script. This exact trio
+    is the most-asked output puzzle in interviews: say the order, then say
+    WHY (microtask drain versus next-task wait), and you have full marks.
+  followUps:
+    - "What changes with setTimeout(..., 0)?"
+  tags: ["event-loop", "order"]
+- id: loop-4
+  topic: event-loop
+  level: intermediate
+  question: "Does setTimeout(fn, 0) run immediately?"
+  answer: |
+    No — "0ms" means "no sooner than one full loop turn from now". The
+    callback waits behind the current script, the entire microtask drain, and
+    any earlier-due tasks; browsers also clamp nested timeouts to ~4ms. It is
+    a deferral tool (let the page paint first, break up work), never a precise
+    scheduler. For "run ASAP but async", `queueMicrotask` or a resolved
+    promise is earlier and more honest.
+  followUps:
+    - "What is the 4ms clamping rule?"
+  tags: ["event-loop", "timers"]
+- id: loop-5
+  topic: event-loop
+  level: intermediate
+  question: "How is the Node event loop different from the browser's?"
+  answer: |
+    Same idea (one thread, queues, phases), different machinery: Node runs
+    timers, I/O callbacks, and immediates in ordered phases per iteration,
+    while browsers schedule tasks plus a render step. Node adds `process.
+    nextTick` (drains before even promises) and `setImmediate` (next
+    iteration's check phase). Interview-safe summary: browser loops to paint;
+    Node loops through I/O phases — and `nextTick` beats promises only in
+    Node.
+  followUps:
+    - "What runs first in Node: nextTick or a promise?"
+  tags: ["event-loop", "Node"]
+- id: loop-6
+  topic: event-loop
+  level: basic
+  question: "Why is JavaScript called single-threaded if browsers do many things at once?"
+  answer: |
+    YOUR code gets one thread: a single call stack running one statement at a
+    time. The parallelism lives OUTSIDE it — the browser's network, timers and
+    rendering run on their own threads and just post callbacks for your thread
+    to run later. So the page multitasks while your code never truly overlaps
+    itself, which is why shared-state races are rare and blocking the thread
+    freezes everything.
+  followUps:
+    - "What actually runs on other threads?"
+  tags: ["event-loop", "threads"]
+- id: loop-7
+  topic: event-loop
+  level: intermediate
+  question: "What does await actually pause?"
+  answer: |
+    Only the async function it sits in — which returns to its caller at that
+    point (as a pending promise) while the rest of the program continues. The
+    thread is never blocked; the function's remaining lines are scheduled as
+    a microtask when the awaited value settles. "Await parks the function,
+    not the thread" resolves every "is async/await blocking?" trap.
+  followUps:
+    - "Is anything blocked while awaiting a fetch?"
+  tags: ["event-loop", "async-await"]
+- id: loop-8
+  topic: event-loop
+  level: intermediate
+  question: "How would you prove a timer callback waits for slow sync code?"
+  answer: |
+    Schedule `setTimeout(..., 0)`, then burn 200ms synchronously: the callback
+    fires late, after the blocking code, because the loop cannot run it while
+    the stack is busy. Timers guarantee "no sooner than", never "exactly at".
+    This demo doubles as the performance moral — slow sync code delays
+    everything due, including paint and input.
+  followUps:
+    - "What guarantees do timers actually give?"
+  tags: ["event-loop", "timers"]
+- id: memory-1
+  topic: memory-gc
+  level: basic
+  question: "How does JavaScript free memory?"
+  answer: |
+    Automatically, by reachability: the garbage collector periodically traces
+    from roots (globals, active stack frames) and frees whatever it cannot
+    reach. You never `free()` anything — you make things UNREACHABLE by
+    dropping references (clear timers, remove listeners, null caches). Memory
+    management in JS is reference management; leaks are just references you
+    forgot.
+  followUps:
+    - "What counts as a GC root?"
+  tags: ["memory", "gc"]
+- id: memory-2
+  topic: memory-gc
+  level: intermediate
+  question: "What are the three most common JavaScript memory leaks?"
+  answer: |
+    Forgotten timers (`setInterval` outliving its feature), detached DOM kept
+    alive by listeners or caches (removed element, still referenced), and
+    ever-growing global collections (caches and arrays nobody prunes).
+    Each is a reference that outlives its purpose. The fix pattern is uniform:
+    every setup (timer, listener, subscription) needs a matching teardown on
+    the same lifecycle.
+  followUps:
+    - "How do you find a leak in DevTools?"
+  tags: ["memory", "leaks"]
+- id: memory-3
+  topic: memory-gc
+  level: basic
+  question: "What is the difference between stack and heap memory?"
+  answer: |
+    The stack holds fixed-size execution data — call frames, primitives, and
+    references — created and destroyed automatically as functions run. The heap
+    holds the objects those references point at, living as long as anything
+    reaches them. Stack overflow comes from too many calls; heap growth comes
+    from too many reachable objects. Interviews pair them to check you know
+    WHERE values live, not just what they are.
+  followUps:
+    - "What lives on the stack versus the heap?"
+  tags: ["memory", "call-stack"]
+- id: memory-4
+  topic: memory-gc
+  level: intermediate
+  question: "Why do removed DOM elements sometimes stay in memory?"
+  answer: |
+    Removing an element from the document only detaches it; any live reference
+    — an event listener, a variable, a cache entry — keeps the whole subtree
+    reachable and therefore uncollectable, listeners and all. Fix: remove
+    listeners (or use `{ once: true }`/delegation so there is nothing to
+    remove), and drop cache entries when views unmount. Detached-but-referenced
+    is the classic DevTools heap-snapshot find.
+  followUps:
+    - "How does event delegation help here?"
+  tags: ["memory", "DOM"]
+- id: memory-5
+  topic: memory-gc
+  level: intermediate
+  question: "How does mark-and-sweep collection work, briefly?"
+  answer: |
+    In three beats: MARK everything reachable by tracing from the roots;
+    SWEEP (free) everything unmarked; optionally COMPACT survivors together to
+    fight fragmentation. Modern engines run it incrementally and in parallel
+    so pauses stay short. You do not need engine internals for interviews —
+    "reachable survives, unreachable is freed" plus the three-beat name is the
+    complete expected answer.
+  followUps:
+    - "Why do GC pauses happen at all?"
+  tags: ["memory", "gc"]
+- id: memory-6
+  topic: memory-gc
+  level: basic
+  question: "Do you need to null out variables to help the GC?"
+  answer: |
+    Rarely for locals — when a function returns, its frame (and its
+    references) vanish automatically. Nulling matters only for LONG-lived
+    holders: globals, module-level caches, and closures that outlive their
+    usefulness. The rule: clean up at teardown (clear timers, unsubscribe,
+    empty the cache slot), and let scope exit handle the rest.
+  followUps:
+    - "When is setting null actually the fix?"
+  tags: ["memory", "gc"]
+- id: callbacks-1
+  topic: callbacks
+  level: basic
+  question: "What is a callback?"
+  answer: |
+    A function you hand to another function to invoke later — when a click
+    happens, a timer fires, or data arrives. Callbacks are how JavaScript
+    expresses "do this when…": the caller owns the WHEN, your function owns
+    the WHAT. Event listeners, array methods and timers are all callbacks in
+    daily clothes; recognizing the pattern matters more than the name.
+  followUps:
+    - "Name three callbacks you wrote this week."
+  tags: ["callbacks", "async"]
+- id: callbacks-2
+  topic: callbacks
+  level: intermediate
+  question: "What is callback hell and how do you escape it?"
+  answer: |
+    Nested callbacks indenting rightward with error handling copy-pasted at
+    every level — unreadable and unfixable. Escapes, weakest to strongest:
+    name the functions instead of nesting anonymous ones; return early on
+    errors; promisify into a chain; go `async`/`await` for straight-line code.
+    Modern answers lead with promises/`await`; naming functions is the
+    zero-dependency fix interviewers still accept.
+  followUps:
+    - "Show the promise version of a nested read."
+  tags: ["callbacks", "nesting"]
+- id: callbacks-3
+  topic: callbacks
+  level: intermediate
+  question: "What is the inversion-of-control problem with callbacks?"
+  answer: |
+    You hand YOUR continuation to someone else's code and trust it: to call
+    once, to call ever, to pass sane arguments. Promises were invented to take
+    that trust back — a promise calls back exactly once, assimilates foreign
+    thenables safely, and centralizes errors. Name this in interviews: "the
+    pyramid is style; inversion of control is the real defect."
+  followUps:
+    - "How do promises fix trust?"
+  tags: ["callbacks", "promises"]
+- id: callbacks-4
+  topic: callbacks
+  level: basic
+  question: "How do Node-style error-first callbacks work?"
+  answer: |
+    The callback's first parameter is reserved for the error (`(err, data) =>
+    ...`): non-null means failure, null means success, data rides second.
+    Every async step checks `err` first and bails early — the convention that
+    made callback pyramids carry their error handling visibly. Promises and
+    `await` internalize the same discipline as rejections and `catch`.
+  followUps:
+    - "Where did the error go in promise chains?"
+  tags: ["callbacks", "errors"]
+- id: callbacks-5
+  topic: callbacks
+  level: intermediate
+  question: "How do you convert a callback API to promises?"
+  answer: |
+    Wrap it: `new Promise((resolve, reject) => legacyFn(arg, (err, data) =>
+    err ? reject(err) : resolve(data)))`. Node ships this as
+    `util.promisify` for error-first APIs. Convert at the boundary once, then
+    write everything downstream as chains or `await` — never mix raw callbacks
+    and promises in one flow if a wrapper can separate them.
+  followUps:
+    - "What does util.promisify assume about the callback?"
+  tags: ["callbacks", "promises"]
+- id: callbacks-6
+  topic: callbacks
+  level: basic
+  question: "When are plain callbacks still the right choice?"
+  answer: |
+    For single-shot "when" events with no failure mode worth threading:
+    event listeners, timers, array iteration. Callbacks stay simpler than
+    promises where there is nothing to chain and nothing to catch. The rule:
+    callbacks for events, promises for operations — and say which one you're
+    looking at when the interviewer asks why.
+  followUps:
+    - "Listeners versus promises: which for a button?"
+  tags: ["callbacks", "events"]
+- id: promises-1
+  topic: promises
+  level: basic
+  question: "What is a promise, and what are its three states?"
+  answer: |
+    A promise is a placeholder for a future value. It starts PENDING, then
+    settles exactly once: FULFILLED with a value, or REJECTED with a reason —
+    and never changes again, which is the whole trust upgrade over callbacks.
+    You observe it with `.then` (success), `.catch` (failure) and `.finally`
+    (cleanup either way). One settlement, immutable outcome, chainable
+    handling.
+  followUps:
+    - "Can a promise change state twice?"
+  tags: ["promises", "states"]
+- id: promises-2
+  topic: promises
+  level: basic
+  question: "How does promise chaining work, and what must you return?"
+  answer: |
+    Each `.then` returns a NEW promise, so chains pass values down the line —
+    but only if you RETURN from each step. Forgetting `return` hands the next
+    step `undefined` (the classic silent bug); returning a promise makes the
+    chain WAIT for it (how sequencing works). Read any chain as an assembly
+    line where each station must pass its product onward explicitly.
+  followUps:
+    - "What does the next then receive if you forget return?"
+  tags: ["promises", "chaining"]
+- id: promises-3
+  topic: promises
+  level: intermediate
+  question: "Where do errors go in a promise chain?"
+  answer: |
+    Downward: a rejection skips every success handler until the first `.catch`
+    (or second `then` argument), then the chain continues as RESOLVED unless
+    the handler rethrows. So one `.catch` at the end guards the whole chain,
+    and mid-chain catches mean "recovered, carry on". Unhandled rejections
+    (no catch anywhere) crash modern runtimes — always end chains deliberately.
+  followUps:
+    - "What happens after a catch handles the error?"
+  tags: ["promises", "errors"]
+- id: promises-4
+  topic: promises
+  level: intermediate
+  question: "What is the difference between Promise.all, allSettled, race and any?"
+  answer: |
+    `all`: every value in order, or the FIRST rejection — the strict
+    coordinator. `allSettled`: always every outcome (status + value/reason) —
+    the reporter. `race`: whatever settles FIRST, win or lose — the timeout
+    builder. `any`: the first FULFILLMENT, ignoring rejections unless all fail
+    (`AggregateError`) — the redundant-source picker. Name the scenario, then
+    the combinator: dashboard loads are `all`, best-effort syncs are
+    `allSettled`.
+  followUps:
+    - "Which one would you use with a timeout?"
+  tags: ["promises", "combinators"]
+- id: promises-5
+  topic: promises
+  level: basic
+  question: "What does fetch return, and what are the two awaits?"
+  answer: |
+    `fetch` returns a promise of a RESPONSE, not data — so you await twice:
+    once for headers (`await fetch(url)`), once for the body (`await
+    res.json()`). And `fetch` only rejects on NETWORK failure; HTTP errors
+    (404, 500) still resolve, so check `res.ok` yourself. Forgetting either
+    step is the top fetch bug in interviews and production alike.
+  followUps:
+    - "Does fetch reject on a 404?"
+  tags: ["promises", "fetch"]
+- id: promises-6
+  topic: promises
+  level: intermediate
+  question: "How do you run promises in sequence versus in parallel?"
+  answer: |
+    Parallel: build ALL the promises first, then `await Promise.all` — one
+    wait for everything. Sequence: `await` inside a loop (or reduce a chain),
+    each step waiting for the last — slower, but ordered and side-effect
+    safe. The bug is awaiting inside `.map` without collecting (looks parallel,
+    runs sequential-ish and drops errors); the fix is `map` to promises, then
+    one `all`.
+  followUps:
+    - "What is wrong with awaiting inside map?"
+  tags: ["promises", "parallel"]
+- id: promises-7
+  topic: promises
+  level: intermediate
+  question: "What is promise assimilation (thenable handling)?"
+  answer: |
+    When you return a thenable (any object with a `.then`) from a handler, the
+    chain ADOPTS it — waiting for its outcome instead of wrapping it. This is
+    how foreign promise libraries interoperate and how `await` accepts any
+    thenable, not just native promises. One level only: assimilation does not
+    recurse into nested thenables beyond the standard procedure, an edge case
+    interviews love.
+  followUps:
+    - "Does await work on non-native thenables?"
+  tags: ["promises", "thenables"]
+- id: promises-8
+  topic: promises
+  level: basic
+  question: "What does .finally do, and when is it better than duplicating cleanup?"
+  answer: |
+    `.finally` runs on settlement either way — success or failure — without
+    receiving the value, perfect for hiding spinners, releasing locks, logging
+    completion. It beats duplicating cleanup in both `.then` and `.catch`,
+    and it passes the original outcome through untouched (unless it throws).
+    Think `try/finally` for chains: the janitor that never steals the result.
+  followUps:
+    - "Does finally see the resolved value?"
+  tags: ["promises", "cleanup"]
+- id: promises-9
+  topic: promises
+  level: intermediate
+  question: "How do you add a timeout to a promise?"
+  answer: |
+    Race it against a rejecting timer: `Promise.race([work, setTimeout(reject,
+    ms)])` — whichever settles first wins, and the loser is ignored (note: NOT
+    cancelled; use `AbortController` when cancellation matters). Wrap the
+    pattern in a `withTimeout(promise, ms)` helper so call sites stay clean.
+    Mention the no-cancellation caveat unprompted — it is the expected
+    follow-up.
+  followUps:
+    - "Does the losing side stop running?"
+  tags: ["promises", "timeout"]
+- id: promises-10
+  topic: promises
+  level: intermediate
+  question: "What is an unhandled rejection, and why do runtimes crash on it?"
+  answer: |
+    A promise that rejected with no `.catch` (or `await` in try) anywhere —
+    an error nobody claimed. Runtimes crash (Node) or warn loudly (browsers)
+    because silent async failures corrupt state invisibly. Prevention: end
+    every chain, `await` with try/catch, and during development listen for
+    `unhandledrejection` to catch strays. In interviews, "who catches this
+    rejection?" is always a load-bearing question.
+  followUps:
+    - "How do you detect them during development?"
+  tags: ["promises", "errors"]
+- id: async-1
+  topic: async-await
+  level: basic
+  question: "What does the async keyword do to a function?"
+  answer: |
+    It guarantees the function returns a promise: plain return values become
+    fulfilled promises, thrown errors become rejections. It also unlocks
+    `await` inside. That is ALL it does — no threads, no parallelism, just a
+    promise wrapper plus syntax permission. Every "async makes it faster"
+    misconception dies once this lands.
+  followUps:
+    - "Does async make code run in parallel?"
+  tags: ["async-await", "promises"]
+- id: async-2
+  topic: async-await
+  level: basic
+  question: "How do you handle errors with async/await?"
+  answer: |
+    `try`/`catch` around the awaits — a rejected awaited promise throws at
+    that line, like synchronous code. One `try` can guard several awaits;
+    `finally` cleans up either way. For independent calls, catch per-call or
+    the first rejection masks the rest (prefer `allSettled` when every outcome
+    matters). The readability win over chains is real, but the error rules are
+    identical underneath.
+  followUps:
+    - "Where does a rejected await throw?"
+  tags: ["async-await", "errors"]
+- id: async-3
+  topic: async-await
+  level: intermediate
+  question: "Why is awaiting inside a loop usually a mistake?"
+  answer: |
+    It serializes independent work: each iteration waits for the last, turning
+    five 100ms fetches into 500ms. Worse, one rejection aborts the remaining
+    iterations. Fix: map items to promises FIRST (all start together), then
+    `await Promise.all` — or `allSettled` for best-effort batches. Keep
+    in-loop `await` only when order or side effects genuinely demand it, and
+    say why out loud.
+  followUps:
+    - "When is in-loop await actually correct?"
+  tags: ["async-await", "parallel"]
+- id: async-4
+  topic: async-await
+  level: intermediate
+  question: "How do you fetch a list of URLs with limited parallelism?"
+  answer: |
+    Start a fixed pool of workers (say 3), each looping: take the next URL,
+    fetch it, store the result. `Promise.all` on the workers waits for
+    everything while never exceeding the limit. Full `Promise.all` on fifty
+    URLs hammers the server; serial `await` wastes time — the pool is the
+    professional middle. Name it confidently; it is a standard interview
+    follow-up to "fetch these in parallel".
+  followUps:
+    - "Why not Promise.all on all fifty?"
+  tags: ["async-await", "parallel"]
+- id: async-5
+  topic: async-await
+  level: basic
+  question: "Can you use await at the top level of a file?"
+  answer: |
+    In ES modules, yes — top-level `await` pauses module evaluation until the
+    value settles, which is perfect for config and feature detection. In
+    classic scripts and CommonJS, no: wrap in an async IIFE or `.then`
+    chain. The gotcha is importers waiting on you — a slow top-level await
+    delays everything downstream, so keep it fast and intentional.
+  followUps:
+    - "What waits when a module top-level-awaits?"
+  tags: ["async-await", "modules"]
+- id: async-6
+  topic: async-await
+  level: intermediate
+  question: "How do you retry a failing async operation with backoff?"
+  answer: |
+    Loop attempts: try the call, on failure wait an increasing delay
+    (`500ms`, `1s`, `2s`…) and retry, giving up after N tries or on
+    non-retryable errors (don't retry a 400 like a timeout). Backoff (plus
+    jitter in production) stops retry storms from crushing a struggling
+    server. The shape — attempt, catch, sleep, escalate — is worth memorizing
+    verbatim.
+  followUps:
+    - "Which errors should never be retried?"
+  tags: ["async-await", "retry"]
+- id: async-7
+  topic: async-await
+  level: intermediate
+  question: "How do you cancel a fetch?"
+  answer: |
+    With `AbortController`: pass `signal` into `fetch`, call `controller.
+    abort()` to reject it with an `AbortError`. The canonical use is
+    superseded requests — a new search keystroke aborts the previous fetch so
+    slow responses can't overwrite fresh ones. Always `.catch` the abort
+    separately from real errors, or every keystroke logs a scary (and fake)
+    failure.
+  followUps:
+    - "How do you stop a slow response overwriting a fresh one?"
+  tags: ["async-await", "fetch", "abort"]
+- id: async-8
+  topic: async-await
+  level: basic
+  question: "What is the difference between returning a value and returning a promise inside async?"
+  answer: |
+    Almost none to the caller — both arrive as a fulfilled promise either
+    way. The difference is TIMING and flattening: returning a promise makes
+    the outer promise adopt it (waiting for nested async work), while a plain
+    value settles immediately. Forgetting `return` in either case hands the
+    caller `undefined`, the async twin of the classic chain bug.
+  followUps:
+    - "What does the caller receive in each case?"
+  tags: ["async-await", "promises"]
+- id: async-9
+  topic: async-await
+  level: intermediate
+  question: "How do Promise.all and async/await combine for a dashboard load?"
+  answer: |
+    Fire every independent fetch WITHOUT awaiting (collecting promises), then
+    `await Promise.all` once — one wait, full parallelism, results in order.
+    Wrap in try/catch for the all-or-nothing case, or `allSettled` when
+    partial data still renders. Narrate it as two phases (launch, then
+    gather); interviewers listen for exactly that split.
+  followUps:
+    - "What if one widget may fail independently?"
+  tags: ["async-await", "parallel"]
+- id: async-10
+  topic: async-await
+  level: intermediate
+  question: "What happens to errors you forget to catch in an async function?"
+  answer: |
+    The returned promise rejects, and if nobody handles it, that's an
+    unhandled rejection — a crash in Node, a loud warning in browsers. An
+    `async` function with no try/catch is only safe when every caller handles
+    rejection. Habit: `await` inside `try`, or return the promise to a caller
+    you trust — never fire-and-forget an async call in reviewed code.
+  followUps:
+    - "Is fire-and-forget ever acceptable?"
+  tags: ["async-await", "errors"]
+- id: dom-1
+  topic: dom-events
+  level: basic
+  question: "What is the difference between capturing and bubbling?"
+  answer: |
+    An event travels TWICE: down from `window` to the target (capturing
+    phase), then back up to `window` (bubbling phase). Listeners default to
+    bubble-phase; pass `{ capture: true }` to catch the way down. Almost all
+    everyday code uses bubbling (delegation depends on it); capturing is for
+    intercepting events before descendants see them, like global shortcuts or
+    modal traps.
+  followUps:
+    - "How do you listen on the way down?"
+  tags: ["DOM", "events"]
+- id: dom-2
+  topic: dom-events
+  level: basic
+  question: "What is event delegation and why is it better than many listeners?"
+  answer: |
+    One listener on a parent, using `event.target` to find which child was
+    actually hit — instead of a listener per child. It is faster to set up,
+    uses constant memory, and automatically covers children added LATER (the
+    killer feature for dynamic lists). The classic demo: one `<ul>` listener
+    handling delete buttons for rows that don't exist yet. Pair it with
+    `closest()` to find the relevant ancestor.
+  followUps:
+    - "How do later-added rows work with no new listeners?"
+  tags: ["DOM", "delegation"]
+- id: dom-3
+  topic: dom-events
+  level: intermediate
+  question: "What is the difference between stopPropagation and preventDefault?"
+  answer: |
+    `stopPropagation` halts the event's JOURNEY (no more listeners up or down
+    the tree); `preventDefault` cancels the browser's DEFAULT ACTION (follow
+    the link, submit the form) while the event keeps traveling. They compose:
+    a validated form calls `preventDefault` always, `stopPropagation` only
+    when ancestors must not react. Mixing them up either breaks delegation or
+    lets the page navigate away mid-handler.
+  followUps:
+    - "When would you call both?"
+  tags: ["DOM", "events"]
+- id: dom-4
+  topic: dom-events
+  level: basic
+  question: "What is event.target versus event.currentTarget?"
+  answer: |
+    `target` is where the event STARTED (the clicked button); `currentTarget`
+    is whose listener is RUNNING right now (the `<ul>` you delegated to). They
+    coincide only without delegation. The standard delegation line reads
+    `e.target.closest('li')` inside a `currentTarget` handler — target finds
+    the item, currentTarget anchors the list. Confusing them breaks every
+    delegated handler.
+  followUps:
+    - "Which one do you use inside a delegated handler?"
+  tags: ["DOM", "delegation"]
+- id: dom-5
+  topic: dom-events
+  level: intermediate
+  question: "Why do dynamically added elements miss their handlers, and what is the fix?"
+  answer: |
+    Because listeners attach to elements that exist at bind time — rows added
+    later were never bound. Fixes, best first: delegate from a stable parent
+    (future rows included automatically); re-bind after each render (fragile,
+    leaks duplicates); or bind at creation inside the row factory. If an
+    interview demo "works until I add a row", delegation is the expected
+    diagnosis and the expected fix.
+  followUps:
+    - "What goes wrong with re-binding after render?"
+  tags: ["DOM", "delegation"]
+- id: dom-6
+  topic: dom-events
+  level: basic
+  question: "How do you safely add user content to the page?"
+  answer: |
+    With `textContent` (or `createElement` + `textContent`), never `innerHTML`
+    with user strings — `innerHTML` parses markup, so a username containing
+    script markup or an `onerror` image runs attacker code (XSS).
+    `textContent` treats everything as inert text. The rule is absolute for
+    beginners: `innerHTML` only with developer-written, static markup;
+    everything from users goes through `textContent`.
+  followUps:
+    - "What attack does innerHTML enable?"
+  tags: ["DOM", "security"]
+- id: dom-7
+  topic: dom-events
+  level: intermediate
+  question: "What is the difference between input, change and click for form fields?"
+  answer: |
+    `input` fires on EVERY keystroke (live search, validation-as-you-type);
+    `change` fires on COMMIT (blur for text, selection for dropdowns and
+    checkboxes — the "final answer" event); `click` is for buttons and
+    toggles. Debounce belongs on `input`, saves belong on `change`/`submit`.
+    Using `click` on a text field or `change` for live feedback are the two
+    classic mismatches.
+  followUps:
+    - "Which event drives a live search box?"
+  tags: ["DOM", "forms"]
+- id: dom-8
+  topic: dom-events
+  level: intermediate
+  question: "How do timers and events interact when the thread is busy?"
+  answer: |
+    They wait. Handlers and timer callbacks are tasks like any other: while
+    your code runs, clicks queue silently and timers go overdue, then
+    everything fires in order once the stack clears. Users experience this as
+    frozen buttons and late updates during heavy work — the same single-thread
+    story as blocking, wearing an events costume. Keep handlers short or
+    yield.
+  followUps:
+    - "Where do clicks go during a long task?"
+  tags: ["DOM", "event-loop"]
+- id: dom-9
+  topic: dom-events
+  level: basic
+  question: "What does { once: true } do on addEventListener?"
+  answer: |
+    The listener removes ITSELF after its first run — perfect for one-shot
+    onboarding tips, first-click analytics, and any "do this exactly once"
+    wiring. It also prevents the classic leak of forgotten listeners on
+    temporary UI. For repeated handling with automatic cleanup on teardown,
+    pair a normal listener with `AbortController`'s signal instead.
+  followUps:
+    - "How do you remove many listeners at once?"
+  tags: ["DOM", "events"]
+- id: dom-10
+  topic: dom-events
+  level: intermediate
+  question: "How does the AbortController signal option replace removeEventListener?"
+  answer: |
+    Pass `{ signal }` at bind time; `controller.abort()` removes every
+    listener sharing that signal in one call — no function-reference
+    bookkeeping, no missed removals. It is the modern teardown for components:
+    one controller per mount, abort on unmount. Bonus: the same signal can
+    cancel the component's fetches, unifying DOM and network cleanup.
+  followUps:
+    - "What else can one signal cancel?"
+  tags: ["DOM", "abort"]
+- id: fetch-1
+  topic: fetch-storage
+  level: basic
+  question: "What does fetch return and what must you check yourself?"
+  answer: |
+    A promise of a Response — await it, then await the body (`res.json()`),
+    then check `res.ok`, because `fetch` resolves on HTTP ERRORS (404, 500)
+    and rejects only on network failure. Three steps, three classic bugs: one
+    await (body never read), no `ok` check (errors treated as data), no catch
+    (offline crashes). Recite "await, await, ok" and you will never ship the
+    broken version.
+  followUps:
+    - "What are the three classic fetch bugs?"
+  tags: ["fetch", "promises"]
+- id: fetch-2
+  topic: fetch-storage
+  level: intermediate
+  question: "How do GET, POST, PUT, PATCH and DELETE differ in practice?"
+  answer: |
+    GET reads (cacheable, no body); POST creates or triggers actions;
+    PUT replaces a whole resource; PATCH partially updates it; DELETE removes.
+    Browsers and caches treat GET as safe to repeat and retry — never mutate
+    through GET, or refreshes and prefetchers will fire your writes twice.
+    Match the verb to the intent and say why; REST literacy is what is being
+    tested, not memorized definitions.
+  followUps:
+    - "Why must GET never mutate?"
+  tags: ["fetch", "HTTP"]
+- id: fetch-3
+  topic: fetch-storage
+  level: intermediate
+  question: "What is CORS in one practical paragraph?"
+  answer: |
+    Browsers block pages from reading responses of OTHER origins unless that
+    server opts in with allow-origin headers. Your `fetch` still SENDS (so
+    mutations can happen), but your code can't READ the reply — the classic
+    "works in curl, fails in the browser". Fixes live server-side (headers, a
+    same-origin proxy); browser-side workarounds are hacks. Say "server
+    problem, not a fetch bug" first.
+  followUps:
+    - "Why does the same request work in curl?"
+  tags: ["fetch", "CORS"]
+- id: fetch-4
+  topic: fetch-storage
+  level: basic
+  question: "Cookies vs localStorage vs sessionStorage: when do you use each?"
+  answer: |
+    Cookies: tiny (~4KB), sent with EVERY request automatically — sessions
+    and auth tokens, with `HttpOnly`/`Secure`/`SameSite` flags doing the real
+    security work. localStorage: ~5MB, never sent, survives restarts —
+    themes, drafts, caches. sessionStorage: same API, dies with the tab —
+    per-tab wizard state. Never store secrets where JS can read them if a
+    cookie flag could hide them instead.
+  followUps:
+    - "Where should an auth token live?"
+  tags: ["storage", "cookies"]
+- id: fetch-5
+  topic: fetch-storage
+  level: intermediate
+  question: "What is XSS in one paragraph, and what is the one rule that stops it?"
+  answer: |
+    Cross-site scripting: attacker text reaching the page as CODE — usually
+    via `innerHTML` with user strings — running with your site's privileges
+    (cookie theft, action forgery). The one rule: never build markup from
+    untrusted strings; use `textContent` and let the framework escape. Second
+    layer: `HttpOnly` cookies (stolen-session damage control) and a Content
+    Security Policy. Interviews accept "textContent, HttpOnly, CSP" as the
+    complete answer.
+  followUps:
+    - "What does HttpOnly actually protect?"
+  tags: ["security", "XSS"]
+- id: fetch-6
+  topic: fetch-storage
+  level: basic
+  question: "How do you store an object in localStorage?"
+  answer: |
+    `localStorage` holds STRINGS only, so `JSON.stringify` on the way in and
+    `JSON.parse` on the way out, wrapped in try/catch (private mode and quota
+    errors throw). Read with a fallback default for first visits, and version
+    your keys (`cart:v1`) so schema changes don't resurrect ancient shapes.
+    Anything sensitive or large belongs server-side, not in the browser store.
+  followUps:
+    - "What breaks when the stored schema changes?"
+  tags: ["storage", "JSON"]
+- id: fetch-7
+  topic: fetch-storage
+  level: intermediate
+  question: "How do you keep two tabs' localStorage views in sync?"
+  answer: |
+    Listen for the `storage` event: it fires in every OTHER tab when one tab
+    writes, carrying the key and new value — re-read and re-render on it. It
+    does NOT fire in the writing tab itself, and it never fires for
+    sessionStorage or cookies. For same-tab reactivity, wrap your setter to
+    notify locally too. Name the event and its blind spots; that is the whole
+    interview answer.
+  followUps:
+    - "Does the writing tab get the event?"
+  tags: ["storage", "events"]
+- id: perf-1
+  topic: performance-patterns
+  level: basic
+  question: "What is debouncing, and when do you use it?"
+  answer: |
+    Debounce waits until calls STOP for a set time, then runs once — the
+    search box that fetches only after you pause typing. Implementation is one
+    closed-over timer: clear on every call, set anew. Use it for bursty,
+    restartable work (search, resize, autosave). The tell that you need it:
+    the same expensive function firing per keystroke or per pixel.
+  followUps:
+    - "What goes wrong without it on a search box?"
+  tags: ["debounce", "performance"]
+- id: perf-2
+  topic: performance-patterns
+  level: basic
+  question: "What is throttling, and how is it different from debouncing?"
+  answer: |
+    Throttle guarantees at most one run per interval — the scroll handler
+    updating at most every 100ms while scrolling continues. Debounce waits for
+    silence; throttle meters a steady drip during noise. Scroll, mousemove and
+    resize want throttle (continuous feedback); search and save want debounce
+    (final intent). Saying "drip versus silence" plus one example of each is
+    full marks.
+  followUps:
+    - "Which one for infinite scroll position checks?"
+  tags: ["throttle", "performance"]
+- id: perf-3
+  topic: performance-patterns
+  level: intermediate
+  question: "How do you implement debounce from scratch?"
+  answer: |
+    Return a wrapper closing over a timer id: on each call, clear the pending
+    timer and start a fresh `setTimeout` for the wait period. Forward `this`
+    and arguments (`fn.apply(this, args)`) so the wrapper is transparent, and
+    expose a `cancel` that clears the timer for teardowns. Five lines of
+    mechanism, one line of forwarding — write it cold in interviews by
+    remembering "clear, set, forward".
+  followUps:
+    - "How do you preserve this and arguments?"
+  tags: ["debounce", "closures"]
+- id: perf-4
+  topic: performance-patterns
+  level: intermediate
+  question: "What is memoization and when does it backfire?"
+  answer: |
+    Caching function results by arguments: same input, no recompute — ideal
+    for pure, expensive, repeated calls (formatters, derived data). It
+    backfires on huge or unbounded argument spaces (the cache becomes the
+    leak — cap it), on impure functions (stale truth), and on cheap functions
+    (lookup overhead exceeds the saving). `useMemo` is the same idea wearing
+    component clothes, with the same caveats.
+  followUps:
+    - "When does the cache become a leak?"
+  tags: ["memoization", "performance"]
+- id: perf-5
+  topic: performance-patterns
+  level: basic
+  question: "What is the once pattern?"
+  answer: |
+    A wrapper ensuring the function runs exactly one time, returning the
+    cached result afterwards — for init routines, analytics setup, singleton
+    creation. Implementation: a `called` flag plus cached value in a closure.
+    It is memoization with a single slot, and the answer to every "but what if
+    two components initialize it?" race in interviews.
+  followUps:
+    - "How is once different from memoize?"
+  tags: ["once", "closures"]
+- id: perf-6
+  topic: performance-patterns
+  level: intermediate
+  question: "How do you keep a list rendering fast with thousands of rows?"
+  answer: |
+    Render only the visible window (virtualization) — a thousand-row DOM is
+    slow to build, style and scroll no matter how clean the code. Below that
+    threshold: keyed updates (no index keys on reorderable lists), memoized
+    rows, and batched inserts (`DocumentFragment`, single `innerHTML` build).
+    Name virtualization first — it is the expected headline — then the
+    small-list hygiene as the follow-through.
+  followUps:
+    - "Why are index keys harmful on reorder?"
+  tags: ["performance", "rendering"]
+- id: perf-7
+  topic: performance-patterns
+  level: intermediate
+  question: "What is the cheapest performance win for event handlers?"
+  answer: |
+    Doing less, less often: delegate instead of binding per element, throttle
+    scroll/resize handlers, debounce inputs, and bail out early when nothing
+    changed. Most handler slowness is repetition (a hundred listeners, a
+    handler per pixel), not algorithmics — remove the repetition before
+    reaching for workers or memoization. Profile first: the flame chart
+    usually points at one over-eager listener.
+  followUps:
+    - "How do you find the slow handler?"
+  tags: ["performance", "events"]
+- id: perf-8
+  topic: performance-patterns
+  level: basic
+  question: "What is the difference between lazy loading and code splitting?"
+  answer: |
+    Code splitting divides the bundle into loadable chunks; lazy loading
+    DEFERS some chunks until needed (route change, first interaction,
+    viewport entry). Together: small initial download, features on demand.
+    The interview angle is measurement — split by route, lazy-load below the
+    fold and heavy widgets, and verify with the bundle analyzer, not vibes.
+  followUps:
+    - "How do you verify a split helped?"
+  tags: ["performance", "bundling"]
+- id: perf-9
+  topic: performance-patterns
+  level: intermediate
+  question: "How do requestAnimationFrame and layout thrashing fit together?"
+  answer: |
+    Browsers paint on their own rhythm (~60fps); `requestAnimationFrame`
+    schedules your visual updates just before a paint, keeping motion smooth.
+    Layout thrashing is the anti-pattern: alternating reads and writes of
+    geometry (`offsetHeight`, then style changes) in a loop, forcing a reflow
+    per iteration. Fix: batch reads, then batch writes, ideally inside one
+    animation frame — measure-then-mutate, once.
+  followUps:
+    - "What forces a synchronous reflow?"
+  tags: ["performance", "rendering"]

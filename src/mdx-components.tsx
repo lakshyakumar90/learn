@@ -12,8 +12,9 @@ import { TechStackIndex } from '@/components/TechStackIndex';
 import { DemoGallery, DemoHero, DemoMedia } from '@/components/demo/DemoGallery';
 import { ConceptCard } from '@/components/blocks/ConceptCard';
 import { Quiz } from '@/components/blocks/Quiz';
+import { InterviewQuestions } from '@/components/blocks/InterviewQuestions';
 // Client-only, heavy blocks (code-split; see client-blocks.tsx).
-import { CodeBlock, CodeRunner, Exercise, Predict, ScenarioPlayer } from '@/components/blocks/server-blocks';
+import { CodeBlock, CodeRunner, Exercise, Predict, QuestionBank, ScenarioPlayer } from '@/components/blocks/server-blocks';
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
@@ -37,6 +38,8 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     Exercise,
     Quiz,
     CodeBlock,
+    InterviewQuestions,
+    QuestionBank,
     ConceptCard,
     ScenarioPlayer,
     ...components,

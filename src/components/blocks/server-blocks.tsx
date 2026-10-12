@@ -1,6 +1,11 @@
 import { highlight } from "@/lib/code/highlight";
 import * as Client from "./client-blocks";
 import { HighlightedCode } from "./HighlightedCode";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import matter from "gray-matter";
+import { loadQuestions } from "@/lib/interview";
+import type { BankTopic } from "./QuestionBank";
 import type { CodeRunnerProps } from "./CodeRunner";
 import type { ExerciseProps } from "./Exercise";
 import type { PredictProps } from "./Predict";
@@ -54,6 +59,27 @@ export async function ScenarioPlayer(props: {
       codePreview={await highlight((data.code ?? []).join("\n"))}
     />
   );
+}
+
+/** Question bank: questions + topic titles loaded at build time. */
+export function QuestionBank() {
+  const questions = loadQuestions();
+  const dir = join(process.cwd(), "content/topics/javascript");
+  const topics: BankTopic[] = [...new Set(questions.map((q) => q.topic))]
+    .sort()
+    .map((slug) => {
+      let title = slug;
+      try {
+        const { data } = matter(
+          readFileSync(join(dir, `${slug}.mdx`), "utf8"),
+        );
+        if (typeof data.title === "string" && data.title) title = data.title;
+      } catch {
+        /* title falls back to the slug */
+      }
+      return { slug, title };
+    });
+  return <Client.QuestionBank questions={questions} topics={topics} />;
 }
 
 /**
