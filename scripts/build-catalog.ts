@@ -34,6 +34,7 @@ function mdxCount(dir: string): number {
   if (!existsSync(dir)) return 0;
   let count = 0;
   for (const entry of readdirSync(dir)) {
+    if (entry === 'CREDITS.md') continue;
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) count += mdxCount(full);
     else if (entry.endsWith('.mdx') || entry.endsWith('.md')) count += 1;

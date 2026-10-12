@@ -87,7 +87,7 @@ var projects = defineDocs({
 });
 var topics = defineDocs({
   dir: "content/topics",
-  docs: { schema: docSchema }
+  docs: { schema: docSchema, files: ["**/*.{md,mdx}", "!**/CREDITS.md"] }
 });
 var books = defineDocs({
   dir: "content/books",

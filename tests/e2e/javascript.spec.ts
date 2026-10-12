@@ -59,3 +59,29 @@ test("a DOM example runs without console errors", async ({ page }) => {
   await expect(frame).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test("the question bank filters work and survive a reload", async ({
+  page,
+}) => {
+  await page.goto("/topics/javascript/question-bank");
+  await expect(page.getByRole("heading", { name: "Interview question bank" })).toBeVisible();
+
+  // Search narrows to matching questions.
+  await page.getByLabel("Search interview questions").fill("closure");
+  await expect(page.getByRole("status")).not.toHaveText("0 questions");
+
+  // Topic + level filters land in the URL.
+  await page.getByRole("checkbox", { name: /Closures/ }).check();
+  await page.getByRole("checkbox", { name: /Basic/ }).check();
+  await expect(page).toHaveURL(/topic=closures/);
+  await expect(page).toHaveURL(/level=basic/);
+  const filtered = await page.getByRole("status").textContent();
+  expect(filtered).not.toBe("0 questions");
+
+  // Reload keeps the same state.
+  await page.reload();
+  await expect(page.getByLabel("Search interview questions")).toHaveValue("closure");
+  await expect(page.getByRole("checkbox", { name: /Closures/ })).toBeChecked();
+  await expect(page.getByRole("checkbox", { name: /Basic/ })).toBeChecked();
+  await expect(page.getByRole("status")).toHaveText(filtered ?? "");
+});

@@ -10,7 +10,7 @@ export const projects = defineDocs({
 
 export const topics = defineDocs({
   dir: 'content/topics',
-  docs: { schema: docSchema },
+  docs: { schema: docSchema, files: ['**/*.{md,mdx}', '!**/CREDITS.md'] },
 });
 
 export const books = defineDocs({

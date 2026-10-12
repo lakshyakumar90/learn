@@ -8,6 +8,7 @@
 import { readdirSync, readFileSync, statSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import matter from 'gray-matter';
+import { load as loadYaml } from 'js-yaml';
 import { PROJECTS } from '../src/projects.config';
 
 declare const require: (id: string) => unknown;
@@ -28,7 +29,7 @@ export interface SearchEntry {
 
 function walk(dir: string, out: string[]): void {
   for (const name of readdirSync(dir)) {
-    if (name === 'IMAGE-STYLE.md') continue;
+    if (name === 'CREDITS.md') continue;
     if (name === 'diagrams' || name === 'flows') continue;
     const full = join(dir, name);
     if (statSync(full).isDirectory()) walk(full, out);
@@ -114,6 +115,32 @@ function indexLibraries(entries: SearchEntry[]): void {
   }
 }
 
+/**
+ * Index interview question text on the bank page so Ctrl+K finds
+ * questions by wording, answer and tags — not just page prose.
+ */
+function indexInterviewQuestions(entries: SearchEntry[]): void {
+  const bank = entries.find((e) => e.url === '/topics/javascript/question-bank');
+  if (!bank) return;
+  const file = join(CONTENT, 'topics', 'javascript', 'interview', 'questions.yaml');
+  if (!existsSync(file)) return;
+  try {
+    const questions = loadYaml(readFileSync(file, 'utf8')) as Array<{
+      question?: string;
+      answer?: string;
+      tags?: string[];
+    }>;
+    const text = questions
+      .map((q) =>
+        [q.question ?? '', q.answer ?? '', (q.tags ?? []).join(' ')].join(' '),
+      )
+      .join(' ');
+    bank.text += ` Interview questions: ${text}`.slice(0, 20000);
+  } catch (e) {
+    console.warn(`search index: questions skipped (${(e as Error).message})`);
+  }
+}
+
 function main(): void {
   const entries: SearchEntry[] = [];
   for (const collection of ['projects', 'topics', 'books']) {
@@ -141,6 +168,7 @@ function main(): void {
     }
   }
   mkdirSync(join(ROOT, 'public'), { recursive: true });
+  indexInterviewQuestions(entries);
   if (existsSync(join(ROOT, 'generated', 'deps.json'))) {
     try {
       indexLibraries(entries);
