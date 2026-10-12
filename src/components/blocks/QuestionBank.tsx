@@ -5,14 +5,116 @@
  * the URL (?q=&topic=&level=): read on mount, written with replaceState,
  * so filtered views survive reloads and sharing on static export.
  */
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import type { InterviewQuestion } from "@/lib/interview";
 import { QuestionDetails } from "./QuestionItem";
 
 export interface BankTopic {
   slug: string;
   title: string;
+}
+
+interface FilterOption {
+  value: string;
+  label: string;
+  count: number;
+}
+
+/**
+ * One filter facet as a horizontal chip rail: legend on top, a
+ * scrollable pill strip with left/right arrows, no visible scrollbar
+ * (swipe and arrow buttons both work; arrows disable at the ends).
+ */
+function FilterRow({
+  legend,
+  idPrefix,
+  options,
+  active,
+  onToggle,
+}: {
+  legend: string;
+  idPrefix: string;
+  options: FilterOption[];
+  active: string[];
+  onToggle: (value: string) => void;
+}) {
+  const stripRef = useRef<HTMLDivElement>(null);
+  const [canLeft, setCanLeft] = useState(false);
+  const [canRight, setCanRight] = useState(false);
+  const update = useCallback(() => {
+    const el = stripRef.current;
+    if (!el) return;
+    setCanLeft(el.scrollLeft > 4);
+    setCanRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  }, []);
+  useEffect(() => {
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [update, options.length]);
+  const slide = (dir: 1 | -1) =>
+    stripRef.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
+  const arrow =
+    "inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border text-sm disabled:opacity-30";
+  return (
+    <div role="group" aria-labelledby={`${idPrefix}-label`}>
+      <div className="flex items-center justify-between gap-2">
+        <p
+          id={`${idPrefix}-label`}
+          className="text-xs font-semibold uppercase tracking-wider opacity-60"
+        >
+          {legend}
+        </p>
+        <div className="flex gap-1">
+          <button
+            type="button"
+            onClick={() => slide(-1)}
+            disabled={!canLeft}
+            aria-label={`Scroll ${legend} filters left`}
+            className={arrow}
+          >
+            <ChevronLeft size={16} aria-hidden />
+          </button>
+          <button
+            type="button"
+            onClick={() => slide(1)}
+            disabled={!canRight}
+            aria-label={`Scroll ${legend} filters right`}
+            className={arrow}
+          >
+            <ChevronRight size={16} aria-hidden />
+          </button>
+        </div>
+      </div>
+      <div
+        ref={stripRef}
+        onScroll={update}
+        className="mt-2 flex min-w-0 gap-1.5 overflow-x-auto py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {options.map((opt) => {
+          const id = `${idPrefix}-${opt.value}`;
+          return (
+            <label
+              key={opt.value}
+              htmlFor={id}
+              className="inline-flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-full border px-3 py-2 text-sm has-checked:border-emerald-700 has-checked:bg-emerald-50 dark:has-checked:bg-emerald-950"
+            >
+              <input
+                id={id}
+                type="checkbox"
+                checked={active.includes(opt.value)}
+                onChange={() => onToggle(opt.value)}
+                className="h-4 w-4 shrink-0 accent-emerald-700"
+              />
+              <span>{opt.label}</span>
+              <span className="text-xs tabular-nums opacity-60">{opt.count}</span>
+            </label>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 function parseSearch(search: string): {
@@ -92,6 +194,33 @@ export function QuestionBank({
 
   const titleOf = useMemo(() => new Map(topics.map((t) => [t.slug, t.title])), [topics]);
 
+  const topicOptions: FilterOption[] = useMemo(
+    () =>
+      topics
+        .filter((t) => questions.some((q) => q.topic === t.slug))
+        .map((t) => ({
+          value: t.slug,
+          label: t.title,
+          count: questions.filter((q) => q.topic === t.slug).length,
+        })),
+    [topics, questions],
+  );
+
+  const levelOptions: FilterOption[] = useMemo(
+    () =>
+      (
+        [
+          ["basic", "Basic"],
+          ["intermediate", "Intermediate"],
+        ] as const
+      ).map(([value, label]) => ({
+        value,
+        label,
+        count: questions.filter((q) => q.level === value).length,
+      })),
+    [questions],
+  );
+
   const visible = useMemo(() => {
     const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
     return questions
@@ -121,7 +250,7 @@ export function QuestionBank({
 
   return (
     <div>
-      <div className="flex flex-1 items-center gap-2 rounded-xl border px-3">
+      <div className="bank-search-box flex flex-1 items-center gap-2 rounded-xl border px-3">
         <Search size={16} className="shrink-0 opacity-50" aria-hidden />
         <label htmlFor="bank-search" className="sr-only">
           Search interview questions
@@ -134,76 +263,26 @@ export function QuestionBank({
           onChange={(e) => setInput(e.target.value)}
           placeholder="Search questions and answers…"
           autoComplete="off"
-          spellCheck={false}
-          className="h-11 w-full bg-transparent text-sm outline-none placeholder:opacity-50"
-        />
+            spellCheck={false}
+            className="bank-search-input h-11 w-full bg-transparent text-sm outline-none placeholder:opacity-50"
+          />
       </div>
 
-      <div className="mt-4 grid gap-5 md:grid-cols-2">
-        <fieldset>
-          <legend className="text-xs font-semibold uppercase tracking-wider opacity-60">
-            Topic
-          </legend>
-          <ul className="mt-2 grid gap-1 sm:grid-cols-2">
-            {topics.map((t) => {
-              const count = questions.filter((q) => q.topic === t.slug).length;
-              if (count === 0) return null;
-              const id = `bank-topic-${t.slug}`;
-              return (
-                <li key={t.slug}>
-                  <label
-                    htmlFor={id}
-                    className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-stone-100 dark:hover:bg-stone-900"
-                  >
-                    <input
-                      id={id}
-                      type="checkbox"
-                      checked={activeTopics.includes(t.slug)}
-                      onChange={() => toggle(activeTopics, t.slug, setActiveTopics)}
-                      className="h-4 w-4 shrink-0 accent-emerald-700"
-                    />
-                    <span className="flex-1">{t.title}</span>
-                    <span className="text-xs tabular-nums opacity-50">{count}</span>
-                  </label>
-                </li>
-              );
-            })}
-          </ul>
-        </fieldset>
-        <fieldset>
-          <legend className="text-xs font-semibold uppercase tracking-wider opacity-60">
-            Level
-          </legend>
-          <ul className="mt-2 flex flex-col gap-1">
-            {(
-              [
-                ["basic", "Basic"],
-                ["intermediate", "Intermediate"],
-              ] as const
-            ).map(([value, label]) => {
-              const count = questions.filter((q) => q.level === value).length;
-              const id = `bank-level-${value}`;
-              return (
-                <li key={value}>
-                  <label
-                    htmlFor={id}
-                    className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-stone-100 dark:hover:bg-stone-900"
-                  >
-                    <input
-                      id={id}
-                      type="checkbox"
-                      checked={activeLevels.includes(value)}
-                      onChange={() => toggle(activeLevels, value, setActiveLevels)}
-                      className="h-4 w-4 shrink-0 accent-emerald-700"
-                    />
-                    <span className="flex-1">{label}</span>
-                    <span className="text-xs tabular-nums opacity-50">{count}</span>
-                  </label>
-                </li>
-              );
-            })}
-          </ul>
-        </fieldset>
+      <div className="mt-4 flex flex-col gap-4">
+        <FilterRow
+          legend="Topic"
+          idPrefix="bank-topic"
+          options={topicOptions}
+          active={activeTopics}
+          onToggle={(v) => toggle(activeTopics, v, setActiveTopics)}
+        />
+        <FilterRow
+          legend="Level"
+          idPrefix="bank-level"
+          options={levelOptions}
+          active={activeLevels}
+          onToggle={(v) => toggle(activeLevels, v, setActiveLevels)}
+        />
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">

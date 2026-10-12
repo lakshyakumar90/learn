@@ -79,7 +79,28 @@
 }
 
 .static-search-box:focus-within {
-  border-color: var(--color-fd-primary);
+  border-color: var(--color-fd-primary, #4f46e5);
+}
+
+/*
+ * Question-bank search input: no outline of its own (same treatment as
+ * the Ctrl+K field). Focus shows on the row border instead, so keyboard
+ * users still get a visible indicator.
+ */
+.bank-search-input,
+.bank-search-input:focus,
+.bank-search-input:focus-visible {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
+}
+
+.bank-search-box:focus-within {
+  border-color: var(--color-fd-primary, #4f46e5);
 }
 
 /*
