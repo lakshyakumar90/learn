@@ -1,0 +1,83 @@
+---
+title: Arrays and array methods
+description: map, filter, reduce, find, the sort pitfall, and mutating versus new.
+---
+
+Array methods encode intent: `map` transforms, `filter` selects, `reduce`
+folds. Interviewers ask this to hear you pick by return shape — and to catch
+the in-place `sort` corrupting shared state.
+
+## Real-life situation
+
+A dashboard lists orders over $50 with their revenue total. `filter` picks
+the big orders, `map` pulls their totals, `reduce` folds one revenue number
+— three readable steps, no manual loop, original array untouched. Then a
+`sort` for the leaderboard mutates the shared ranks array, and every other
+widget shows the new order too.
+
+## Visual
+
+<Diagram id="js-array-methods" />
+
+## Try it
+
+<CodeRunner title="Dashboard pipeline" expect="2\n120\n80\n200\n10\n9">
+{`const orders = [
+  { id: 1, total: 30 },
+  { id: 2, total: 120 },
+  { id: 3, total: 80 },
+];
+const big = orders.filter(function (o) {
+  return o.total >= 50;
+});
+console.log(big.length);
+const sums = big.map(function (o) {
+  return o.total;
+});
+console.log(sums[0]);
+console.log(sums[1]);
+const revenue = sums.reduce(function (sum, n) {
+  return sum + n;
+}, 0);
+console.log(revenue);
+const ranks = [10, 9, 80];
+console.log(ranks.sort()[0]);
+console.log(
+  ranks.slice().sort(function (a, b) {
+    return a - b;
+  })[0],
+);`}
+</CodeRunner>
+
+Try changing the filter to `o.total > 100` and predict the revenue first.
+Then sort a copy with `toSorted` and compare.
+
+## Mutating versus new
+
+Chain the non-mutating ones (`map`, `filter`, `slice`, `toSorted`) for
+shared data. Reserve `sort`, `splice` and `reverse` for local scratch arrays
+nobody else sees.
+
+<Predict
+  title="Default sort"
+  answerLines="10"
+  explanation="Without a comparator, sort compares as strings, so 10 comes before 9."
+>
+{`const bids = [10, 9, 80];
+console.log(bids.sort()[0]);`}
+</Predict>
+
+<InterviewQuestions topic="arrays" />
+
+## Key takeaways
+
+- `map`/`filter` return new arrays; `reduce` folds to one value.
+- Default `sort` is lexicographic and in place — pass a comparator, copy first.
+- Pick methods by return shape: transform, select, find or fold.
+
+## References
+
+- [Array reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array).
+- [sort comparator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort).
+
+Last verified: 2026-10-12.

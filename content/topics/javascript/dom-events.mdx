@@ -1,0 +1,87 @@
+---
+title: The DOM and events
+description: Capturing, bubbling, delegation, and safe dynamic lists.
+---
+
+Events travel down to their target and bubble back up — and one parent
+listener using that bubble beats a hundred individual ones. Interviewers
+ask this because delegation, propagation control and dynamic rows are daily
+DOM work.
+
+## Real-life situation
+
+A to-do list adds rows all day. Binding each row's button misses every
+future row, so deletes silently stop working after the first add. One
+listener on the list, reading `event.target.closest("li")`, handles present
+and future rows alike — try it live below, including the add button.
+
+Seen in: jQuery's `.on()` unified direct and delegated binding this way
+(jQuery 1.7, 2011, [on() docs](https://api.jquery.com/on/)).
+
+## Visual
+
+<ScenarioPlayer scenario="event-propagation" title="Down and back up" />
+
+## Try it
+
+<CodeRunner
+  title="Delegated to-do list"
+  env="dom"
+  html='<ul id="todo"><li>task 0 <button>done</button></li></ul><button id="add">add task</button><p id="status">left: 1</p>'
+>
+{`const list = document.querySelector("#todo");
+const status = document.querySelector("#status");
+let added = 0;
+list.addEventListener("click", function (event) {
+  const item = event.target.closest("li");
+  if (!item) {
+    return;
+  }
+  item.remove();
+  status.textContent = "left: " + list.children.length;
+});
+document.querySelector("#add").addEventListener("click", function () {
+  added = added + 1;
+  const item = document.createElement("li");
+  item.textContent = "task " + added;
+  const remove = document.createElement("button");
+  remove.textContent = "done";
+  item.appendChild(remove);
+  list.appendChild(item);
+});
+console.log("ready:" + list.children.length);`}
+</CodeRunner>
+
+Click a `done` button, then add a task and delete it too — no new listeners
+were ever bound. Then try removing the `closest` line and click the list
+padding to see why the guard matters.
+
+## When to delegate, when to bind directly
+
+Delegate dynamic lists and repeated controls from a stable parent. Bind
+directly for one-off controls with no future siblings. Stop propagation only
+when ancestors must not react; prevent default to cancel the browser action.
+
+<Predict
+  title="No DOM here"
+  answerLines="undefined"
+  explanation="Workers and Node have no document; page scripts do. Know which runtime your code runs in."
+>
+{`console.log(typeof document);`}
+</Predict>
+
+<InterviewQuestions topic="dom-events" />
+
+## Key takeaways
+
+- Events capture down, then bubble up; listeners default to bubbling.
+- Delegate from stable parents; read `event.target`, anchor `currentTarget`.
+- `textContent` for user strings; `innerHTML` only for static markup.
+
+## References
+
+- [Event reference](https://developer.mozilla.org/en-US/docs/Web/API/Event).
+- [addEventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener).
+- [Introduction to events](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events).
+
+Last verified: 2026-10-12.

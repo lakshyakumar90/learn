@@ -1,0 +1,109 @@
+---
+title: Fetch, CORS and browser storage
+description: Await-await-ok, CORS in practice, and cookies versus storages.
+---
+
+`fetch` resolves on HTTP errors, browsers gate cross-origin reads, and
+storage is strings-only — three facts that decide whether data code works.
+Interviewers ask this because "await, await, ok" plus a CORS explanation
+covers most real data bugs.
+
+## Real-life situation
+
+A profile loader awaits the user, then the avatar, then renders — but a 404
+renders as a broken page instead of "user missing", because `fetch` never
+rejected. Checking `res.ok` turns the silent bad render into a handled
+empty state. Meanwhile a search box aborts its previous request on every
+keystroke, so slow replies can't overwrite fresh ones.
+
+## Visual
+
+<Diagram id="js-storage" />
+
+## Try it
+
+<CodeRunner title="Fetch with guards" expect="Aarav Sharma\nuser missing:404\nAbortError">
+{`async function loadUser(id) {
+  const res = await fakeFetch("/users/" + id, { latencyMs: 5 });
+  if (!res.ok) {
+    return "user missing:" + res.status;
+  }
+  const user = await res.json();
+  return user.name;
+}
+console.log(await loadUser(1));
+console.log(await loadUser(99));
+async function loadAbort() {
+  const controller = new AbortController();
+  const pending = fakeFetch("/users", {
+    latencyMs: 50,
+    signal: controller.signal,
+  });
+  controller.abort();
+  try {
+    await pending;
+    return "arrived";
+  } catch (error) {
+    return error.name;
+  }
+}
+console.log(await loadAbort());`}
+</CodeRunner>
+
+Try pointing the first call at `/flaky` and watch it throw instead of
+returning. Then give `loadAbort` no abort and confirm `"arrived"`.
+
+<CodeRunner title="Storage is strings" expect="hi\nempty\nempty">
+{`function saveDraft(text) {
+  return JSON.stringify({ text: text });
+}
+function loadDraft(raw) {
+  try {
+    return JSON.parse(raw).text;
+  } catch (error) {
+    return "empty";
+  }
+}
+const raw = saveDraft("hi");
+console.log(loadDraft(raw));
+console.log(loadDraft("###"));
+console.log(loadDraft(null));`}
+</CodeRunner>
+
+## Cookies versus storages
+
+Cookies travel with every request (sessions, auth flags) and hide behind
+`HttpOnly`. `localStorage` persists per origin without traveling (themes,
+drafts). `sessionStorage` dies with the tab (wizard state). Secrets go in
+`HttpOnly` cookies, never in readable storage — one paragraph on XSS: build
+markup only from trusted strings, or attacker text becomes your code.
+
+<Predict
+  title="Fetch result shape"
+  answerLines="ok"
+  explanation="The user exists, so ok is true; a missing id would take the fail branch instead."
+>
+{`async function status(id) {
+  const res = await fakeFetch("/users/" + id, { latencyMs: 5 });
+  return res.ok ? "ok" : "fail:" + res.status;
+}
+status(2).then(function (s) {
+  console.log(s);
+});`}
+</Predict>
+
+<InterviewQuestions topic="fetch-storage" />
+
+## Key takeaways
+
+- `fetch` needs two awaits plus an `ok` check; it rejects only on network failure.
+- CORS failures are server configuration, not fetch bugs.
+- Cookies travel, storages stay, sessions die with the tab.
+
+## References
+
+- [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
+- [CORS guide](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
+- [Client-side storage](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Client-side_web_APIs/Client-side_storage).
+
+Last verified: 2026-10-12.

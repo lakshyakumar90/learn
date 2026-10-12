@@ -66,6 +66,13 @@ import { habitlySliceSearchSpec } from './habitly-slice-search';
 import { habitlySliceSettingsSpec } from './habitly-slice-settings';
 import { habitlySliceCloudSpec } from './habitly-slice-cloud';
 import { jsRuntimeSpec } from './js-runtime';
+import { jsCoercionSpec } from './js-coercion';
+import { jsFunctionsSpec } from './js-functions';
+import { jsThisSpec } from './js-this';
+import { jsArrayMethodsSpec } from './js-array-methods';
+import { jsModulesSpec } from './js-modules';
+import { jsCallbacksSpec } from './js-callbacks';
+import { jsStorageSpec } from './js-storage';
 import { jsScopeChainSpec } from './js-scope-chain';
 import { jsTypesSpec } from './js-types';
 import { jsPrototypeChainSpec } from './js-prototype-chain';
@@ -143,6 +150,13 @@ export const diagramSpecs: Record<string, DiagramSpec> = {
   'habitly-slice-settings': habitlySliceSettingsSpec,
   'habitly-slice-cloud': habitlySliceCloudSpec,
   'js-runtime': jsRuntimeSpec,
+  'js-coercion': jsCoercionSpec,
+  'js-functions': jsFunctionsSpec,
+  'js-this': jsThisSpec,
+  'js-array-methods': jsArrayMethodsSpec,
+  'js-modules': jsModulesSpec,
+  'js-callbacks': jsCallbacksSpec,
+  'js-storage': jsStorageSpec,
   'js-scope-chain': jsScopeChainSpec,
   'js-types': jsTypesSpec,
   'js-prototype-chain': jsPrototypeChainSpec,

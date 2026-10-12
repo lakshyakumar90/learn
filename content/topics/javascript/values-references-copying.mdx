@@ -1,0 +1,81 @@
+---
+title: Values, references and copying
+description: Primitives copy, objects share — plus shallow versus deep copies that hold up.
+---
+
+Assigning an object doesn't duplicate it; it hands out another key to the
+same locker. Interviewers ask this because shared-reference bugs — state
+edited through an "independent" copy — are the most common UI defects there
+are.
+
+## Real-life situation
+
+A receipt view aliases the live cart object to format it. Adding a
+"free gift" line to the receipt silently rewrites the cart total, and the
+customer is charged for the gift. The fix: format a real copy, so the receipt
+can never reach back into the cart.
+
+Seen in: React state updates replace objects instead of mutating them, so
+change detection sees a new reference (React 16.8, 2019,
+[useState reference](https://react.dev/reference/react/useState)).
+
+## Visual
+
+<Diagram id="js-types" />
+
+## Try it
+
+<CodeRunner title="Alias, shallow copy, deep copy" expect="2\n25\n1\n20\n2\n1">
+{`const cart = { items: ["book"], total: 20 };
+const receipt = cart;
+receipt.items.push("pen");
+receipt.total = 25;
+console.log(cart.items.length);
+console.log(cart.total);
+const frozen = { items: ["book"], total: 20 };
+const copy = { items: frozen.items.slice(), total: frozen.total };
+copy.items.push("pen");
+copy.total = 25;
+console.log(frozen.items.length);
+console.log(frozen.total);
+const deep = structuredClone(cart);
+deep.items.pop();
+console.log(cart.items.length);
+console.log(deep.items.length);`}
+</CodeRunner>
+
+Try changing `receipt` to a spread copy and watch the first two lines. Then
+change the spread copy to share `items` and watch them break again.
+
+## When to copy how
+
+Flat data: spread or `slice`. Nested data you edit: spread every edited
+level, or `structuredClone` the whole tree. Data with functions or class
+instances: copy by hand, because cloners drop behavior.
+
+<Predict
+  title="Shared nesting"
+  answerLines="Abuja"
+  explanation="Spread copies one level; the nested address object stays shared, so the edit shows through."
+>
+{`const user = { name: "Ada", address: { city: "Lagos" } };
+const copy = { ...user };
+copy.address.city = "Abuja";
+console.log(user.address.city);`}
+</Predict>
+
+<InterviewQuestions topic="values-references-copying" />
+
+## Key takeaways
+
+- Primitives copy by value; objects copy by reference.
+- Spread is shallow: nested objects stay shared.
+- `structuredClone` deep-copies data, but drops functions and prototypes.
+
+## References
+
+- [Spread syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax).
+- [structuredClone](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone).
+- [Object equality and references](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Equality_comparisons_and_sameness).
+
+Last verified: 2026-10-12.

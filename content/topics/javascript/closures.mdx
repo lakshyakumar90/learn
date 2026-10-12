@@ -1,0 +1,85 @@
+---
+title: Closures
+description: Functions that remember their scope, private state, and the loop bug.
+---
+
+A closure is a function bundled with the variables around it at creation.
+It is the most-asked JavaScript interview topic because it explains private
+state, callbacks and half of all async bugs in one mechanism.
+
+## Real-life situation
+
+Two shopping carts on one page must not share items. A cart factory returns
+`add` and `count` functions closing over a private `items` array — each cart
+gets its own scope, so adding to one never touches the other. No classes, no
+naming tricks; the scope boundary is the privacy boundary.
+
+Seen in: React's `useState` closes over each render's scope, which is why
+late-running callbacks can see stale values (React 16.8, 2019,
+[useState reference](https://react.dev/reference/react/useState)).
+
+## Visual
+
+<Diagram id="js-scope-chain" />
+
+## Try it
+
+<CodeRunner title="Two carts, two counters" expect="2\n0\n1\n2">
+{`function createCart() {
+  const items = [];
+  return {
+    add: function (item) {
+      items.push(item);
+    },
+    count: function () {
+      return items.length;
+    },
+  };
+}
+const first = createCart();
+const second = createCart();
+first.add("book");
+first.add("pen");
+console.log(first.count());
+console.log(second.count());
+function counter() {
+  let n = 0;
+  return function () {
+    n = n + 1;
+    return n;
+  };
+}
+const next = counter();
+console.log(next());
+console.log(next());`}
+</CodeRunner>
+
+Try adding a third cart and sharing one `items` array between two factories —
+watch independence break. Then convert `counter` to an object with `reset`.
+
+<Predict
+  title="Loop with var"
+  answerLines="3\n3\n3"
+  explanation="var is function-scoped, so all three callbacks share one i, already 3 when the timers run."
+>
+{`for (var i = 0; i < 3; i = i + 1) {
+  setTimeout(function () {
+    console.log(i);
+  }, 0);
+}`}
+</Predict>
+
+<InterviewQuestions topic="closures" />
+
+## Key takeaways
+
+- Closures link live variables, not snapshots.
+- Factory + closure is the simplest private state in the language.
+- Shared loop bindings (`var`) are the classic closure bug; `let` fixes it.
+
+## References
+
+- [Closures guide](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Closures).
+- [let and block scope](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let).
+
+Last verified: 2026-10-12.

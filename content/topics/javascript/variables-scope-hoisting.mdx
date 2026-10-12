@@ -1,0 +1,81 @@
+---
+title: Variables, scope and hoisting
+description: var versus let and const, the temporal dead zone, and what hoisting really moves.
+---
+
+`var`, `let` and `const` all declare variables, but they differ in where
+the variable is visible and what happens before its line runs.
+Interviewers ask this because scope bugs — a loop counter leaking, a
+variable read too early — are silent and everywhere.
+
+## Real-life situation
+
+A checkout page applies a member discount inside an `if` block. With `var`,
+the discount variable leaks out and a later line reuses its stale value for
+guests. With `let` and `const`, each variable stays inside its block and the
+bug cannot happen. The runner below shows both behaviors side by side.
+
+## Visual
+
+<ScenarioPlayer scenario="hoisting-creation-phase" title="Creation before execution" />
+
+## Try it
+
+<CodeRunner title="Block scope versus hoisting" expect="90\n100\nundefined\ntdz: ReferenceError">
+{`function checkout(price, member) {
+  let total = price;
+  if (member) {
+    const discount = price * 0.1;
+    total = total - discount;
+  }
+  return total;
+}
+console.log(checkout(100, true));
+console.log(checkout(100, false));
+console.log(oldWay());
+function oldWay() {
+  return status;
+  var status = "ready";
+}
+try {
+  console.log(newWay);
+} catch (error) {
+  console.log("tdz: " + error.name);
+}
+let newWay = "go";`}
+</CodeRunner>
+
+Try changing `let total` to `var total` (same result here — why?), then move
+`var status` above the `return` and watch the third line change.
+
+## When to use which
+
+Default to `const`. Use `let` when reassignment is the point (counters,
+accumulators). There is no modern reason to write `var` — treat it as
+read-only legacy you will still meet in old codebases.
+
+<Predict
+  title="What logs first?"
+  answerLines="undefined\nhi"
+  explanation="The var declaration is hoisted but its assignment stays put, so the first log sees undefined."
+>
+{`console.log(greet);
+var greet = "hi";
+console.log(greet);`}
+</Predict>
+
+<InterviewQuestions topic="variables-scope-hoisting" />
+
+## Key takeaways
+
+- `var` is function-scoped and reads as `undefined` before its line.
+- `let` and `const` are block-scoped and throw before their line (temporal dead zone).
+- Hoisting moves declarations, never assignments.
+
+## References
+
+- [var statement](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/var).
+- [let statement](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let).
+- [Temporal dead zone](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let#temporal_dead_zone_tdz).
+
+Last verified: 2026-10-12.

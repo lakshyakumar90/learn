@@ -1,0 +1,83 @@
+---
+title: Promises
+description: States, chaining, error flow, and the four combinators.
+---
+
+A promise is a value with a schedule: pending now, settled exactly once
+later. Interviewers ask this because chains encode sequencing, error flow
+and parallelism — the three async skills — in one uniform shape.
+
+## Real-life situation
+
+A dashboard needs the user and their posts before first paint. Fired
+together and joined with `Promise.all`, one wait covers both, results stay
+ordered, and a single `.catch` guards the whole load. Fired in sequence with
+separate awaits, the same dashboard takes twice as long for no reason.
+
+## Visual
+
+<Diagram id="js-promise-states" />
+
+## Try it
+
+<CodeRunner title="Parallel dashboard load" expect="Aarav Sharma:2">
+{`function getUser() {
+  return fakeFetch("/users/1", { latencyMs: 5 });
+}
+function getPosts() {
+  return fakeFetch("/posts?userId=1", { latencyMs: 5 });
+}
+Promise.all([getUser(), getPosts()])
+  .then(function (responses) {
+    return Promise.all(
+      responses.map(function (r) {
+        return r.json();
+      }),
+    );
+  })
+  .then(function (parts) {
+    console.log(parts[0].name + ":" + parts[1].length);
+  })
+  .catch(function () {
+    console.log("dashboard failed");
+  });`}
+</CodeRunner>
+
+Try changing `Promise.all` to `Promise.allSettled` and log the raw parts to
+see the shape change. Then point one fetch at `/missing` and watch which
+branch runs.
+
+## When to use which combinator
+
+`all` for strict coordination, `allSettled` for best-effort reports, `race`
+for timeouts, `any` for redundant sources. Default to `all`; anything else
+should name its reason in a comment.
+
+<Predict
+  title="Forgotten return"
+  answerLines="undefined"
+  explanation="The first then returns nothing, so the next step receives undefined."
+>
+{`Promise.resolve(2)
+  .then(function (n) {
+    n * 10;
+  })
+  .then(function (n) {
+    console.log(n);
+  });`}
+</Predict>
+
+<InterviewQuestions topic="promises" />
+
+## Key takeaways
+
+- Pending once, then fulfilled or rejected forever; one settlement only.
+- Return from every step or the chain receives `undefined`.
+- Rejections skip to the nearest catch; unhandled ones crash.
+
+## References
+
+- [Promise reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
+- [Promise combinators guide](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises).
+
+Last verified: 2026-10-12.

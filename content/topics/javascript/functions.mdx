@@ -1,0 +1,87 @@
+---
+title: Functions
+description: Declarations, expressions, arrows, callbacks and higher-order functions.
+---
+
+Functions are values you can store, pass and return — that single idea
+powers callbacks, array methods and most libraries. Interviewers ask this to
+see whether you reach for the right shape: declaration, expression or arrow.
+
+## Real-life situation
+
+A login form needs three checks: email shape, password length, and both
+together. Writing each check as a small function and combining them with a
+higher-order validator keeps every rule testable alone — and the "validate
+everything" line reads like the requirement itself.
+
+## Visual
+
+<Diagram id="js-functions" />
+
+## Try it
+
+<CodeRunner title="Login checks, combined" expect="true\ntrue\ntrue">
+{`function isEmail(value) {
+  return value.includes("@") && value.includes(".");
+}
+const isLongEnough = function (value) {
+  return value.length >= 8;
+};
+const checkPassword = (value) => isLongEnough(value);
+function validate(fields, checks) {
+  return checks.map(function (check) {
+    return check(fields);
+  });
+}
+const form = { email: "ada@example.com", password: "s3cret!!" };
+const results = validate(form, [
+  function (f) {
+    return isEmail(f.email);
+  },
+  function (f) {
+    return checkPassword(f.password);
+  },
+]);
+console.log(results[0]);
+console.log(results[1]);
+console.log(results.every(Boolean));`}
+</CodeRunner>
+
+Try changing the arrow `checkPassword` to a `function` expression — same
+result. Then make the password `"short"` and watch which line flips.
+
+## When to use which
+
+Declarations for standalone helpers (hoisted, mockable). Expressions and
+arrows for callbacks passed inline. Arrows when you want the outer `this`;
+`function` when the caller must set `this`.
+
+<Predict
+  title="Apply twice"
+  answerLines="7"
+  explanation="applyTwice feeds 5 through add-one, then feeds 6 through add-one again."
+>
+{`function applyTwice(fn, value) {
+  return fn(fn(value));
+}
+console.log(
+  applyTwice(function (n) {
+    return n + 1;
+  }, 5),
+);`}
+</Predict>
+
+<InterviewQuestions topic="functions" />
+
+## Key takeaways
+
+- Declarations hoist; expressions and arrows must be defined first.
+- Arrows inherit `this`; `function` receives it from the call.
+- Higher-order functions take or return functions to reuse behavior.
+
+## References
+
+- [Functions guide](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions).
+- [Arrow functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions).
+
+Last verified: 2026-10-12.

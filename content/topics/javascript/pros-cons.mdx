@@ -1,0 +1,53 @@
+---
+title: Pros and cons, and when not to use JavaScript
+description: An honest trade-off list with the real-life cost of each point.
+---
+
+Every strength below has a production bill attached. Interviewers ask this
+to hear judgment, not fandom: pick the tool with your eyes open.
+
+## Why teams choose it
+
+**One language everywhere.** Page, server and tooling share types, utils and
+hires. Impact: smaller teams ship full features without translators.
+
+**Huge ecosystem.** A package exists for nearly everything. Impact: fast
+starts — plus dependency homework, because anyone can publish.
+
+**Event-driven I/O.** Thousands of waiting connections cost little. Impact:
+chat, feeds and APIs stay responsive on modest hardware.
+
+**Instant feedback loop.** Save, refresh, see. Impact: UI iteration speed no
+compiled stack matches.
+
+## Why teams regret it
+
+**Dynamic typing.** Wrong shapes surface at runtime, not at build. Impact:
+refactors need tests, and big codebases adopt TypeScript to cope.
+
+**Single thread.** One slow loop freezes the page or stalls the server.
+Impact: CPU work needs chunking, workers or another service.
+
+**Fragmented runtimes.** Browsers, Node and edge hosts differ in APIs and
+versions. Impact: "works here" needs verification matrices and polyfills.
+
+**Dependency weight.** Deep install trees inherit other people's bugs and
+licenses. Impact: audits and lockfiles are non-optional chores.
+
+## When not to use it
+
+Number crunching, games engines and device drivers want compiled languages.
+Strict real-time control wants deterministic runtimes. And if the team or
+the target has no JavaScript story (embedded firmware, data science
+pipelines), forcing one in is resume-driven development.
+
+## Key takeaways
+
+- Choose JavaScript for I/O-heavy products and shared page-server code.
+- Budget for types, tests and dependency care from day one.
+- Leave it out of CPU-bound, real-time and non-JS-native domains.
+
+## References
+
+- [JavaScript language reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference).
+- [Node learning guides](https://nodejs.org/en/learn).

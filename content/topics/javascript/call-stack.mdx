@@ -1,0 +1,86 @@
+---
+title: Call stack and execution context
+description: Frames, push and pop, overflow, and reading a trace.
+---
+
+Every call pushes a frame — its variables plus where to resume — and every
+return pops it. Interviewers ask this because "Maximum call stack size
+exceeded" and frozen pages both start here, and reading a trace starts here
+too.
+
+## Real-life situation
+
+A receipt printer recurses into bundled items, but a bundle containing
+itself loops forever and the tab dies with a stack overflow. The trace shows
+the same function repeated — the giveaway. The fix is a visited set plus an
+iterative fallback, but noticing the repeated frame is the interview skill.
+
+## Visual
+
+<ScenarioPlayer scenario="call-stack-overflow" title="Frames pile up" />
+
+## Try it
+
+<CodeRunner title="Push and pop order" expect="enter 3\nenter 2\nenter 1\nbase\nleave 2\nleave 3\nresult 6\ndone">
+{`function factorial(n) {
+  console.log("enter " + n);
+  if (n <= 1) {
+    console.log("base");
+    return 1;
+  }
+  const rest = factorial(n - 1);
+  console.log("leave " + n);
+  return n * rest;
+}
+console.log("result " + factorial(3, 0));
+function start() {
+  return middle();
+}
+function middle() {
+  return end();
+}
+function end() {
+  return "done";
+}
+console.log(start());`}
+</CodeRunner>
+
+Try raising the factorial input until the runner stops you, and read which
+error names the stack. Then trace the `leave` lines back to their frames.
+
+## When depth matters
+
+Recursion fits nested data (trees, comments, DOM walks). Flat sequences
+want loops, and unbounded depth wants chunking so frames pop between
+batches. Depth is always bounded — engines don't do tail-call optimization.
+
+<Predict
+  title="Frame order"
+  answerLines="a-start\nb\na-end"
+  explanation="a pushes, calls b, waits; b runs and pops; then a resumes and finishes."
+>
+{`function a() {
+  console.log("a-start");
+  b();
+  console.log("a-end");
+}
+function b() {
+  console.log("b");
+}
+a();`}
+</Predict>
+
+<InterviewQuestions topic="call-stack" />
+
+## Key takeaways
+
+- Calls push frames; returns pop them; last in, first out.
+- Overflow means calls outrun returns — find the missing base case.
+- Read traces top-down: the thrower first, your code a few frames down.
+
+## References
+
+- [Call stack (MDN glossary)](https://developer.mozilla.org/en-US/docs/Glossary/Call_stack).
+- [Recursion guide](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions#recursion).
+
+Last verified: 2026-10-12.

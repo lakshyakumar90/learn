@@ -1,0 +1,92 @@
+---
+title: Memory and garbage collection
+description: Reachability, the three classic leaks, and matching teardowns.
+---
+
+JavaScript frees what you can't reach and keeps everything else — so memory
+management is reference management. Interviewers ask this because the three
+classic leaks (timers, detached DOM, growing caches) all reduce to one
+forgotten reference.
+
+## Real-life situation
+
+A dashboard caches every view it opens "for speed" and never prunes. After
+an hour the tab crawls: each cached view is still reachable, so the
+collector can't free a byte. The fix is a matching teardown — cap the cache,
+clear it on logout — the same discipline as clearing timers and removing
+listeners.
+
+## Visual
+
+<ScenarioPlayer scenario="gc-mark-and-sweep" title="Reachable survives" />
+
+## Try it
+
+<CodeRunner title="Cache that never forgets" expect="home\nsearch\n2\n0\n2\n0">
+{`const cache = [];
+function remember(view) {
+  cache.push(view);
+}
+function openView(name) {
+  const view = { name: name, data: [1, 2, 3] };
+  remember(view);
+  return view.name;
+}
+console.log(openView("home"));
+console.log(openView("search"));
+console.log(cache.length);
+cache.length = 0;
+console.log(cache.length);
+const listeners = [];
+function onEvent(handler) {
+  listeners.push(handler);
+}
+onEvent(function () {
+  return "click";
+});
+onEvent(function () {
+  return "hover";
+});
+console.log(listeners.length);
+listeners.length = 0;
+console.log(listeners.length);`}
+</CodeRunner>
+
+Try commenting out `cache.length = 0` and watch the count stick. Then give
+`remember` a size cap that drops the oldest view past five entries.
+
+## When it applies
+
+Any long-lived page: dashboards, editors, chats. Short-lived scripts rarely
+leak enough to matter — but the teardown habit (every setup gets an undo)
+pays off in components, where mount/unmount repeats the cycle constantly.
+
+<Predict
+  title="Held by a closure"
+  answerLines="3"
+  explanation="The returned function keeps big reachable, so the array survives as long as read does."
+>
+{`function subscribe() {
+  const big = [1, 2, 3];
+  return function () {
+    return big.length;
+  };
+}
+const read = subscribe();
+console.log(read());`}
+</Predict>
+
+<InterviewQuestions topic="memory-gc" />
+
+## Key takeaways
+
+- Reachable survives; unreachable is freed — leaks are forgotten references.
+- The big three: stray timers, detached DOM, unbounded caches.
+- Every setup needs a teardown on the same lifecycle.
+
+## References
+
+- [Memory management (MDN)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_management).
+- [Heap snapshots (Chrome DevTools)](https://developer.chrome.com/docs/devtools/memory-problems/heap-snapshots).
+
+Last verified: 2026-10-12.

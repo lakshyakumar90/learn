@@ -1,0 +1,80 @@
+---
+title: Objects, prototypes and classes
+description: Lookup chains, new, and classes as syntax over prototypes.
+---
+
+Objects inherit through a chain: a missing key is looked up on the
+prototype, then its prototype, until `null`. Interviewers ask this because
+"shared methods, own data" explains classes, `instanceof` and half of all
+framework code.
+
+## Real-life situation
+
+A device settings page builds phones and laptops from one `Device`
+constructor. The `info` method lives once on the prototype, so a thousand
+devices share one function while each keeps its own name. A `Laptop`
+subclass reuses the wiring through `extends` without copying anything.
+
+## Visual
+
+<Diagram id="js-prototype-chain" />
+
+## Try it
+
+<CodeRunner title="One method, many devices" expect="device:pixel\nfalse\ndevice:thinkpad\ntrue\ntrue">
+{`function Device(name) {
+  this.name = name;
+}
+Device.prototype.info = function () {
+  return "device:" + this.name;
+};
+const phone = new Device("pixel");
+console.log(phone.info());
+console.log(phone.hasOwnProperty("info"));
+class Laptop extends Device {
+  constructor(name, ram) {
+    super(name);
+    this.ram = ram;
+  }
+}
+const notebook = new Laptop("thinkpad", 16);
+console.log(notebook.info());
+console.log(notebook instanceof Device);
+console.log(notebook instanceof Laptop);`}
+</CodeRunner>
+
+Try adding `phone.info = "mine"` and watch `hasOwnProperty` flip while the
+prototype stays shared. Then check `notebook.hasOwnProperty("ram")`.
+
+## When classes help, when they hide
+
+Classes help for instance hierarchies with shared behavior (devices, views,
+errors). They hide when a factory plus closures would do — prefer the
+simpler shape until inheritance earns its keep.
+
+<Predict
+  title="Shadowing the prototype"
+  answerLines="admin\nuser"
+  explanation="Assigning creates an own property on admin; the prototype object is never modified."
+>
+{`const base = { role: "user" };
+const admin = Object.create(base);
+admin.role = "admin";
+console.log(admin.role);
+console.log(base.role);`}
+</Predict>
+
+<InterviewQuestions topic="objects-prototypes-classes" />
+
+## Key takeaways
+
+- Missing keys walk the prototype chain to `null`.
+- `new` makes an object, links it, runs the constructor with `this`, returns it.
+- Classes are constructors plus prototypes with safer defaults.
+
+## References
+
+- [Prototype chain](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Inheritance_and_the_prototype_chain).
+- [Classes reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes).
+
+Last verified: 2026-10-12.

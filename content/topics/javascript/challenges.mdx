@@ -1,0 +1,302 @@
+---
+title: Coding challenges
+description: Ten classic implementations with tests and hidden solutions.
+---
+
+Ten functions interviewers ask you to write. Each starts broken — make the
+tests green, then peek at one possible solution. All tests run in the page;
+nothing leaves your browser.
+
+<Exercise
+  title="1. debounce"
+  tests={`const calls = [];
+const d = debounce(function (q) {
+  calls.push(q);
+}, 30);
+d("a");
+d("ab");
+await sleep(100);
+assert(calls.length === 1, "runs once");
+assert(calls[0] === "ab", "keeps last args");`}
+  solution={`function debounce(fn, wait) {
+  let timer = null;
+  return function () {
+    const args = arguments;
+    const self = this;
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      fn.apply(self, args);
+    }, wait);
+  };
+}`}
+>
+{`function debounce(fn, wait) {
+  return function () {
+    return fn.apply(this, arguments);
+  };
+}`}
+</Exercise>
+
+<Exercise
+  title="2. throttle"
+  tests={`const calls = [];
+const t = throttle(function () {
+  calls.push(1);
+}, 50);
+t();
+t();
+t();
+assert(calls.length === 1, "first burst runs once");
+await sleep(120);
+t();
+assert(calls.length === 2, "runs again after limit");`}
+  solution={`function throttle(fn, limit) {
+  let locked = false;
+  return function () {
+    if (locked) {
+      return;
+    }
+    locked = true;
+    fn.apply(this, arguments);
+    setTimeout(function () {
+      locked = false;
+    }, limit);
+  };
+}`}
+>
+{`function throttle(fn, limit) {
+  return function () {
+    return fn.apply(this, arguments);
+  };
+}`}
+</Exercise>
+
+<Exercise
+  title="3. once"
+  tests={`let runs = 0;
+const init = once(function () {
+  runs = runs + 1;
+  return "ready";
+});
+assert(init() === "ready", "first call returns value");
+assert(init() === "ready", "second call returns value");
+assert(runs === 1, "body runs once");`}
+  solution={`function once(fn) {
+  let done = false;
+  let value;
+  return function () {
+    if (!done) {
+      done = true;
+      value = fn.apply(this, arguments);
+    }
+    return value;
+  };
+}`}
+>
+{`function once(fn) {
+  return function () {
+    return fn.apply(this, arguments);
+  };
+}`}
+</Exercise>
+
+<Exercise
+  title="4. memoize"
+  tests={`let runs = 0;
+const double = memoize(function (n) {
+  runs = runs + 1;
+  return n * 2;
+});
+assert(double(2) === 4, "computes first time");
+assert(double(2) === 4, "reuses cache");
+assert(runs === 1, "body runs once per input");
+assert(double(3) === 6, "new input computes");
+assert(runs === 2, "body runs for new input");`}
+  solution={`function memoize(fn) {
+  const cache = {};
+  return function (key) {
+    if (!(key in cache)) {
+      cache[key] = fn(key);
+    }
+    return cache[key];
+  };
+}`}
+>
+{`function memoize(fn) {
+  return function (key) {
+    return fn(key);
+  };
+}`}
+</Exercise>
+
+<Exercise
+  title="5. deep clone"
+  tests={`const src = { a: 1, nested: { b: 2 } };
+const copy = deepClone(src);
+copy.nested.b = 99;
+assert(src.nested.b === 2, "nested is independent");
+assert(copy.a === 1, "top level copies");`}
+  solution={`function deepClone(value) {
+  return structuredClone(value);
+}`}
+>
+{`function deepClone(value) {
+  return { ...value };
+}`}
+</Exercise>
+
+<Exercise
+  title="6. flatten"
+  tests={`assert(JSON.stringify(flatten([1, [2, [3]]])) === "[1,2,3]", "flattens deep");
+assert(JSON.stringify(flatten([1, 2])) === "[1,2]", "leaves flat alone");`}
+  solution={`function flatten(input) {
+  const out = [];
+  for (const item of input) {
+    if (Array.isArray(item)) {
+      const inner = flatten(item);
+      for (const x of inner) {
+        out.push(x);
+      }
+    } else {
+      out.push(item);
+    }
+  }
+  return out;
+}`}
+>
+{`function flatten(input) {
+  return input;
+}`}
+</Exercise>
+
+<Exercise
+  title="7. curry"
+  tests={`function add(a, b) {
+  return a + b;
+}
+const curried = curry(add);
+assert(curried(1)(2) === 3, "two calls make 3");`}
+  solution={`function curry(fn) {
+  return function (first) {
+    return function (second) {
+      return fn(first, second);
+    };
+  };
+}`}
+>
+{`function curry(fn) {
+  return fn;
+}`}
+</Exercise>
+
+<Exercise
+  title="8. Promise.all polyfill"
+  tests={`assert(JSON.stringify(await myAll([1, 2])) === "[1,2]", "resolves values");
+assert(
+  JSON.stringify(
+    await myAll([
+      sleep(20).then(function () {
+        return "slow";
+      }),
+      "fast",
+    ]),
+  ) === '["slow","fast"]',
+  "keeps order",
+);
+let rejected = false;
+try {
+  await myAll([Promise.reject(new Error("boom"))]);
+} catch (error) {
+  rejected = true;
+}
+assert(rejected, "rejects when one rejects");`}
+  solution={`function myAll(items) {
+  return new Promise(function (resolve, reject) {
+    const out = [];
+    let done = 0;
+    if (items.length === 0) {
+      resolve(out);
+      return;
+    }
+    items.forEach(function (item, i) {
+      Promise.resolve(item)
+        .then(function (v) {
+          out[i] = v;
+          done = done + 1;
+          if (done === items.length) {
+            resolve(out);
+          }
+        })
+        .catch(reject);
+    });
+  });
+}`}
+>
+{`async function myAll(items) {
+  return [];
+}`}
+</Exercise>
+
+<Exercise
+  title="9. bind polyfill"
+  tests={`function greet() {
+  return "hi " + this.user;
+}
+const bound = myBind(greet, { user: "ada" });
+assert(bound() === "hi ada", "fixes this");
+function add(a, b) {
+  return a + b;
+}
+assert(myBind(add, null, 1)(2) === 3, "keeps preset args");`}
+  solution={`function myBind(fn, self) {
+  const preset = Array.prototype.slice.call(arguments, 2);
+  return function () {
+    const rest = Array.prototype.slice.call(arguments);
+    return fn.apply(self, preset.concat(rest));
+  };
+}`}
+>
+{`function myBind(fn, self) {
+  return fn;
+}`}
+</Exercise>
+
+<Exercise
+  title="10. retry with backoff"
+  tests={`let attempts = 0;
+async function flaky() {
+  attempts = attempts + 1;
+  if (attempts < 3) {
+    throw new Error("down");
+  }
+  return "up";
+}
+assert((await retry(flaky, 3)) === "up", "succeeds third try");
+assert(attempts === 3, "tried three times");`}
+  solution={`async function retry(fn, tries) {
+  let last = null;
+  for (let i = 0; i < tries; i = i + 1) {
+    try {
+      return await fn();
+    } catch (error) {
+      last = error;
+      await sleep(5);
+    }
+  }
+  throw last;
+}`}
+>
+{`async function retry(fn, tries) {
+  return fn();
+}`}
+</Exercise>
+
+## Key takeaways
+
+- Closures carry the state: timers, caches, flags, counts.
+- Failing tests first proves the exercise actually tests something.
+- Compare your solution with the reveal — same behavior, different shape is fine.
+
+## References
+
+- [JavaScript language reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference).

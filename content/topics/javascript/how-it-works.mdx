@@ -1,0 +1,52 @@
+---
+title: How JavaScript works
+description: Engine and runtime, one thread, JIT in a paragraph, browser versus Node.
+---
+
+Your code runs inside two cooperating systems: the engine executes it and
+the runtime schedules everything around it. Interviewers ask this to check
+whether "single-threaded" and "asynchronous" fit together in your head.
+
+## The engine: turn text into speed
+
+The engine parses your source into a tree, compiles the hot paths to machine
+code while the program runs, and re-optimizes as it learns. That
+compile-while-running trick is called just-in-time (JIT) compilation: the
+first run is quick to start, the thousandth loop is genuinely fast, and the
+engine quietly de-optimizes when one of its guesses proves wrong.
+
+## The runtime: everything around the engine
+
+The engine alone can't wait, draw or fetch. The runtime adds the call stack
+(one thread doing one thing), the heap (where objects live), task and
+microtask queues (where callbacks wait), and the host APIs (timers, network,
+DOM). The event loop — the scheduler from the next pages — moves callbacks
+from queues onto the stack when it is free.
+
+<Diagram id="js-runtime" />
+
+## Browser versus Node
+
+| | Browser | Node.js |
+|---|---|---|
+| Host APIs | DOM, fetch, timers, storage | Files, sockets, processes, timers |
+| Rendering | Yes, paints the page | No screen at all |
+| Extra queues | Render steps | `process.nextTick`, immediates |
+| Modules | ES modules, import maps | ES modules and CommonJS |
+
+Same language and same loop idea; different surroundings. Timer and promise
+code behaves the same in both until you touch host-specific APIs.
+
+Last verified: 2026-10-12.
+
+## Key takeaways
+
+- The engine runs code; the runtime schedules waiting, drawing and fetching.
+- One thread runs your code; everything slow is delegated and called back.
+- Browser and Node share the language but offer different host APIs.
+
+## References
+
+- [How JavaScript works (MDN)](https://developer.mozilla.org/en-US/docs/Web/JavaScript).
+- [V8 engine docs](https://v8.dev/docs).
+- [The Node.js event loop](https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick).

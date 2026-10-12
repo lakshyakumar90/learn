@@ -1,0 +1,189 @@
+---
+title: Output-prediction puzzles
+description: Twelve classic what-logs puzzles with instant verification.
+---
+
+Twelve puzzles, same rules as interviews: read, commit to an answer, then
+reveal the real output. Every reveal runs the code — the machine grades
+you, not your confidence.
+
+<Predict
+  title="Puzzle 1: loop timers"
+  options={["0 1", "2 2", "0 1 2"]}
+  answer={1}
+  answerLines="2\n2"
+  explanation="var shares one binding across iterations; both timers read it after the loop, when it is 2."
+>
+{`for (var i = 0; i < 2; i = i + 1) {
+  setTimeout(function () {
+    console.log(i);
+  }, 0);
+}`}
+</Predict>
+
+<Predict
+  title="Puzzle 2: order of four"
+  options={["start micro macro end", "start end micro macro", "micro start end macro"]}
+  answer={1}
+  answerLines="start\nend\nmicro\nmacro"
+  explanation="Sync lines first, then the drained microtask, then the timer after its turn."
+>
+{`console.log("start");
+setTimeout(function () {
+  console.log("macro");
+}, 0);
+Promise.resolve().then(function () {
+  console.log("micro");
+});
+console.log("end");`}
+</Predict>
+
+<Predict
+  title="Puzzle 3: borrowed method"
+  options={["hi sam", "hi undefined", "TypeError"]}
+  answer={1}
+  answerLines="hi undefined"
+  explanation="Passing the method drops its receiver, so this is no longer the account."
+>
+{`const account = {
+  user: "sam",
+  hi: function () {
+    return "hi " + this.user;
+  },
+};
+const later = account.hi;
+console.log(later());`}
+</Predict>
+
+<Predict
+  title="Puzzle 4: use before line"
+  options={["ReferenceError", "undefined", "1"]}
+  answer={1}
+  answerLines="undefined"
+  explanation="The var declaration hoists; the assignment stays, so the first read sees undefined."
+>
+{`console.log(typeof total);
+var total = 1;`}
+</Predict>
+
+<Predict
+  title="Puzzle 5: minus versus plus"
+  options={["3 and 52", "NaN and 52", "3 and 7"]}
+  answer={0}
+  answerLines="3\n52"
+  explanation="Minus always converts to numbers; plus concatenates when either side is a string."
+>
+{`console.log("5" - 2);
+console.log("5" + 2);`}
+</Predict>
+
+<Predict
+  title="Puzzle 6: independent counters"
+  options={["1 and 1", "1 and 2", "2 and 2"]}
+  answer={0}
+  answerLines="1\n1"
+  explanation="Each factory call makes a fresh scope, so the two counters never share."
+>
+{`function counter() {
+  let n = 0;
+  return function () {
+    n = n + 1;
+    return n;
+  };
+}
+const a = counter();
+const b = counter();
+console.log(a());
+console.log(b());`}
+</Predict>
+
+<Predict
+  title="Puzzle 7: chain without return"
+  options={["20", "undefined", "10"]}
+  answer={1}
+  answerLines="undefined"
+  explanation="A then without return hands undefined onward, no matter what it computed."
+>
+{`Promise.resolve(10)
+  .then(function (n) {
+    n * 2;
+  })
+  .then(function (n) {
+    console.log(n);
+  });`}
+</Predict>
+
+<Predict
+  title="Puzzle 8: async order"
+  options={["s f e t", "s e f t", "f s e t"]}
+  answer={0}
+  answerLines="s\nf\ne\nt"
+  explanation="f runs sync until its end; the .then callback waits as a microtask behind e."
+>
+{`async function f() {
+  console.log("f");
+}
+console.log("s");
+f().then(function () {
+  console.log("t");
+});
+console.log("e");`}
+</Predict>
+
+<Predict
+  title="Puzzle 9: empty versus false"
+  options={["false false", "true true", "true false"]}
+  answer={1}
+  answerLines="true\ntrue"
+  explanation="Loose equality converts both sides toward numbers: empty array and empty string both reach 0."
+>
+{`console.log([] == false);
+console.log("" == false);`}
+</Predict>
+
+<Predict
+  title="Puzzle 10: shared list"
+  options={["1", "2", "3"]}
+  answer={1}
+  answerLines="2"
+  explanation="b aliases the same array, so pushing through b grows what a sees."
+>
+{`const a = [1];
+const b = a;
+b.push(2);
+console.log(a.length);`}
+</Predict>
+
+<Predict
+  title="Puzzle 11: null check"
+  options={["null true", "object true", "object false"]}
+  answer={1}
+  answerLines="object\ntrue"
+  explanation="typeof null is the famous object quirk; Array.isArray is the reliable array test."
+>
+{`console.log(typeof null);
+console.log(Array.isArray([]));`}
+</Predict>
+
+<Predict
+  title="Puzzle 12: hoisted helper"
+  options={["6", "ReferenceError", "undefined"]}
+  answer={0}
+  answerLines="6"
+  explanation="Full function declarations hoist with their bodies, so calling early works."
+>
+{`console.log(double(3));
+function double(n) {
+  return n * 2;
+}`}
+</Predict>
+
+## Key takeaways
+
+- Say the order out loud before revealing: sync, microtasks, tasks.
+- Name the mechanism (shared binding, dropped receiver, forgotten return).
+- The puzzles you miss define your review list — retake them in a week.
+
+## References
+
+- [JavaScript language reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference).

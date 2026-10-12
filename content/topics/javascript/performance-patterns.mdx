@@ -1,0 +1,97 @@
+---
+title: Performance patterns
+description: Debounce, throttle, memoization — and doing less, less often.
+---
+
+Fast pages are rarely clever algorithms; they are fewer handlers, fewer
+renders, fewer requests. Interviewers ask this because debounce/throttle/
+memoize are three memorizable shapes that fix entire classes of jank.
+
+## Real-life situation
+
+A search box fetches on every keystroke — ten requests for "javascript",
+nine of them wasted, the slowest winning. Debouncing to 300ms of silence
+fires once with the final text. The scroll feed beside it uses throttle
+instead: position checks at most every 100ms while scrolling continues.
+
+Seen in: Lodash ships battle-tested `debounce` and `throttle` with cancel,
+flush and leading/trailing options (Lodash, 2012,
+[debounce docs](https://lodash.com/docs/#debounce)).
+
+## Visual
+
+<ScenarioPlayer scenario="debounce-timeline" title="Silence, then fire" />
+
+## Try it
+
+<CodeRunner title="Debounce from scratch" expect="1">
+{`function debounce(fn, wait) {
+  let timer = null;
+  return function () {
+    const args = arguments;
+    const self = this;
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      fn.apply(self, args);
+    }, wait);
+  };
+}
+let searches = 0;
+const search = debounce(function (q) {
+  searches = searches + 1;
+}, 20);
+search("t");
+search("te");
+search("tea");
+await sleep(60);
+console.log(searches);`}
+</CodeRunner>
+
+Try dropping the `clearTimeout` line and count the calls. Then add a
+`cancel` method on the returned function that clears the timer.
+
+## When each applies
+
+Debounce bursty, restartable work (search, resize, autosave). Throttle
+continuous feedback (scroll, mousemove). Memoize pure, expensive, repeated
+calls — and cap the cache before it becomes the leak. Otherwise: delegate,
+bail early, render less.
+
+<Predict
+  title="Cached call"
+  answerLines="20\n20\n1"
+  explanation="The second identical call reuses the cache, so the function body runs once."
+>
+{`function memoize(fn) {
+  const cache = {};
+  return function (key) {
+    if (!(key in cache)) {
+      cache[key] = fn(key);
+    }
+    return cache[key];
+  };
+}
+let calls = 0;
+const price = memoize(function (id) {
+  calls = calls + 1;
+  return id * 10;
+});
+console.log(price(2));
+console.log(price(2));
+console.log(calls);`}
+</Predict>
+
+<InterviewQuestions topic="performance-patterns" />
+
+## Key takeaways
+
+- Debounce waits for silence; throttle meters a steady drip.
+- Memoize pure repeated calls; cap the cache.
+- Cheapest wins are structural: delegate, bail early, render less.
+
+## References
+
+- [Debounce and throttle patterns](https://developer.mozilla.org/en-US/docs/Web/API/Document/scroll_event).
+- [Lodash debounce](https://lodash.com/docs/#debounce).
+
+Last verified: 2026-10-12.

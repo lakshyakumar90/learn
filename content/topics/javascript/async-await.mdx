@@ -1,0 +1,83 @@
+---
+title: async/await and error handling
+description: Straight-line async code, try/catch, and the parallel patterns.
+---
+
+`async`/`await` writes asynchronous code that reads top-to-bottom: awaits
+for sequencing, `try`/`catch` for errors. Interviewers ask this because the
+syntax looks synchronous while the pitfalls (serial loops, uncaught
+rejections, fire-and-forget) are anything but.
+
+## Real-life situation
+
+A settings save retries a flaky endpoint with backoff: try, wait a little
+longer each time, give up after three attempts with a real error. Written
+with `await`, the retry loop reads like its flowchart. Written with nested
+callbacks, the same logic hides behind three indent levels.
+
+## Visual
+
+<ScenarioPlayer scenario="event-loop-async-await" title="Await parks the function" />
+
+## Try it
+
+<CodeRunner title="Retry with backoff" expect="true\ntrue">
+{`async function fetchWithRetry(url, tries) {
+  let attempt = 0;
+  while (attempt < tries) {
+    try {
+      const res = await fakeFetch(url, { latencyMs: 5 });
+      return res;
+    } catch (error) {
+      attempt = attempt + 1;
+      await sleep(5);
+    }
+  }
+  throw new Error("gave up");
+}
+const res = await fetchWithRetry("/flaky", 3);
+console.log(res.ok);
+const data = await res.json();
+console.log(data.ok);`}
+</CodeRunner>
+
+Try dropping `tries` to `2` and watch it give up. Then retry `/missing` and
+explain why backoff never saves a 404.
+
+## When await helps, when it hurts
+
+Await for sequencing and error handling. Never await independent calls one
+by one — launch them all, gather once. And never fire-and-forget an async
+call in reviewed code: return it or catch it.
+
+<Predict
+  title="Await in a loop"
+  answerLines="2,4"
+  explanation="Each await waits its turn, so the outputs stay ordered even though promises could overlap."
+>
+{`async function run() {
+  const out = [];
+  for (const n of [1, 2]) {
+    out.push(await Promise.resolve(n * 2));
+  }
+  return out;
+}
+run().then(function (out) {
+  console.log(out[0] + "," + out[1]);
+});`}
+</Predict>
+
+<InterviewQuestions topic="async-await" />
+
+## Key takeaways
+
+- `async` wraps returns in promises; `await` parks only its function.
+- Rejected awaits throw at that line — guard with `try`/`catch`.
+- Launch independent work together; gather with `all` or `allSettled`.
+
+## References
+
+- [async function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function).
+- [await operator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await).
+
+Last verified: 2026-10-12.

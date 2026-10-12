@@ -1,0 +1,86 @@
+---
+title: Modern syntax
+description: Destructuring, spread and rest, chaining, nullish, and modules in short.
+---
+
+Modern syntax removes ceremony: names for the pieces, safe deep access,
+sane defaults. Interviewers ask this to check you write current JavaScript —
+and know which sugar hides real behavior (shared references, silent
+`undefined`).
+
+## Real-life situation
+
+A settings screen merges saved preferences over defaults, reads an
+optional support email, and totals a variable list of fees. Spread merges
+one level, `?.` short-circuits the missing contact, `??` keeps a real zero
+page number, and rest gathers the fees — four features, zero helper
+functions.
+
+## Visual
+
+<Diagram id="js-modules" />
+
+## Try it
+
+<CodeRunner title="Settings merge" expect="Ada <ada@example.com> (member)\n2\n1\nno email\na@b.co\n6">
+{`function renderCard(user) {
+  const { name, email, role } = user;
+  const label = role ?? "member";
+  return name + " <" + email + "> (" + label + ")";
+}
+const ada = { name: "Ada", email: "ada@example.com" };
+console.log(renderCard(ada));
+const base = { theme: "dark", page: 1 };
+const next = { ...base, page: 2 };
+console.log(next.page);
+console.log(base.page);
+const order = { id: 7 };
+console.log(order.customer?.email ?? "no email");
+const order2 = { id: 8, customer: { email: "a@b.co" } };
+console.log(order2.customer?.email ?? "no email");
+function total(...nums) {
+  return nums.reduce(function (s, n) {
+    return s + n;
+  }, 0);
+}
+console.log(total(1, 2, 3));`}
+</CodeRunner>
+
+Try giving `ada` a `role: ""` and watch `??` keep it while `||` would not.
+Then nest one more level in `base` and share it on purpose.
+
+## ES modules versus CommonJS, in short
+
+ES modules use static `import`/`export` that bundlers analyze and
+tree-shake; one file, one scope, always strict. CommonJS uses runtime
+`require`/`module.exports` — flexible but opaque. Browsers speak ESM; Node
+reads both and picks by extension and `package.json` type.
+
+```js
+import { total } from "./cart.js";
+```
+
+<Predict
+  title="Missing link"
+  answerLines="missing"
+  explanation="Optional chaining stops at the missing customer and yields undefined, which ?? replaces."
+>
+{`const order = {};
+console.log(order.customer?.email ?? "missing");`}
+</Predict>
+
+<InterviewQuestions topic="modern-syntax" />
+
+## Key takeaways
+
+- Destructure for names, spread to expand, rest to gather.
+- `?.` short-circuits missing links; `??` defaults only nullish values.
+- ESM is static and shakable; CommonJS is dynamic and opaque.
+
+## References
+
+- [Destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring).
+- [Modules guide](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules).
+- [Optional chaining](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining).
+
+Last verified: 2026-10-12.

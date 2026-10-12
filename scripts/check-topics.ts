@@ -1,38 +1,54 @@
 /**
  * Validate the Topics section. FAILS the build when:
  * - a meta.json lists a page that does not exist (no broken sidebar),
- * - a concept page misses a required section (summary, real-life
- *   situation, runnable example, mistakes, exercise, quiz, takeaways,
- *   references),
- * - a <Diagram id> does not resolve, an image misses alt text, or a
- *   <TopicMedia slot> is not registered with shot notes,
- * - a <ScenarioPlayer scenario> id is unknown.
- *
- * Non-concept pages (course home, how-to-use, indexes) are exempt via
- * NON_CONCEPT below.
+ * - a JavaScript concept page (pages 4-21) misses its structure: exactly
+ *   one visual (resolving Diagram of at most 12 nodes, a known
+ *   ScenarioPlayer, or a DOM demo), a runnable example of 15+ lines, an
+ *   <InterviewQuestions> block for its own slug, takeaways, References
+ *   with a link, or carries more than 450 words of prose,
+ * - questions.yaml breaks its contract (unique ids, known topics,
+ *   answers of at most 120 words),
+ * - puzzles/challenges/bank/index miss their required blocks,
+ * - removed component tags (LiveDemo, Illustration, TopicMedia, Practical
+ *   and friends) appear in the JavaScript topic, or an image lacks alt.
  *
  * Usage: pnpm check-topics (runs in `prebuild`).
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
-import { load as loadYaml } from 'js-yaml';
+import { join, relative, basename } from 'node:path';
 import { getScenario, scenarioIds } from '../content/scenarios';
 import { getDiagramSpec } from '../content/diagrams';
+import { prose, snippets, wordCount } from './javascript-content';
+import { validateQuestions } from '../src/lib/interview';
 
 const ROOT = join(__dirname, '..');
 const TOPICS = join(ROOT, 'content', 'topics');
+const JS = join(TOPICS, 'javascript');
 
-const NON_CONCEPT = new Set(
-  [
-    'index.mdx',
-    'javascript/index.mdx',
-    'javascript/start-here/how-to-use.mdx',
-    // Reference pages: lookups, not lessons — exempt from section rules.
-    'javascript/practice/cheat-sheet.mdx',
-    'javascript/practice/glossary.mdx',
-    'javascript/practice/further-reading.mdx',
-  ].map((p) => join(TOPICS, p)),
-);
+/** JavaScript pages that adapt the template (not concept pages). */
+const JS_NON_CONCEPT = new Set([
+  'index.mdx',
+  'why-javascript.mdx',
+  'how-it-works.mdx',
+  'pros-cons.mdx',
+  'question-bank.mdx',
+  'puzzles.mdx',
+  'challenges.mdx',
+  'cheat-sheet.mdx',
+]);
+
+const REMOVED_TAGS = [
+  'LiveDemo',
+  'Illustration',
+  'Storyboard',
+  'AnnotatedImage',
+  'TopicMedia',
+  'RealWorld',
+  'WhenToUse',
+  'CodeCompare',
+  'BugHunt',
+  'TopicRedirect',
+];
 
 const errors: string[] = [];
 let pages = 0;
@@ -76,69 +92,103 @@ function hasHeading(text: string, re: RegExp): boolean {
   return text.split('\n').some((line) => re.test(line));
 }
 
+function checkDiagramUsages(text: string, rel: string): void {
+  for (const match of text.matchAll(/<Diagram\s+id="([^"]+)"\s*\/>/g)) {
+    try {
+      const spec = getDiagramSpec(match[1]);
+      if (!spec) fail(`${rel} references unknown diagram "${match[1]}"`);
+      else if (spec.nodes.length > 12) {
+        fail(`${rel}: diagram "${match[1]}" has ${spec.nodes.length} nodes (max 12)`);
+      }
+    } catch {
+      fail(`${rel} references unknown diagram "${match[1]}"`);
+    }
+  }
+}
+
+function checkScenarioUsages(text: string, rel: string): void {
+  for (const match of text.matchAll(/<ScenarioPlayer\s+scenario="([^"]+)"/g)) {
+    if (!scenarioIds().includes(match[1])) {
+      fail(`${rel} references unknown scenario "${match[1]}"`);
+    } else {
+      const { data, steps } = getScenario(match[1]);
+      for (const key of Object.keys(data.notes ?? {})) {
+        if (Number(key) >= steps.length) {
+          fail(`${rel} scenario "${match[1]}" note index ${key} is out of range`);
+        }
+      }
+    }
+  }
+}
+
 function checkConceptPage(file: string): void {
   pages += 1;
   const rel = relative(ROOT, file);
+  const slug = basename(file, '.mdx');
   const text = readFileSync(file, 'utf8');
   const need = (ok: boolean, what: string) => {
     if (!ok) fail(`${rel} is missing ${what}`);
   };
 
-  if (!rel.replaceAll("\\", "/").startsWith("content/topics/javascript/")) {
-  need(hasHeading(text, /^#{1,3}\s+.*(one sentence|summary)/im), 'a one-sentence summary section');
-  need(
-    /Why it matters/i.test(text) || /variant="real-life"/.test(text),
-    '"Why it matters" with a real situation (or a real-life ConceptCard)',
-  );
-  need(
-    /<CodeRunner[\s>]/.test(text) || /<Predict[\s>]/.test(text) || /<Exercise[\s>]/.test(text),
-    'at least one runnable example (CodeRunner, Predict, or Exercise)',
-  );
-  need(/Common mistakes/i.test(text) || /variant="mistake"/.test(text), '"Common mistakes" (or a mistake ConceptCard)');
-  need(/Try it|Run tests|<Exercise[\s>]/.test(text), 'a "Try it" exercise');
-  need(/Check yourself|<Quiz[\s>]/.test(text), '"Check yourself" quiz questions');
-  need(hasHeading(text, /^#{1,3}\s+.*takeaway/im), 'key takeaways');
-  need(hasHeading(text, /^#{1,3}\s+.*reference/im) && /https?:\/\//.test(text), 'References with at least one link');
-
-  } else {
-    need(/## References/.test(text) && /https?:\/\//.test(text), "References with sources");
+  const diagrams = [...text.matchAll(/<Diagram\s+id="([^"]+)"\s*\/>/g)].map((m) => m[1]);
+  const scenarios = [...text.matchAll(/<ScenarioPlayer\s+scenario="([^"]+)"/g)].map((m) => m[1]);
+  // The visual is look-don't-touch (Diagram or ScenarioPlayer, exactly
+  // one); env=dom CodeRunners are interactive runnables, counted below.
+  const visualCount = diagrams.length + scenarios.length;
+  need(visualCount >= 1, 'a visual (Diagram or ScenarioPlayer)');
+  if (visualCount > 1) {
+    fail(`${rel} has ${visualCount} visuals (exactly one per concept page)`);
   }
 
-  // Diagrams must resolve; images need alt text or captions.
-  for (const match of text.matchAll(/<Diagram\s+id="([^"]+)"\s*\/>/g)) {
-    try {
-      const spec = getDiagramSpec(match[1]);
-      if (!spec) fail(`${rel} references unknown diagram "${match[1]}"`);
-      if (match[1].startsWith('js-') && spec && spec.nodes.length > 12) fail(`${rel}: JavaScript diagrams must have at most 12 nodes`);
-    } catch {
-      fail(`${rel} references unknown diagram "${match[1]}"`);
+  const longest = Math.max(
+    0,
+    ...snippets(text)
+      .filter((s) => ['CodeRunner', 'Predict', 'Exercise'].includes(s.kind))
+      .map((s) => s.code.split('\n').length),
+  );
+  need(longest >= 15, `a runnable example of 15+ lines (longest is ${longest})`);
+
+  const topics = [...text.matchAll(/<InterviewQuestions\s+topic="([^"]+)"/g)].map((m) => m[1]);
+  need(topics.length >= 1, 'an <InterviewQuestions> block');
+  for (const t of topics) {
+    if (t !== slug) fail(`${rel}: InterviewQuestions topic "${t}" must match the page slug`);
+  }
+
+  need(hasHeading(text, /^#{1,3}\s+.*takeaway/im), 'key takeaways');
+  need(
+    hasHeading(text, /^#{1,3}\s+.*reference/im) && /https?:\/\//.test(text),
+    'References with at least one link',
+  );
+
+  const words = wordCount(prose(text));
+  if (words > 450) fail(`${rel} has ${words} words of prose (max 450)`);
+}
+
+function checkSpecialPage(file: string): void {
+  const rel = relative(ROOT, file);
+  const slug = basename(file, '.mdx');
+  const text = readFileSync(file, 'utf8');
+  if (slug === 'puzzles') {
+    const count = [...text.matchAll(/<Predict\b/g)].length;
+    if (count < 12) fail(`${rel} has ${count} puzzles (need 12)`);
+    for (const m of text.matchAll(/<Predict\b([\s\S]*?)>/g)) {
+      if (!/answerLines=/.test(m[1])) fail(`${rel}: a <Predict> is missing answerLines`);
     }
   }
-  for (const match of text.matchAll(/!\[([^\]]*)\]\(([^)]+)\)/g)) {
-    if (match[1].trim().length === 0) fail(`${rel} has an image without alt text: ${match[2]}`);
-  }
-  // Scenario ids must exist.
-  for (const match of text.matchAll(/<ScenarioPlayer\s+scenario="([^"]+)"/g)) {
-    if (!scenarioIds().includes(match[1])) fail(`${rel} references unknown scenario "${match[1]}"`);
-    else {
-      // Step-override indices must be in range.
-      const { data, steps } = getScenario(match[1]);
-      for (const key of Object.keys(data.notes ?? {})) {
-        if (Number(key) >= steps.length) fail(`${rel} scenario "${match[1]}" note index ${key} is out of range`);
+  if (slug === 'challenges') {
+    const blocks = [...text.matchAll(/<Exercise\b([\s\S]*?)>([\s\S]*?)<\/Exercise>/g)];
+    if (blocks.length < 10) fail(`${rel} has ${blocks.length} challenges (need 10)`);
+    for (const b of blocks) {
+      if (!/tests=\{`/.test(b[1]) || !/solution=\{`/.test(b[1])) {
+        fail(`${rel}: an <Exercise> is missing tests or solution`);
       }
     }
   }
-  // TopicMedia slots must be registered with shot notes.
-  for (const match of text.matchAll(/<TopicMedia\s+topic="([^"]+)"\s+slot="([^"]+)"/g)) {
-    const mediaFile = join(TOPICS, match[1], 'media.yaml');
-    if (!existsSync(mediaFile)) {
-      fail(`${rel} references media.yaml that does not exist: ${match[1]}`);
-      continue;
-    }
-    const media = loadYaml(readFileSync(mediaFile, 'utf8')) as { slots?: Record<string, { note?: string }> };
-    const slot = media?.slots?.[match[2]];
-    if (!slot) fail(`${rel} references unregistered media slot "${match[2]}"`);
-    else if (!slot.note) fail(`${rel} media slot "${match[2]}" has no shot note`);
+  if (slug === 'question-bank' && !/<QuestionBank[\s>]/.test(text)) {
+    fail(`${rel} is missing the <QuestionBank> block`);
+  }
+  if (slug === 'index' && !/<img\b[^>]*\balt="[^"]+"/.test(text)) {
+    fail(`${rel} hero image needs alt text`);
   }
 }
 
@@ -146,8 +196,32 @@ function main(): void {
   checkMeta(TOPICS);
   for (const file of walk(TOPICS)) {
     if (!file.endsWith('.mdx')) continue;
-    if (!NON_CONCEPT.has(file)) checkConceptPage(file);
+    const rel = relative(ROOT, file);
+    const norm = rel.replaceAll('\\', '/');
+    if (!norm.startsWith('content/topics/javascript/')) continue;
+    const name = basename(file);
+    for (const tag of REMOVED_TAGS) {
+      if (new RegExp(`<${tag}[\\s>]`).test(readFileSync(file, 'utf8'))) {
+        fail(`${rel} uses removed component <${tag}>`);
+      }
+    }
+    checkDiagramUsages(readFileSync(file, 'utf8'), rel);
+    checkScenarioUsages(readFileSync(file, 'utf8'), rel);
+    for (const match of readFileSync(file, 'utf8').matchAll(/!\[([^\]]*)\]\(([^)]+)\)/g)) {
+      if (match[1].trim().length === 0) fail(`${rel} has an image without alt text: ${match[2]}`);
+    }
+    for (const match of readFileSync(file, 'utf8').matchAll(/<img\b([^>]*)>/g)) {
+      if (!/\balt="[^"]+"/.test(match[1])) fail(`${rel} has an <img> without alt text`);
+    }
+    if (JS_NON_CONCEPT.has(name)) checkSpecialPage(file);
+    else checkConceptPage(file);
   }
+
+  // Questions contract against the real sidebar slugs.
+  const meta = JSON.parse(readFileSync(join(JS, 'meta.json'), 'utf8')) as { pages: string[] };
+  const slugs = meta.pages.filter((p) => !p.startsWith('---'));
+  for (const e of validateQuestions(slugs)) fail(e);
+
   console.log(`check-topics: ${pages} concept page(s) validated.`);
   if (errors.length > 0) {
     for (const e of errors) console.error(`\nFAIL ${e}`);

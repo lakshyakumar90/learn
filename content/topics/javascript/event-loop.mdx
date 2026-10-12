@@ -1,0 +1,86 @@
+---
+title: The event loop
+description: The flagship page — stack, queues, and the order everything runs in.
+---
+
+One thread runs your code; everything slow waits in queues, and the loop
+feeds them onto the stack when it's free. This page is the most-asked
+JavaScript interview topic because the sync-timer-promise order puzzle
+appears in screens, onsites and take-homes alike.
+
+## Real-life situation
+
+A dashboard logs "loading", fires a data fetch, schedules a refresh timer
+and logs "ready". Users report the timer beating the data although both were
+"immediate". The cause is queue priority, not speed: the promise reaction
+drains as a microtask right after the script, while the zero-delay timer
+waits a full loop turn. Knowing the order turns a mystery into a schedule.
+
+Seen in: Node.js documents its loop phases, timers and `nextTick` ordering
+in the official event loop guide (Node.js, 2009,
+[event loop guide](https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick)).
+
+## Visual
+
+<ScenarioPlayer scenario="event-loop-micro-vs-macro" title="Sync, promise, timer" />
+
+## Try it
+
+<CodeRunner title="Who runs when" expect="script start\nscript end\nload start\nafter call\npromise\ntimer\nload done">
+{`console.log("script start");
+setTimeout(function () {
+  console.log("timer");
+}, 0);
+Promise.resolve().then(function () {
+  console.log("promise");
+});
+console.log("script end");
+async function load() {
+  console.log("load start");
+  await sleep(10);
+  console.log("load done");
+}
+load();
+console.log("after call");
+// Timers wait a full turn; promises drain first.`}
+</CodeRunner>
+
+Try changing the timer delay to `20` and predict before running. Then move
+the promise below `load()` and check the order holds.
+
+## Browser versus Node, briefly
+
+Browsers add a render step per turn; Node runs timer, I/O and check phases
+per iteration. Both drain microtasks the same way. Node-only extras:
+`process.nextTick` (before even promises) and `setImmediate` (next check
+phase). Same mental model, different machinery.
+
+<Predict
+  title="The classic trio"
+  answerLines="a\nc\nb"
+  explanation="Sync first, then the microtask promise, then the timer after a full turn."
+>
+{`console.log("a");
+setTimeout(function () {
+  console.log("b");
+}, 0);
+Promise.resolve().then(function () {
+  console.log("c");
+});`}
+</Predict>
+
+<InterviewQuestions topic="event-loop" />
+
+## Key takeaways
+
+- Sync runs first, microtasks drain completely, then one task per turn.
+- Zero-delay timers still wait a full turn; promises don't.
+- `await` parks the function, never the thread.
+
+## References
+
+- [Event loop guide (Node)](https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick).
+- [Concurrency model (MDN)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop).
+- [HTML event loops](https://html.spec.whatwg.org/multipage/webappapis.html#event-loops).
+
+Last verified: 2026-10-12.

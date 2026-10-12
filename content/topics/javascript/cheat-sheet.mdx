@@ -1,0 +1,42 @@
+---
+title: Cheat sheet and 30-second answers
+description: One page of ready-to-say answers for the night before.
+---
+
+Thirty seconds each, out loud, no notes. If any answer wobbles, follow its
+link back to the full page.
+
+## Language
+
+| Question | 30-second answer |
+|---|---|
+| `var` vs `let` vs `const`? | Function scope and hoisted-undefined versus block scope and dead zone; `const` locks rebinding, not contents. ([variables](/topics/javascript/variables-scope-hoisting)) |
+| `==` vs `===`? | Strict compares type and value; loose converts — `0 == ""` is true. Always `===`. ([types](/topics/javascript/data-types-coercion)) |
+| `null` vs `undefined`? | Missing versus deliberately empty; JS makes `undefined`, you choose `null`. ([types](/topics/javascript/data-types-coercion)) |
+| Copy an object? | Spread is shallow; `structuredClone` is deep but drops functions. ([values](/topics/javascript/values-references-copying)) |
+| Arrow vs function? | Arrows inherit `this` and can't be constructed; functions get `this` from the call. ([functions](/topics/javascript/functions)) |
+| What is a closure? | A function plus its creation scope, live-linked — privacy and callbacks. ([closures](/topics/javascript/closures)) |
+| Predict `this`? | Read the call: method, bare, explicit, `new`; arrows inherit. ([this](/topics/javascript/this-keyword)) |
+| Classes real? | Constructors plus prototypes with safer defaults; debug in prototypes. ([objects](/topics/javascript/objects-prototypes-classes)) |
+| `map` vs `forEach`? | `map` returns a transformed array; `forEach` returns nothing and only side-effects. ([arrays](/topics/javascript/arrays)) |
+| Sort numbers? | Never default sort — `sort((a, b) => a - b)` on a copy. ([arrays](/topics/javascript/arrays)) |
+| `??` vs `\|\|`? | Nullish defaults only nullish; OR defaults all falsy. Zero stays with `??`. ([syntax](/topics/javascript/modern-syntax)) |
+
+## Running and async
+
+| Question | 30-second answer |
+|---|---|
+| Call stack? | Frames push on call, pop on return; overflow means no base case. ([stack](/topics/javascript/call-stack)) |
+| Sync, promise, timer order? | Script, microtasks drain, then timers — every time. ([loop](/topics/javascript/event-loop)) |
+| What is a promise? | Pending once, then fulfilled or rejected forever; return every step. ([promises](/topics/javascript/promises)) |
+| `all` vs `allSettled` vs `race` vs `any`? | Strict, reporter, first-settled, first-success. ([promises](/topics/javascript/promises)) |
+| `await` in a loop? | Serializes independent work — launch all, gather once. ([async](/topics/javascript/async-await)) |
+| `fetch` gotchas? | Two awaits plus `ok` check; rejects on network failure only. ([fetch](/topics/javascript/fetch-storage)) |
+| Debounce vs throttle? | Silence-then-fire versus at-most-per-interval. ([perf](/topics/javascript/performance-patterns)) |
+| Event delegation? | One parent listener, `event.target.closest` — covers future rows. ([dom](/topics/javascript/dom-events)) |
+| Memory leaks? | Stray timers, detached DOM, unbounded caches — every setup needs teardown. ([memory](/topics/javascript/memory-gc)) |
+
+## References
+
+- [JavaScript language reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference).
+- [Interview question bank](/topics/javascript/question-bank).

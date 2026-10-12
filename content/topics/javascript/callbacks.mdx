@@ -1,0 +1,94 @@
+---
+title: Callbacks and callback hell
+description: Error-first callbacks, nesting, and the escapes that actually work.
+---
+
+A callback is a function you hand over to run later — and nesting them
+turns error handling into a rightward pyramid. Interviewers ask this
+because the pyramid is style, but the trust problem underneath (called
+once? called ever?) is why promises exist.
+
+## Real-life situation
+
+A profile page loads the user, then their orders, with error handling at
+each step. Nested inline, the happy path drifts right and every level
+repeats its guard. Named functions flatten it back — and promisifying ends
+the nesting for good.
+
+Seen in: Express 4 error middleware receives errors through `next(err)`,
+the error-first convention at framework scale (Express 4, 2014,
+[error handling](https://expressjs.com/en/guide/error-handling/)).
+
+## Visual
+
+<Diagram id="js-callbacks" />
+
+## Try it
+
+<CodeRunner title="Nested profile load" expect="ada:2">
+{`function readUser(id, done) {
+  setTimeout(function () {
+    done(null, { id: id, name: "ada" });
+  }, 5);
+}
+function readOrders(user, done) {
+  setTimeout(function () {
+    done(null, ["book", "pen"]);
+  }, 5);
+}
+readUser(1, function (error, user) {
+  if (error) {
+    console.log("user failed");
+    return;
+  }
+  readOrders(user, function (err, orders) {
+    if (err) {
+      console.log("orders failed");
+      return;
+    }
+    console.log(user.name + ":" + orders.length);
+  });
+});`}
+</CodeRunner>
+
+Try deleting the `if (error)` guard and passing a failing reader — watch the
+crash move somewhere unhelpful. Then extract both inline callbacks into
+named functions and feel the pyramid flatten.
+
+## When callbacks still win
+
+Single-shot "when" events with no failure mode: listeners, timers, array
+iteration. Callbacks for events, promises for operations — and convert at
+the boundary with a wrapper instead of mixing both in one flow.
+
+<Predict
+  title="Error first"
+  answerLines="caught"
+  explanation="Error-first callbacks put the failure in parameter one; the guard returns before touching data."
+>
+{`function load(done) {
+  done(new Error("offline"));
+}
+load(function (error, data) {
+  if (error) {
+    console.log("caught");
+    return;
+  }
+  console.log(data);
+});`}
+</Predict>
+
+<InterviewQuestions topic="callbacks" />
+
+## Key takeaways
+
+- Callbacks hand control to someone else: called once, ever, with what args?
+- Error-first means `(err, data)` with an early bail on `err`.
+- Flatten with named functions; escape with promises and `await`.
+
+## References
+
+- [Callbacks (MDN glossary)](https://developer.mozilla.org/en-US/docs/Glossary/Callback_function).
+- [Express error handling](https://expressjs.com/en/guide/error-handling/).
+
+Last verified: 2026-10-12.

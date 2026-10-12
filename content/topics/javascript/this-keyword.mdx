@@ -1,0 +1,84 @@
+---
+title: The this keyword
+description: The four rules, arrows, and call, apply and bind.
+---
+
+`this` is decided by the call, not the definition — which is why the same
+method works on its object and breaks the moment you pass it as a callback.
+Interviewers ask this because "lost context" bugs hide in every event
+handler and timer.
+
+## Real-life situation
+
+A login form object has a `greeting` method using `this.user`. Called as
+`loginForm.greeting()`, it works. Handed to a button as a callback, the dot
+is gone, `this` is no longer the form, and the greeting shows `undefined`.
+Binding once at handoff — or wrapping in an arrow — keeps the receiver.
+
+Seen in: React class components bind handlers in the constructor for exactly
+this reason (React 16, 2017,
+[Component reference](https://react.dev/reference/react/Component)).
+
+## Visual
+
+<Diagram id="js-this" />
+
+## Try it
+
+<CodeRunner title="Losing the dot" expect="hi ada\nhi undefined\nhi ada\nada from Lagos\nada from Abuja">
+{`const loginForm = {
+  user: "ada",
+  greeting: function () {
+    return "hi " + this.user;
+  },
+};
+console.log(loginForm.greeting());
+const loose = loginForm.greeting;
+console.log(loose());
+const bound = loginForm.greeting.bind(loginForm);
+console.log(bound());
+function welcome(city) {
+  return this.user + " from " + city;
+}
+console.log(welcome.call(loginForm, "Lagos"));
+console.log(welcome.apply(loginForm, ["Abuja"]));`}
+</CodeRunner>
+
+Try wrapping the callback as `function () { return loginForm.greeting(); }`
+instead of binding. Then try `welcome.call(null, "Lagos")` and explain it.
+
+## When to bind, when to arrow
+
+Bind (or wrap) at handoff: listeners, timers, array callbacks. Arrow for
+callbacks written inside methods that must keep the outer `this`. Never
+`bind` an arrow — it has no `this` to set.
+
+<Predict
+  title="Detached method"
+  answerLines="hi undefined"
+  explanation="Passing the method drops the receiver, so this is no longer the form when it runs."
+>
+{`const inbox = {
+  user: "meera",
+  read: function () {
+    return "hi " + this.user;
+  },
+};
+const later = inbox.read;
+console.log(later());`}
+</Predict>
+
+<InterviewQuestions topic="this-keyword" />
+
+## Key takeaways
+
+- `this` comes from the call: method, bare call, explicit set, or `new`.
+- Losing the dot loses the receiver — bind or wrap at handoff.
+- Arrows inherit `this` and ignore `call`, `apply` and `bind`.
+
+## References
+
+- [this reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this).
+- [bind reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind).
+
+Last verified: 2026-10-12.

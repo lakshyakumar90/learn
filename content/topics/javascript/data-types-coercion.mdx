@@ -1,0 +1,78 @@
+---
+title: Data types and type coercion
+description: typeof quirks, null versus undefined, NaN, equality, and truthy traps.
+---
+
+JavaScript converts types behind your back in exactly the spots where money
+and access checks live. Interviewers ask this to see whether you can predict
+an expression's value — and defend user input against silent conversion.
+
+## Real-life situation
+
+A cart form sends price and quantity as strings. `"4" + 2` totals `"42"`
+instead of `6`, and the order goes through overcharged. The fix is boring on
+purpose: convert with `Number()` at the boundary, reject `NaN`, and compare
+with `===` so types can never sneak past.
+
+## Visual
+
+<Diagram id="js-coercion" />
+
+## Try it
+
+<CodeRunner title="String money versus real money" expect="42\n6\n6\nbad price\n4">
+{`function cartTotal(price, quantity) {
+  return price + quantity;
+}
+console.log(cartTotal("4", 2));
+console.log(cartTotal(4, 2));
+function safeTotal(price, quantity) {
+  const cleanPrice = Number(price);
+  const cleanQuantity = Number(quantity);
+  if (Number.isNaN(cleanPrice)) {
+    return "bad price";
+  }
+  if (Number.isNaN(cleanQuantity)) {
+    return "bad quantity";
+  }
+  return cleanPrice + cleanQuantity;
+}
+console.log(safeTotal("4", 2));
+console.log(safeTotal("four", 2));
+console.log(safeTotal(4, 0));`}
+</CodeRunner>
+
+Try changing the last call to `safeTotal(4, "")` and explain why the result
+is `4`, not `"bad quantity"`. Then try `safeTotal(0, 0)`.
+
+## When to convert, when to compare
+
+Convert at boundaries (forms, URLs, storage) with `Number()` or `String()`
+and nowhere else. Compare with `===` always; reach for `==` never. When `0`
+or `""` are valid values, default with `??`, not `||`.
+
+<Predict
+  title="Loose versus strict"
+  answerLines="true\nfalse\ntrue"
+  explanation="Loose equality converts: 0 equals empty string, and null equals undefined. Strict equality never converts."
+>
+{`console.log(0 == "");
+console.log(0 === "");
+console.log(null == undefined);`}
+</Predict>
+
+<InterviewQuestions topic="data-types-coercion" />
+
+## Key takeaways
+
+- `+` concatenates when either side is a string; convert inputs first.
+- `===` compares type and value; `==` converts and surprises.
+- Eight falsy values exist; empty arrays and objects are truthy.
+
+## References
+
+- [Equality comparisons](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Equality_comparisons_and_sameness).
+- [typeof operator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof).
+- [Truthy and falsy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy).
+
+Last verified: 2026-10-12.
