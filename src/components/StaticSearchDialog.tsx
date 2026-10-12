@@ -21,8 +21,28 @@ interface SearchEntry {
   text: string;
 }
 
+interface CatalogHit {
+  url: string;
+  title: string;
+  summary: string;
+  badge: string;
+}
+
+interface CatalogRecord {
+  id: string;
+  collection: string;
+  title: string;
+  summary: string;
+  href: string;
+  tags: string[];
+  keywords: string[];
+  status: string;
+}
+
 let cachedIndex: SearchEntry[] | null = null;
 let inflight: Promise<SearchEntry[]> | null = null;
+let cachedCatalog: CatalogRecord[] | null = null;
+let catalogInflight: Promise<CatalogRecord[]> | null = null;
 
 function loadIndex(): Promise<SearchEntry[]> {
   if (cachedIndex) return Promise.resolve(cachedIndex);
@@ -36,6 +56,40 @@ function loadIndex(): Promise<SearchEntry[]> {
       .catch(() => [] as SearchEntry[]);
   }
   return inflight;
+}
+
+function loadCatalog(): Promise<CatalogRecord[]> {
+  if (cachedCatalog) return Promise.resolve(cachedCatalog);
+  if (!catalogInflight) {
+    catalogInflight = fetch('/catalog.json')
+      .then((res) => (res.ok ? (res.json() as Promise<CatalogRecord[]>) : []))
+      .then((records) => {
+        cachedCatalog = records;
+        return records;
+      })
+      .catch(() => [] as CatalogRecord[]);
+  }
+  return catalogInflight;
+}
+
+const COLLECTION_BADGE: Record<string, string> = {
+  topics: 'Topic',
+  projects: 'Project',
+  books: 'Book',
+};
+
+/** Catalog cards rank above page results; soon items stay findable. */
+function scoreCatalog(record: CatalogRecord, tokens: string[]): number {
+  const title = record.title.toLowerCase();
+  const tags = [...record.tags, ...record.keywords].join(' ').toLowerCase();
+  const summary = record.summary.toLowerCase();
+  let total = 0;
+  for (const token of tokens) {
+    if (title.includes(token)) total += 5;
+    if (tags.includes(token)) total += 3;
+    if (summary.includes(token)) total += 2;
+  }
+  return total;
 }
 
 function score(entry: SearchEntry, tokens: string[]): number {
@@ -61,15 +115,26 @@ function breadcrumb(entry: SearchEntry): string {
 export function StaticSearchDialog({ open, onOpenChange, links = [] }: StaticSearchProps) {
   const [query, setQuery] = useState('');
   const [entries, setEntries] = useState<SearchEntry[]>([]);
+  const [catalog, setCatalog] = useState<CatalogRecord[]>([]);
   const [active, setActive] = useState(0);
+  const [prevOpen, setPrevOpen] = useState(open);
   const inputRef = useRef<HTMLInputElement>(null);
   const listId = useId();
 
+  // Reset on open during render (the documented prev-value pattern —
+  // no setState-in-effect needed).
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (open) {
+      setQuery('');
+      setActive(0);
+    }
+  }
+
   useEffect(() => {
     if (!open) return;
-    setQuery('');
-    setActive(0);
     loadIndex().then(setEntries);
+    loadCatalog().then(setCatalog);
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const t = window.setTimeout(() => inputRef.current?.focus(), 0);
@@ -79,23 +144,44 @@ export function StaticSearchDialog({ open, onOpenChange, links = [] }: StaticSea
     };
   }, [open ]);
 
+  /** Catalog cards first (max 4), then page results. */
   const results = useMemo(() => {
     const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
     if (tokens.length === 0) return [];
-    return entries
+    const cards: CatalogHit[] = catalog
+      .map((record) => ({ record, rank: scoreCatalog(record, tokens) }))
+      .filter((r) => r.rank > 0)
+      .sort((a, b) => b.rank - a.rank)
+      .slice(0, 4)
+      .map((r) => ({
+        url: r.record.href,
+        title: r.record.title,
+        summary: r.record.summary,
+        badge: COLLECTION_BADGE[r.record.collection] ?? r.record.collection,
+      }));
+    const pages = entries
       .map((entry) => ({ entry, rank: score(entry, tokens) }))
       .filter((r) => r.rank > 0)
       .sort((a, b) => b.rank - a.rank)
-      .slice(0, 12)
-      .map((r) => r.entry);
-  }, [entries, query]);
+      .slice(0, 8)
+      .map((r) => ({
+        url: r.entry.url,
+        title: r.entry.title,
+        summary: r.entry.description,
+        badge: r.entry.project ?? null,
+        crumb: breadcrumb(r.entry),
+      }));
+    return [...cards.map((c) => ({ ...c, crumb: '' })), ...pages];
+  }, [entries, catalog, query]);
 
-  useEffect(() => setActive(0), [results.length, query]);
+  // Clamp instead of resetting via effect: the index always points at a
+  // real row, and typing resets it through the input handler below.
+  const safeActive = Math.min(active, Math.max(results.length - 1, 0));
 
   if (!open) return null;
 
   const showLinks = query.trim() === '';
-  const activeId = results.length > 0 ? `${listId}-option-${active}` : undefined;
+  const activeId = results.length > 0 ? `${listId}-option-${safeActive}` : undefined;
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
@@ -107,7 +193,7 @@ export function StaticSearchDialog({ open, onOpenChange, links = [] }: StaticSea
       e.preventDefault();
       setActive((a) => (a - 1 + results.length) % results.length);
     } else if (e.key === 'Enter' && results.length > 0) {
-      const target = results[Math.min(active, results.length - 1)];
+      const target = results[safeActive];
       if (target) {
         onOpenChange(false);
         window.location.href = target.url;
@@ -132,7 +218,10 @@ export function StaticSearchDialog({ open, onOpenChange, links = [] }: StaticSea
           <input
             ref={inputRef}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setActive(0);
+            }}
             onKeyDown={onKeyDown}
             type="text"
             role="combobox"
@@ -167,32 +256,34 @@ export function StaticSearchDialog({ open, onOpenChange, links = [] }: StaticSea
           </ul>
         ) : results.length > 0 ? (
           <ul id={listId} role="listbox" aria-label="Results" className="max-h-80 overflow-y-auto p-2">
-            {results.map((entry, i) => (
+            {results.map((result, i) => (
               <li
-                key={entry.url}
+                key={result.url}
                 id={`${listId}-option-${i}`}
                 role="option"
-                aria-selected={i === active}
+                aria-selected={i === safeActive}
               >
                 <Link
-                  href={entry.url}
+                  href={result.url}
                   onClick={() => onOpenChange(false)}
                   onMouseMove={() => setActive(i)}
                   className={`flex items-start gap-2 rounded-lg px-3 py-2.5 text-sm ${
-                    i === active ? 'bg-stone-100 dark:bg-stone-900' : ''
+                    i === safeActive ? 'bg-stone-100 dark:bg-stone-900' : ''
                   }`}
                 >
                   <FileText size={14} className="mt-0.5 shrink-0 opacity-50" aria-hidden />
                   <span>
-                    <span className="block font-medium">{entry.title}</span>
-                    <span className="block text-xs opacity-60">{breadcrumb(entry)}</span>
-                    {entry.project ? (
+                    <span className="block font-medium">{result.title}</span>
+                    {result.crumb ? (
+                      <span className="block text-xs opacity-60">{result.crumb}</span>
+                    ) : null}
+                    {result.badge ? (
                       <span className="mt-1 inline-block rounded-full border px-2 py-0.5 text-[11px] font-medium opacity-80">
-                        {entry.project}
+                        {result.badge}
                       </span>
                     ) : null}
-                    {entry.description ? (
-                      <span className="mt-0.5 block text-xs opacity-70">{entry.description}</span>
+                    {result.summary ? (
+                      <span className="mt-0.5 block text-xs opacity-70">{result.summary}</span>
                     ) : null}
                   </span>
                 </Link>

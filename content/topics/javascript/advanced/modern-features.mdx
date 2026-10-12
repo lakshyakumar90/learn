@@ -1,0 +1,199 @@
+---
+title: Modern and upcoming features
+description: "A zero discount becomes ten and missing customer data crashes checkout."
+---
+
+A zero discount becomes ten and missing customer data crashes checkout. Apply nullish defaults deliberately.
+
+<CodeRunner title="Reproduce: Falsy defaults replace a valid zero" expect="10">
+{`const price = 0;
+const total = price || 10;
+console.log(total);`}
+</CodeRunner>
+
+## Where you've already seen it
+
+<RealWorld items={[
+  {
+    "name": "Underscore",
+    "detail": "IsFinite rejects non-finite numeric values.",
+    "source": "https://underscorejs.org/docs/modules/isFinite.html",
+    "year": 2026
+  },
+  {
+    "name": "Node.js",
+    "detail": "Util types distinguishes runtime objects for diagnostic code.",
+    "source": "https://nodejs.org/api/util.html#utiltypes",
+    "year": 2026
+  },
+  {
+    "name": "Zod",
+    "detail": "Coercion schemas convert incoming values before validation.",
+    "source": "https://zod.dev/api#coercion",
+    "year": 2026
+  }
+]} />
+
+The year labels the documentation checked, not the first release or adoption date.
+
+## How it works
+
+<Diagram id="js-types" />
+
+Nullish coalescing preserves zero and empty strings. Optional access stops at a missing link but does not validate the final type.
+
+Follow the highlighted step or expand the diagram to inspect the boundary. The visual describes execution or data ownership; timing and memory totals are not inferred from its animation.
+
+## Build it
+
+### Start with the naive version
+
+<CodeCompare title="Make the boundary explicit" before={`const price = 0;
+const total = price || 10;
+console.log(total);`} after={`const price = 0;
+const total = price ?? 10;
+console.log(total);`} />
+
+### Find its limit
+
+Falsy defaults replace a valid zero. Change the input and predict the output before you run it. The failure comes from a specific default, lifetime or ownership assumption; keep that assumption visible in the test.
+
+### Build the working version
+
+<CodeRunner title="Build: Modern and upcoming features" expect="Meera\nzero discount 0\nguest Guest\nitems 1\ncontract true">
+{`const incoming = {
+  customer: { name: "Meera" },
+  discount: 0,
+  items: [{ name: "tea", quantity: 2 }],
+};
+function summarize(order) {
+  const name = order.customer?.name ?? "Guest";
+  const discount = order.discount ?? 10;
+  const items = order.items ?? [];
+  const sorted = [...items].sort((first, second) => {
+    return first.name.localeCompare(second.name);
+  });
+  return { name, discount, count: sorted.length };
+}
+console.log(summarize(incoming).name);
+console.log("zero discount", summarize(incoming).discount);
+console.log("guest", summarize({}).name);
+console.log("items", summarize(incoming).count);
+const contractChecks = [
+  summarize({}).name === "Guest",
+  summarize(incoming).discount === 0,
+];
+if (!contractChecks.every(Boolean)) {
+  throw new Error("The boundary contract was broken");
+}
+console.log("contract", contractChecks.every(Boolean));`}
+</CodeRunner>
+
+The console runner is an isolated browser worker. These core examples are also checked in Node; DOM behavior belongs to the browser frame, and fakeFetch is sample data rather than a real network request.
+
+## Why it works this way
+
+These examples avoid proposal-specific APIs. Check target engine support before adopting newer features rather than guessing availability.
+
+<ConceptCard variant="under-hood">
+Keep the operation's contract separate from its implementation. A faster path is useful only when it preserves the same outputs, error behavior and ownership rules; validate those boundaries before relying on a host-specific optimization.
+</ConceptCard>
+
+
+
+<WhenToUse use="external input needs explicit conversion" avoid="coercion would silently accept blanks" alternative="a schema and integer minor units" />
+
+## Mistakes that reach production
+
+### Falsy defaults replace a valid zero
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: Falsy defaults replace a valid zero" expect="10">
+{`const price = 0;
+const total = price || 10;
+console.log(total);`}
+</CodeRunner>
+
+<CodeRunner title="Fix: Falsy defaults replace a valid zero" expect="0">
+{`const price = 0;
+const total = price ?? 10;
+console.log(total);`}
+</CodeRunner>
+
+### Blank input becomes zero
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: Blank input becomes zero" expect="true">
+{`const input = "";
+const accepted = Number.isInteger(Number(input));
+console.log(accepted);`}
+</CodeRunner>
+
+<CodeRunner title="Fix: Blank input becomes zero" expect="false">
+{`const input = "";
+const accepted = input.trim() !== "" && Number.isInteger(Number(input));
+console.log(accepted);`}
+</CodeRunner>
+
+## Challenge
+
+Repair the starter so the boundary check passes. Then change one input to an empty, zero, repeated or missing value and explain whether your fix still preserves the intended contract.
+
+<BugHunt title="Fix the boundary" tests={`assert(total === 0, "preserves zero");`} solution={`const price = 0;
+const total = price ?? 10;
+console.log(total);`}>
+{`const price = 0;
+const total = price || 10;
+console.log(total);`}
+</BugHunt>
+
+## Check yourself
+
+<Quiz questions={[
+  {
+    "question": "Which change repairs the reproduced failure?",
+    "options": [
+      {
+        "text": "Falsy defaults replace a valid zero needs the explicit boundary shown in the fix.",
+        "correct": true,
+        "why": "Compare the corrected value with the reproduction; the test checks the behavior, not a cosmetic rewrite."
+      },
+      {
+        "text": "Keep the same logic and suppress its output.",
+        "correct": false,
+        "why": "Hiding output leaves the underlying contract broken."
+      }
+    ]
+  },
+  {
+    "question": "When should you choose a different approach?",
+    "options": [
+      {
+        "text": "coercion would silently accept blanks.",
+        "correct": true,
+        "why": "Use a schema and integer minor units when that limitation applies."
+      },
+      {
+        "text": "Whenever the code uses a function.",
+        "correct": false,
+        "why": "A function does not by itself determine cost, ownership or correctness."
+      }
+    ]
+  }
+]} />
+
+## Takeaways
+
+- Check the value that crosses the boundary before choosing the syntax.
+- Nullish coalescing preserves zero and empty strings.
+- These examples avoid proposal-specific APIs.
+
+## References
+
+- [Underscore](https://underscorejs.org/docs/modules/isFinite.html)
+- [Node.js](https://nodejs.org/api/util.html#utiltypes)
+- [Zod](https://zod.dev/api#coercion)
+
+Last verified: 2026-10-12.

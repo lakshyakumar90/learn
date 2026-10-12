@@ -65,6 +65,21 @@ import { habitlySliceRemindersSpec } from './habitly-slice-reminders';
 import { habitlySliceSearchSpec } from './habitly-slice-search';
 import { habitlySliceSettingsSpec } from './habitly-slice-settings';
 import { habitlySliceCloudSpec } from './habitly-slice-cloud';
+import { jsEcosystemSpec } from './js-ecosystem';
+import { jsEnginePipelineSpec } from './js-engine-pipeline';
+import { jsRuntimeSpec } from './js-runtime';
+import { jsExecContextSpec } from './js-exec-context';
+import { jsScopeChainSpec } from './js-scope-chain';
+import { jsMemoryGcSpec } from './js-memory-gc';
+import { jsTypesSpec } from './js-types';
+import { jsPrototypeChainSpec } from './js-prototype-chain';
+import { jsModuleGraphSpec } from './js-module-graph';
+import { jsPromiseStatesSpec } from './js-promise-states';
+import { jsEventFlowSpec } from './js-event-flow';
+import { jsRenderPipelineSpec } from './js-render-pipeline';
+import { jsNodeArchSpec } from './js-node-arch';
+import { jsWorkerModelSpec } from './js-worker-model';
+import { jsToolingSpec } from './js-tooling';
 
 /**
  * Every reusable diagram, keyed by the id used in MDX (`<Diagram id="web" />`).
@@ -137,6 +152,21 @@ export const diagramSpecs: Record<string, DiagramSpec> = {
   'habitly-slice-search': habitlySliceSearchSpec,
   'habitly-slice-settings': habitlySliceSettingsSpec,
   'habitly-slice-cloud': habitlySliceCloudSpec,
+  'js-ecosystem': jsEcosystemSpec,
+  'js-engine-pipeline': jsEnginePipelineSpec,
+  'js-runtime': jsRuntimeSpec,
+  'js-exec-context': jsExecContextSpec,
+  'js-scope-chain': jsScopeChainSpec,
+  'js-memory-gc': jsMemoryGcSpec,
+  'js-types': jsTypesSpec,
+  'js-prototype-chain': jsPrototypeChainSpec,
+  'js-module-graph': jsModuleGraphSpec,
+  'js-promise-states': jsPromiseStatesSpec,
+  'js-event-flow': jsEventFlowSpec,
+  'js-render-pipeline': jsRenderPipelineSpec,
+  'js-node-arch': jsNodeArchSpec,
+  'js-worker-model': jsWorkerModelSpec,
+  'js-tooling': jsToolingSpec,
 };
 
 export function getDiagramSpec(id: string): DiagramSpec | undefined {

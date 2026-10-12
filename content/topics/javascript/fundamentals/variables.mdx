@@ -1,0 +1,198 @@
+---
+title: Variables — var, let, const
+description: "A submitted order accepts another item because const was mistaken for read-only data."
+---
+
+A submitted order accepts another item because const was mistaken for read-only data. Guard the write instead.
+
+<LiveDemo demo="closure" />
+
+## Where you've already seen it
+
+<RealWorld items={[
+  {
+    "name": "React",
+    "detail": "State snapshots explain why delayed handlers keep earlier render values.",
+    "source": "https://react.dev/learn/state-as-a-snapshot",
+    "year": 2026
+  },
+  {
+    "name": "Lodash",
+    "detail": "Debounce keeps a timer between calls to avoid repeated work.",
+    "source": "https://lodash.com/docs/#debounce",
+    "year": 2026
+  },
+  {
+    "name": "Underscore",
+    "detail": "Once keeps a call count so initialization runs once.",
+    "source": "https://underscorejs.org/docs/modules/before.html",
+    "year": 2026
+  }
+]} />
+
+The year labels the documentation checked, not the first release or adoption date.
+
+## How it works
+
+<Diagram id="js-scope-chain" />
+
+Const prevents rebinding, not object mutation. The add method checks the current order status before changing its items.
+
+Follow the highlighted step or expand the diagram to inspect the boundary. The visual describes execution or data ownership; timing and memory totals are not inferred from its animation.
+
+## Build it
+
+### Start with the naive version
+
+<CodeCompare title="Make the boundary explicit" before={`const read = [];
+for (var index = 0; index < 3; index++) read.push(() => index);
+console.log(read.map((fn) => fn()).join(","));`} after={`const read = [];
+for (let index = 0; index < 3; index++) read.push(() => index);
+console.log(read.map((fn) => fn()).join(","));`} />
+
+### Find its limit
+
+Every callback reads the same loop binding. Change the input and predict the output before you run it. The failure comes from a specific default, lifetime or ownership assumption; keep that assumption visible in the test.
+
+### Build the working version
+
+<CodeRunner title="Build: Variables — var, let, const" expect="1\n2\ntea,rice\nlocked\ncontract true">
+{`function makeOrder() {
+  const order = { status: "draft", items: [] };
+  function add(name) {
+    if (order.status !== "draft") return "locked";
+    order.items.push(name);
+    return order.items.length;
+  }
+  function submit() {
+    order.status = "submitted";
+    return order.items.slice();
+  }
+  return { add, submit };
+}
+const order = makeOrder();
+console.log(order.add("tea"));
+console.log(order.add("rice"));
+console.log(order.submit().join(","));
+console.log(order.add("coffee"));
+const contractChecks = [
+  order.add("extra") === "locked",
+  order.submit().length === 2,
+];
+if (!contractChecks.every(Boolean)) {
+  throw new Error("The boundary contract was broken");
+}
+console.log("contract", contractChecks.every(Boolean));`}
+</CodeRunner>
+
+The console runner is an isolated browser worker. These core examples are also checked in Node; DOM behavior belongs to the browser frame, and fakeFetch is sample data rather than a real network request.
+
+## Why it works this way
+
+Let makes reassignment explicit. Shallow freezing cannot replace workflow rules such as refusing writes after submission.
+
+<ConceptCard variant="under-hood">
+Keep the operation's contract separate from its implementation. A faster path is useful only when it preserves the same outputs, error behavior and ownership rules; validate those boundaries before relying on a host-specific optimization.
+</ConceptCard>
+
+
+
+<WhenToUse use="a callback needs private per-instance state" avoid="the state must be shared and inspectable" alternative="an explicit object or state store" />
+
+## Mistakes that reach production
+
+### Every callback reads the same loop binding
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: Every callback reads the same loop binding" expect="3,3,3">
+{`const read = [];
+for (var index = 0; index < 3; index++) read.push(() => index);
+console.log(read.map((fn) => fn()).join(","));`}
+</CodeRunner>
+
+<CodeRunner title="Fix: Every callback reads the same loop binding" expect="0,1,2">
+{`const read = [];
+for (let index = 0; index < 3; index++) read.push(() => index);
+console.log(read.map((fn) => fn()).join(","));`}
+</CodeRunner>
+
+### A copied value stays stale
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: A copied value stays stale" expect="10">
+{`let total = 10;
+const snapshot = total;
+const receipt = () => snapshot;
+total = 15;
+console.log(receipt());`}
+</CodeRunner>
+
+<CodeRunner title="Fix: A copied value stays stale" expect="15">
+{`let total = 10;
+const receipt = () => total;
+total = 15;
+console.log(receipt());`}
+</CodeRunner>
+
+## Challenge
+
+Repair the starter so the boundary check passes. Then change one input to an empty, zero, repeated or missing value and explain whether your fix still preserves the intended contract.
+
+<BugHunt title="Fix the boundary" tests={`assert(read.map((fn) => fn()).join(",") === "0,1,2", "keeps each iteration");`} solution={`const read = [];
+for (let index = 0; index < 3; index++) read.push(() => index);
+console.log(read.map((fn) => fn()).join(","));`}>
+{`const read = [];
+for (var index = 0; index < 3; index++) read.push(() => index);
+console.log(read.map((fn) => fn()).join(","));`}
+</BugHunt>
+
+## Check yourself
+
+<Quiz questions={[
+  {
+    "question": "Which change repairs the reproduced failure?",
+    "options": [
+      {
+        "text": "Every callback reads the same loop binding needs the explicit boundary shown in the fix.",
+        "correct": true,
+        "why": "Compare the corrected value with the reproduction; the test checks the behavior, not a cosmetic rewrite."
+      },
+      {
+        "text": "Keep the same logic and suppress its output.",
+        "correct": false,
+        "why": "Hiding output leaves the underlying contract broken."
+      }
+    ]
+  },
+  {
+    "question": "When should you choose a different approach?",
+    "options": [
+      {
+        "text": "the state must be shared and inspectable.",
+        "correct": true,
+        "why": "Use an explicit object or state store when that limitation applies."
+      },
+      {
+        "text": "Whenever the code uses a function.",
+        "correct": false,
+        "why": "A function does not by itself determine cost, ownership or correctness."
+      }
+    ]
+  }
+]} />
+
+## Takeaways
+
+- Check the value that crosses the boundary before choosing the syntax.
+- Const prevents rebinding, not object mutation.
+- Let makes reassignment explicit.
+
+## References
+
+- [React](https://react.dev/learn/state-as-a-snapshot)
+- [Lodash](https://lodash.com/docs/#debounce)
+- [Underscore](https://underscorejs.org/docs/modules/before.html)
+
+Last verified: 2026-10-12.

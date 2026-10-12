@@ -21,7 +21,10 @@ export type DiagramLayer =
   | 'features'
   | 'localdata'
   | 'device'
-  | 'cloud';
+  | 'cloud'
+  | 'language'
+  | 'engine'
+  | 'runtime';
 
 export interface DiagramNodeSpec {
   id: string;
@@ -60,4 +63,7 @@ export const LAYER_LABEL: Record<DiagramLayer, string> = {
   localdata: 'Local data',
   device: 'Device',
   cloud: 'Cloud',
+  language: 'Language',
+  engine: 'Engine',
+  runtime: 'Runtime',
 };

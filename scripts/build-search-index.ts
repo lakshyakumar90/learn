@@ -28,6 +28,7 @@ export interface SearchEntry {
 
 function walk(dir: string, out: string[]): void {
   for (const name of readdirSync(dir)) {
+    if (name === 'IMAGE-STYLE.md') continue;
     if (name === 'diagrams' || name === 'flows') continue;
     const full = join(dir, name);
     if (statSync(full).isDirectory()) walk(full, out);

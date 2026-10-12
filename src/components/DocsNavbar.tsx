@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowUpRight, Menu, Search, X } from 'lucide-react';
 import { ThemeSwitch } from 'fumadocs-ui/layouts/shared/slots/theme-switch';
@@ -11,6 +11,7 @@ import { useSearchContext } from 'fumadocs-ui/contexts/search';
 import { siteConfig } from '@/site.config';
 import { PROJECTS } from '@/projects.config';
 
+const subscribeMounted = () => () => {};
 const TABS = [
   { text: 'Projects', url: '/projects' },
   { text: 'Topics', url: '/topics' },
@@ -30,7 +31,7 @@ export function DocsNavbar({ className = '' }: { className?: string }) {
   const router = useRouter();
   const { setOpenSearch } = useSearchContext();
   const [drawer, setDrawer] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(subscribeMounted, () => true, () => false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -38,9 +39,7 @@ export function DocsNavbar({ className = '' }: { className?: string }) {
   const pathProject = pathname.match(/^\/projects\/([^/]+)/)?.[1];
   const currentProject = liveProjects.find((p) => p.id === pathProject);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+
 
   // Lock body scroll while the drawer is open.
   useEffect(() => {

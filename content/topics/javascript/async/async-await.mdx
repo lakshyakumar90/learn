@@ -1,0 +1,199 @@
+---
+title: async/await
+description: "Your dashboard hangs after a request fails."
+---
+
+Your dashboard hangs after a request fails. Bound retries, give each attempt a timeout, and clear its timer.
+
+<CodeRunner title="Reproduce: A rejected request has no useful fallback" expect="true">
+{`const result = await Promise.reject(new Error("offline")).catch(() => "");
+console.log(result === "");`}
+</CodeRunner>
+
+## Where you've already seen it
+
+<RealWorld items={[
+  {
+    "name": "Node.js",
+    "detail": "Filesystem promises expose completion without blocking other requests.",
+    "source": "https://nodejs.org/api/fs.html#promises-api",
+    "year": 2026
+  },
+  {
+    "name": "React Router",
+    "detail": "Loaders accept promises to prepare route data before rendering.",
+    "source": "https://reactrouter.com/start/data/data-loading",
+    "year": 2026
+  },
+  {
+    "name": "Axios",
+    "detail": "Its promise API lets callers await requests and handle failures.",
+    "source": "https://axios-http.com/docs/api_intro",
+    "year": 2026
+  }
+]} />
+
+The year labels the documentation checked, not the first release or adoption date.
+
+## How it works
+
+<Diagram id="js-promise-states" />
+
+Await pauses this function while a promise is unsettled. Starting both calls before awaiting their group overlaps independent waits.
+
+Follow the highlighted step or expand the diagram to inspect the boundary. The visual describes execution or data ownership; timing and memory totals are not inferred from its animation.
+
+## Build it
+
+### Start with the naive version
+
+<CodeCompare title="Make the boundary explicit" before={`const result = await Promise.reject(new Error("offline")).catch(() => "");
+console.log(result === "");`} after={`const result = await Promise.reject(new Error("offline")).catch(
+  (error) => error.message,
+);
+console.log(result);`} />
+
+### Find its limit
+
+A rejected request has no useful fallback. Change the input and predict the output before you run it. The failure comes from a specific default, lifetime or ownership assumption; keep that assumption visible in the test.
+
+### Build the working version
+
+<CodeRunner title="Build: async/await" expect="Aarav Sharma\nposts 3">
+{`async function loadJson(url, attempts = 3) {
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 100);
+    try {
+      const response = await fakeFetch(url, {
+        latencyMs: 5,
+        signal: controller.signal,
+      });
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      return await response.json();
+    } catch (error) {
+      if (attempt === attempts) throw error;
+      await sleep(5 * attempt);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+}
+const [users, posts] = await Promise.all([
+  loadJson("/users"),
+  loadJson("/posts"),
+]);
+console.log(users[0].name);
+console.log("posts", posts.length);`}
+</CodeRunner>
+
+The console runner is an isolated browser worker. These core examples are also checked in Node; DOM behavior belongs to the browser frame, and fakeFetch is sample data rather than a real network request.
+
+## Why it works this way
+
+This client retries reads only. Real clients need retryable status rules, server Retry-After hints and idempotency protection for writes.
+
+<ConceptCard variant="under-hood">
+Keep the operation's contract separate from its implementation. A faster path is useful only when it preserves the same outputs, error behavior and ownership rules; validate those boundaries before relying on a host-specific optimization.
+</ConceptCard>
+
+
+
+<WhenToUse use="independent requests can overlap" avoid="a write might be repeated by retries" alternative="an idempotency key and retry policy" />
+
+## Mistakes that reach production
+
+### A rejected request has no useful fallback
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: A rejected request has no useful fallback" expect="true">
+{`const result = await Promise.reject(new Error("offline")).catch(() => "");
+console.log(result === "");`}
+</CodeRunner>
+
+<CodeRunner title="Fix: A rejected request has no useful fallback" expect="offline">
+{`const result = await Promise.reject(new Error("offline")).catch(
+  (error) => error.message,
+);
+console.log(result);`}
+</CodeRunner>
+
+### A missing return loses the result
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: A missing return loses the result" expect="undefined">
+{`const result = await Promise.resolve(12).then((total) => {
+  total + 3;
+});
+console.log(result);`}
+</CodeRunner>
+
+<CodeRunner title="Fix: A missing return loses the result" expect="15">
+{`const result = await Promise.resolve(12).then((total) => {
+  return total + 3;
+});
+console.log(result);`}
+</CodeRunner>
+
+## Challenge
+
+Repair the starter so the boundary check passes. Then change one input to an empty, zero, repeated or missing value and explain whether your fix still preserves the intended contract.
+
+<BugHunt title="Fix the boundary" tests={`assert(result === "offline", "reports the failure");`} solution={`const result = await Promise.reject(new Error("offline")).catch(
+  (error) => error.message,
+);
+console.log(result);`}>
+{`const result = await Promise.reject(new Error("offline")).catch(() => "");
+console.log(result === "");`}
+</BugHunt>
+
+## Check yourself
+
+<Quiz questions={[
+  {
+    "question": "Which change repairs the reproduced failure?",
+    "options": [
+      {
+        "text": "A rejected request has no useful fallback needs the explicit boundary shown in the fix.",
+        "correct": true,
+        "why": "Compare the corrected value with the reproduction; the test checks the behavior, not a cosmetic rewrite."
+      },
+      {
+        "text": "Keep the same logic and suppress its output.",
+        "correct": false,
+        "why": "Hiding output leaves the underlying contract broken."
+      }
+    ]
+  },
+  {
+    "question": "When should you choose a different approach?",
+    "options": [
+      {
+        "text": "a write might be repeated by retries.",
+        "correct": true,
+        "why": "Use an idempotency key and retry policy when that limitation applies."
+      },
+      {
+        "text": "Whenever the code uses a function.",
+        "correct": false,
+        "why": "A function does not by itself determine cost, ownership or correctness."
+      }
+    ]
+  }
+]} />
+
+## Takeaways
+
+- Check the value that crosses the boundary before choosing the syntax.
+- Await pauses this function while a promise is unsettled.
+- This client retries reads only.
+
+## References
+
+- [Node.js](https://nodejs.org/api/fs.html#promises-api)
+- [React Router](https://reactrouter.com/start/data/data-loading)
+- [Axios](https://axios-http.com/docs/api_intro)
+
+Last verified: 2026-10-12.

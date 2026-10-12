@@ -1,0 +1,39 @@
+---
+title: Set up and run the lessons
+description: Try the page runners first, then move working code into a local file.
+kind: overview
+---
+
+Want to try the code without installing a toolchain? Run a lesson example, change an input, then compare its output.
+
+<LiveDemo demo="debounce" />
+
+## Use the page controls
+
+- Console code runs in an isolated worker with a five-second limit and no page DOM.
+- DOM code runs in a sandboxed frame without network access. Reset recreates the frame.
+- Tab leaves the editor; Control or Command plus Enter runs console code.
+- Expand opens the fullscreen view. Escape closes it and returns focus.
+- Exercise tests check behavior; repair a failure before revealing the solution.
+
+The fakeFetch helper returns sample users and posts, not live network data. Checks compare content and order rather than elapsed milliseconds.
+
+## Move to a local file
+
+Save a console example as receipt.js and run <code>node receipt.js</code> in a supported Node release.
+
+For a DOM example, create index.html and a linked script.js, then serve that directory with a development server. File URLs can behave differently from hosted origins, especially for modules and storage.
+
+## Work through a lesson
+
+1. Reproduce the failure and predict its output.
+2. Step through the visual until you can name the cause.
+3. Compare before and after, then run the working implementation.
+4. Break one input and repair the challenge tests.
+
+## References
+
+- [Install Node](https://nodejs.org/en/download).
+- [Browser developer tools](https://developer.chrome.com/docs/devtools/).
+
+Last verified: 2026-10-12.

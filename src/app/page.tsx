@@ -5,12 +5,24 @@ import { LandingHero } from '@/components/LandingHero';
 import { Footer } from '@/components/Footer';
 import { CardHeroVideo } from '@/components/demo/CardHeroVideo';
 import { loadDemo } from '@/lib/demo-load';
+import { CategoryIcon } from '@/components/catalog/category-icons';
+import { TAXONOMY } from '../../content/taxonomy';
+import rawCatalog from '../../generated/catalog.json';
+import { validateCatalog } from '@/lib/catalog/types';
 import {
   bookCards,
   howCards,
   projectCards,
-  topicCards,
 } from '../../content/collections';
+
+const CATALOG = validateCatalog(rawCatalog);
+
+/** Live topic count per category (soon items don't count as live). */
+function liveTopicsIn(categoryId: string): number {
+  return CATALOG.filter(
+    (i) => i.collection === 'topics' && i.status === 'live' && i.categories.includes(categoryId),
+  ).length;
+}
 
 /** Demo hero tour for a landing card; null when the hero has no video. */
 function heroFor(slug: string): { src: string; poster?: string; label: string } | null {
@@ -125,6 +137,13 @@ export default function Home() {
                 ),
               )}
             </div>
+            <Link
+              href="/projects"
+              className="mt-6 inline-flex items-center gap-1 text-sm font-medium hover:underline"
+            >
+              Browse all projects
+              <ArrowRight size={14} aria-hidden />
+            </Link>
           </div>
         </section>
 
@@ -136,16 +155,46 @@ export default function Home() {
               line="Cross-cutting notes, explained once and linked everywhere."
             />
             <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {topicCards.map((t) => (
-                <div key={t.name} className="rounded-xl border border-dashed p-5 opacity-70">
-                  <p className="inline-block rounded-full border px-2.5 py-0.5 text-xs font-medium opacity-70">
-                    Coming soon
-                  </p>
-                  <p className="mt-3 font-semibold">{t.name}</p>
-                  <p className="mt-1 text-sm opacity-70">{t.line}</p>
-                </div>
-              ))}
+              {[...TAXONOMY.topics.categories]
+                .sort((a, b) => a.order - b.order)
+                .map((c) => {
+                  const live = liveTopicsIn(c.id);
+                  return live > 0 ? (
+                    <Link
+                      key={c.id}
+                      href={`/topics/category/${c.id}`}
+                      className="group rounded-xl border p-5 transition-colors hover:border-current"
+                    >
+                      <span className="flex items-center gap-2">
+                        <CategoryIcon icon={c.icon} size={18} />
+                        <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100">
+                          {live} topic{live === 1 ? '' : 's'}
+                        </span>
+                      </span>
+                      <span className="mt-3 block font-semibold">{c.title}</span>
+                      <span className="mt-1 block text-sm opacity-70">{c.description}</span>
+                    </Link>
+                  ) : (
+                    <div key={c.id} className="rounded-xl border border-dashed p-5 opacity-70">
+                      <span className="flex items-center gap-2">
+                        <CategoryIcon icon={c.icon} size={18} />
+                        <span className="rounded-full border px-2.5 py-0.5 text-xs font-medium opacity-70">
+                          Coming soon
+                        </span>
+                      </span>
+                      <span className="mt-3 block font-semibold">{c.title}</span>
+                      <span className="mt-1 block text-sm opacity-70">{c.description}</span>
+                    </div>
+                  );
+                })}
             </div>
+            <Link
+              href="/topics"
+              className="mt-6 inline-flex items-center gap-1 text-sm font-medium hover:underline"
+            >
+              Browse all topics
+              <ArrowRight size={14} aria-hidden />
+            </Link>
           </div>
         </section>
 

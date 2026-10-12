@@ -1,0 +1,217 @@
+---
+title: Timers and scheduling
+description: "The countdown is wrong after a background tab resumes."
+---
+
+The countdown is wrong after a background tab resumes. Store a deadline instead of counting ticks.
+
+<LiveDemo demo="stale" />
+
+## Where you've already seen it
+
+<RealWorld items={[
+  {
+    "name": "Underscore",
+    "detail": "Debounce cancels pending work when another call arrives.",
+    "source": "https://underscorejs.org/docs/modules/debounce.html",
+    "year": 2026
+  },
+  {
+    "name": "RxJS",
+    "detail": "DebounceTime emits after a period without new values.",
+    "source": "https://github.com/ReactiveX/rxjs/blob/master/packages/rxjs/src/internal/operators/debounceTime.ts",
+    "year": 2026
+  },
+  {
+    "name": "Node.js",
+    "detail": "Timer handles allow cancellation and control event-loop liveness.",
+    "source": "https://nodejs.org/api/timers.html",
+    "year": 2026
+  }
+]} />
+
+The year labels the documentation checked, not the first release or adoption date.
+
+## How it works
+
+<Diagram id="js-runtime" />
+
+Timeout delay is a scheduling minimum, not an appointment. Other tasks and background policies can delay execution.
+
+Follow the highlighted step or expand the diagram to inspect the boundary. The visual describes execution or data ownership; timing and memory totals are not inferred from its animation.
+
+## Build it
+
+### Start with the naive version
+
+<CodeCompare title="Make the boundary explicit" before={`const queries = [];
+let timer;
+for (const query of ["t", "te", "tea"])
+  timer = setTimeout(() => queries.push(query), 5);
+await sleep(15);
+console.log(queries.join(","));`} after={`const queries = [];
+let timer;
+for (const query of ["t", "te", "tea"]) {
+  clearTimeout(timer);
+  timer = setTimeout(() => queries.push(query), 5);
+}
+await sleep(15);
+console.log(queries.join(","));`} />
+
+### Find its limit
+
+Uncancelled timers run every stale query. Change the input and predict the output before you run it. The failure comes from a specific default, lifetime or ownership assumption; keep that assumption visible in the test.
+
+### Build the working version
+
+<CodeRunner title="Build: Timers and scheduling" expect="start 3000\nlater 1800\nexpired 0\ntimer fired true\ncontract true">
+{`function makeExpiry(now, lifetime) {
+  const deadline = now() + lifetime;
+  return () => Math.max(0, deadline - now());
+}
+let current = 1000;
+const remaining = makeExpiry(() => current, 3000);
+console.log("start", remaining());
+current += 1200;
+console.log("later", remaining());
+current += 2500;
+console.log("expired", remaining());
+let ticks = 0;
+const interval = setInterval(() => ticks++, 5);
+await sleep(18);
+clearInterval(interval);
+console.log("timer fired", ticks > 0);
+const contractChecks = [remaining() === 0, ticks > 0];
+if (!contractChecks.every(Boolean)) {
+  throw new Error("The boundary contract was broken");
+}
+console.log("contract", contractChecks.every(Boolean));`}
+</CodeRunner>
+
+The console runner is an isolated browser worker. These core examples are also checked in Node; DOM behavior belongs to the browser frame, and fakeFetch is sample data rather than a real network request.
+
+## Why it works this way
+
+Inject a clock to test deadline arithmetic. Browser animation uses requestAnimationFrame; Node timer handles additionally support unref.
+
+<ConceptCard variant="under-hood">
+Keep the operation's contract separate from its implementation. A faster path is useful only when it preserves the same outputs, error behavior and ownership rules; validate those boundaries before relying on a host-specific optimization.
+</ConceptCard>
+
+
+
+<WhenToUse use="search can wait for typing to stop" avoid="scroll feedback must continue during input" alternative="throttle or requestAnimationFrame" />
+
+## Mistakes that reach production
+
+### Uncancelled timers run every stale query
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: Uncancelled timers run every stale query" expect="t,te,tea">
+{`const queries = [];
+let timer;
+for (const query of ["t", "te", "tea"])
+  timer = setTimeout(() => queries.push(query), 5);
+await sleep(15);
+console.log(queries.join(","));`}
+</CodeRunner>
+
+<CodeRunner title="Fix: Uncancelled timers run every stale query" expect="tea">
+{`const queries = [];
+let timer;
+for (const query of ["t", "te", "tea"]) {
+  clearTimeout(timer);
+  timer = setTimeout(() => queries.push(query), 5);
+}
+await sleep(15);
+console.log(queries.join(","));`}
+</CodeRunner>
+
+### A cancelled view leaves scheduled work
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: A cancelled view leaves scheduled work" expect="1">
+{`let calls = 0;
+const timer = setTimeout(() => calls++, 5);
+await sleep(15);
+console.log(calls);`}
+</CodeRunner>
+
+<CodeRunner title="Fix: A cancelled view leaves scheduled work" expect="0">
+{`let calls = 0;
+const timer = setTimeout(() => calls++, 5);
+clearTimeout(timer);
+await sleep(15);
+console.log(calls);`}
+</CodeRunner>
+
+## Challenge
+
+Repair the starter so the boundary check passes. Then change one input to an empty, zero, repeated or missing value and explain whether your fix still preserves the intended contract.
+
+<BugHunt title="Fix the boundary" tests={`assert(queries.join(",") === "tea", "only searches the latest query");`} solution={`const queries = [];
+let timer;
+for (const query of ["t", "te", "tea"]) {
+  clearTimeout(timer);
+  timer = setTimeout(() => queries.push(query), 5);
+}
+await sleep(15);
+console.log(queries.join(","));`}>
+{`const queries = [];
+let timer;
+for (const query of ["t", "te", "tea"])
+  timer = setTimeout(() => queries.push(query), 5);
+await sleep(15);
+console.log(queries.join(","));`}
+</BugHunt>
+
+## Check yourself
+
+<Quiz questions={[
+  {
+    "question": "Which change repairs the reproduced failure?",
+    "options": [
+      {
+        "text": "Uncancelled timers run every stale query needs the explicit boundary shown in the fix.",
+        "correct": true,
+        "why": "Compare the corrected value with the reproduction; the test checks the behavior, not a cosmetic rewrite."
+      },
+      {
+        "text": "Keep the same logic and suppress its output.",
+        "correct": false,
+        "why": "Hiding output leaves the underlying contract broken."
+      }
+    ]
+  },
+  {
+    "question": "When should you choose a different approach?",
+    "options": [
+      {
+        "text": "scroll feedback must continue during input.",
+        "correct": true,
+        "why": "Use throttle or requestAnimationFrame when that limitation applies."
+      },
+      {
+        "text": "Whenever the code uses a function.",
+        "correct": false,
+        "why": "A function does not by itself determine cost, ownership or correctness."
+      }
+    ]
+  }
+]} />
+
+## Takeaways
+
+- Check the value that crosses the boundary before choosing the syntax.
+- Timeout delay is a scheduling minimum, not an appointment.
+- Inject a clock to test deadline arithmetic.
+
+## References
+
+- [Underscore](https://underscorejs.org/docs/modules/debounce.html)
+- [RxJS](https://github.com/ReactiveX/rxjs/blob/master/packages/rxjs/src/internal/operators/debounceTime.ts)
+- [Node.js](https://nodejs.org/api/timers.html)
+
+Last verified: 2026-10-12.

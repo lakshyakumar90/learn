@@ -83,6 +83,30 @@
 }
 
 /*
+ * Catalog filter panel: a near-invisible scrollbar. The track is fully
+ * transparent and the thumb is a 4px currentColor wash, so it adapts to
+ * light/dark without theme queries; it only darkens on hover so the
+ * rail never shouts. Firefox uses the thin keyword + same wash.
+ */
+.catalog-filters-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, currentColor 22%, transparent) transparent;
+}
+.catalog-filters-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.catalog-filters-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.catalog-filters-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, currentColor 22%, transparent);
+  border-radius: 999px;
+}
+.catalog-filters-scroll::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, currentColor 40%, transparent);
+}
+
+/*
  * Modal body centering that stays scroll-safe: content shorter than the
  * viewport centers; taller content top-aligns so nothing is ever cut off
  * (plain `center` would hide the top behind an unreachable scroll).
@@ -124,6 +148,40 @@ body {
   color: var(--foreground);
 }
 
+/* One code palette for Shiki at build time and CodeMirror at runtime. */
+:root {
+  --code-bg: #ffffff; --code-fg: #24292f; --code-keyword: #6639ba;
+  --code-string: #0a6445; --code-number: #953800; --code-function: #0550ae;
+  --code-comment: #57606a; --code-variable: #9a1c40;
+}
+.dark {
+  --code-bg: #1c1917; --code-fg: #e7e5e4; --code-keyword: #c4b5fd;
+  --code-string: #86efac; --code-number: #fbbf24; --code-function: #93c5fd;
+  --code-comment: #a8a29e; --code-variable: #f9a8d4;
+}
+.code-surface { min-width: 0; max-width: 100%; overflow: hidden; border: 1px solid var(--dg-node-border); border-radius: 12px; background: var(--code-bg); color: var(--code-fg); }
+.code-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--dg-node-border); font-size: 12px; color: var(--code-comment); }
+.code-toolbar button { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
+.code-preview pre { margin: 0; padding: 12px; overflow-x: auto; white-space: pre; }
+.code-preview pre, .code-preview code, .code-editor .cm-scroller, .code-output, .prose pre code { font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 14px; line-height: 1.6; font-variant-ligatures: none; }
+.code-preview pre, .code-preview span, pre.shiki, pre.shiki span { color: var(--shiki-light); background-color: var(--shiki-light-bg); }
+.dark .code-preview pre, .dark .code-preview span, .dark pre.shiki, .dark pre.shiki span { color: var(--shiki-dark); background-color: var(--shiki-dark-bg); }
+.code-preview code { display: block; width: max-content; min-width: 100%; counter-reset: code-line; }
+.code-numbered .line::before { counter-increment: code-line; content: counter(code-line); display: inline-block; width: 2.5em; padding-right: 1em; color: var(--code-comment); user-select: none; }
+.code-preview .line.highlighted, .code-preview .line.diff.add { background: color-mix(in srgb, var(--code-string) 12%, var(--code-bg)); }
+.code-preview .line.diff.remove { background: color-mix(in srgb, var(--code-variable) 12%, var(--code-bg)); }
+.code-preview .line.diff.add::after { content: " +"; color: var(--code-string); }
+.code-preview .line.diff.remove::after { content: " −"; color: var(--code-variable); }
+.code-output { max-width: 100%; overflow: auto; border: 1px solid var(--dg-node-border); border-radius: 12px; padding: 12px; background: var(--code-bg); color: var(--code-fg); }
+.code-output pre { margin: 0; white-space: pre; }
+.prose :not(pre) > code { border: 1px solid var(--dg-node-border); background: var(--code-bg); color: var(--code-variable); border-radius: 4px; padding: 1px 4px; font-variant-ligatures: none; }
+.code-editor textarea { width: 100%; padding: 12px; font-family: var(--font-geist-mono), monospace; font-size: 16px; white-space: pre; }
+@media (pointer: coarse), (max-width: 640px) {
+  .code-editor .cm-scroller, .code-editor .code-preview pre, .code-editor .code-preview code { font-size: 16px; }
+}
+.prose > *, .prose [role="group"] { min-width: 0; }
+.code-editor ::selection, .code-preview ::selection { background: color-mix(in srgb, var(--dg-browser) 25%, transparent); }
+
 /* Diagram layer colours, themed through CSS variables */
 :root {
   --dg-browser: #4f46e5;
@@ -137,6 +195,9 @@ body {
   --dg-localdata: #059669;
   --dg-device: #d97706;
   --dg-cloud: #0284c7;
+  --dg-language: #4f46e5;
+  --dg-engine: #b45309;
+  --dg-runtime: #0d9488;
   --dg-node-bg: #ffffff;
   --dg-node-border: #d6d3d1;
   --dg-edge: #78716c;
@@ -154,6 +215,9 @@ body {
   --dg-localdata: #6ee7b7;
   --dg-device: #fbbf24;
   --dg-cloud: #7dd3fc;
+  --dg-language: #a5b4fc;
+  --dg-engine: #fcd34d;
+  --dg-runtime: #5eead4;
   --dg-node-bg: #1c1917;
   --dg-node-border: #44403c;
   --dg-edge: #a8a29e;

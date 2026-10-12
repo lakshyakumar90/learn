@@ -44,8 +44,15 @@ export interface ProjectConfig {
   id: string;
   title: string;
   description: string;
+  /**
+   * Catalog card summary (max 160 chars). The description above can be
+   * long; the browser grid needs two lines, so keep this short.
+   */
+  summary: string;
   tags: string[];
   status: 'live' | 'soon';
+  /** ISO date the notes were last updated (sort key for the catalog). */
+  updated?: string;
   documentedCommit: string;
   repo: string;
   source: ProjectSource;
@@ -105,8 +112,11 @@ export const PROJECTS: ProjectConfig[] = [
     title: 'Excalidraw',
     description:
       'A collaborative drawing workspace: guest storage, authenticated scenes, real-time rooms, and Redis write-behind persistence.',
+    summary:
+      'Collaborative drawing: guest scenes, auth, real-time rooms, Redis persistence.',
     tags: ['Next.js', 'TypeScript', 'WebSocket', 'Redis', 'Postgres'],
     status: 'live',
+    updated: '2026-10-12',
     documentedCommit: 'b0026d9',
     repo: 'https://github.com/lakshyakumar90/excalidraw',
     source: { type: 'local', path: '../excalidraw' },
@@ -162,8 +172,10 @@ export const PROJECTS: ProjectConfig[] = [
     title: 'DevConnect',
     description:
       'A social platform for developers: profiles, connections, feed posts, jobs, notifications, and real-time chat.',
+    summary: 'Social platform for developers: profiles, connections, feed, jobs, chat.',
     tags: ['React 19', 'Express 5', 'MongoDB', 'Socket.io', 'Redis'],
     status: 'live',
+    updated: '2026-10-06',
     documentedCommit: 'cdef8af',
     repo: 'https://github.com/lakshyakumar90/mini-project',
     source: { type: 'git', url: 'https://github.com/lakshyakumar90/mini-project', commit: 'cdef8af' },
@@ -184,8 +196,10 @@ export const PROJECTS: ProjectConfig[] = [
     title: 'Habitly',
     description:
       'A mobile habit tracker: offline-first habits and tasks with SQLite, reminders, stats, and optional Firebase cloud sync.',
+    summary: 'Offline-first habit tracker: SQLite, reminders, stats, cloud sync.',
     tags: ['Expo', 'React Native', 'TypeScript', 'SQLite', 'Firebase'],
     status: 'live',
+    updated: '2026-10-06',
     documentedCommit: '99a2c3d',
     repo: 'https://github.com/lakshyakumar90/habit-tracker',
     source: { type: 'git', url: 'https://github.com/lakshyakumar90/habit-tracker', commit: '99a2c3d' },

@@ -1,0 +1,234 @@
+---
+title: Iterators and generators
+description: "Your feed fetches every page before showing the first."
+---
+
+Your feed fetches every page before showing the first. Yield one batch per demand.
+
+<CodeRunner title="Reproduce: Consuming once leaves the iterator exhausted" expect="0">
+{`function* feed() {
+  yield "tea";
+  yield "rice";
+}
+const iterator = feed();
+Array.from(iterator);
+console.log(Array.from(iterator).length);`}
+</CodeRunner>
+
+## Where you've already seen it
+
+<RealWorld items={[
+  {
+    "name": "Node.js",
+    "detail": "Readable streams support async iteration with backpressure.",
+    "source": "https://nodejs.org/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators",
+    "year": 2026
+  },
+  {
+    "name": "Redux-Saga",
+    "detail": "Generator effects describe asynchronous work to its interpreter.",
+    "source": "https://redux-saga.js.org/docs/basics/Effect/",
+    "year": 2026
+  },
+  {
+    "name": "D3",
+    "detail": "Array utilities accept iterable collections as inputs.",
+    "source": "https://d3js.org/d3-array/transform",
+    "year": 2026
+  }
+]} />
+
+The year labels the documentation checked, not the first release or adoption date.
+
+## How it works
+
+<Diagram id="js-runtime" />
+
+Calling a generator creates an iterator; next resumes its body to yield. Local position survives between requests.
+
+Follow the highlighted step or expand the diagram to inspect the boundary. The visual describes execution or data ownership; timing and memory totals are not inferred from its animation.
+
+## Build it
+
+### Start with the naive version
+
+<CodeCompare title="Make the boundary explicit" before={`function* feed() {
+  yield "tea";
+  yield "rice";
+}
+const iterator = feed();
+Array.from(iterator);
+console.log(Array.from(iterator).length);`} after={`function* feed() {
+  yield "tea";
+  yield "rice";
+}
+const first = Array.from(feed());
+const second = Array.from(feed());
+console.log(second.length);`} />
+
+### Find its limit
+
+Consuming once leaves the iterator exhausted. Change the input and predict the output before you run it. The failure comes from a specific default, lifetime or ownership assumption; keep that assumption visible in the test.
+
+### Build the working version
+
+<CodeRunner title="Build: Iterators and generators" expect="first 1,2,3\nsecond 4,5,6\nlast 7\ndone true\nbatch size 2\nbatch size 2\nbatch size 2\nbatch size 1">
+{`function* pages(records, size) {
+  for (let start = 0; start < records.length; start += size) {
+    yield records.slice(start, start + size);
+  }
+}
+const records = Array.from({ length: 7 }, (_, index) => ({
+  id: index + 1,
+}));
+const feed = pages(records, 3);
+console.log(
+  "first",
+  feed
+    .next()
+    .value.map((row) => row.id)
+    .join(","),
+);
+console.log(
+  "second",
+  feed
+    .next()
+    .value.map((row) => row.id)
+    .join(","),
+);
+console.log(
+  "last",
+  feed
+    .next()
+    .value.map((row) => row.id)
+    .join(","),
+);
+console.log("done", feed.next().done);
+const freshFeed = pages(records, 2);
+for (const batch of freshFeed) console.log("batch size", batch.length);`}
+</CodeRunner>
+
+The console runner is an isolated browser worker. These core examples are also checked in Node; DOM behavior belongs to the browser frame, and fakeFetch is sample data rather than a real network request.
+
+## Why it works this way
+
+Generators are not automatic caches or cancellation. Add cursors and use async iteration for network-backed pagination.
+
+<ConceptCard variant="under-hood">
+Keep the operation's contract separate from its implementation. A faster path is useful only when it preserves the same outputs, error behavior and ownership rules; validate those boundaries before relying on a host-specific optimization.
+</ConceptCard>
+
+
+
+<WhenToUse use="only part of a sequence is needed" avoid="all small results are already required" alternative="an array or async generator" />
+
+## Mistakes that reach production
+
+### Consuming once leaves the iterator exhausted
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: Consuming once leaves the iterator exhausted" expect="0">
+{`function* feed() {
+  yield "tea";
+  yield "rice";
+}
+const iterator = feed();
+Array.from(iterator);
+console.log(Array.from(iterator).length);`}
+</CodeRunner>
+
+<CodeRunner title="Fix: Consuming once leaves the iterator exhausted" expect="2">
+{`function* feed() {
+  yield "tea";
+  yield "rice";
+}
+const first = Array.from(feed());
+const second = Array.from(feed());
+console.log(second.length);`}
+</CodeRunner>
+
+### Array indexing misses an empty page
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: Array indexing misses an empty page" expect="true">
+{`const page = [];
+const hasItem = page[0] !== null;
+console.log(hasItem);`}
+</CodeRunner>
+
+<CodeRunner title="Fix: Array indexing misses an empty page" expect="false">
+{`const page = [];
+const hasItem = page.length > 0;
+console.log(hasItem);`}
+</CodeRunner>
+
+## Challenge
+
+Repair the starter so the boundary check passes. Then change one input to an empty, zero, repeated or missing value and explain whether your fix still preserves the intended contract.
+
+<BugHunt title="Fix the boundary" tests={`assert(second.length === 2, "creates a fresh iterator");`} solution={`function* feed() {
+  yield "tea";
+  yield "rice";
+}
+const first = Array.from(feed());
+const second = Array.from(feed());
+console.log(second.length);`}>
+{`function* feed() {
+  yield "tea";
+  yield "rice";
+}
+const iterator = feed();
+Array.from(iterator);
+console.log(Array.from(iterator).length);`}
+</BugHunt>
+
+## Check yourself
+
+<Quiz questions={[
+  {
+    "question": "Which change repairs the reproduced failure?",
+    "options": [
+      {
+        "text": "Consuming once leaves the iterator exhausted needs the explicit boundary shown in the fix.",
+        "correct": true,
+        "why": "Compare the corrected value with the reproduction; the test checks the behavior, not a cosmetic rewrite."
+      },
+      {
+        "text": "Keep the same logic and suppress its output.",
+        "correct": false,
+        "why": "Hiding output leaves the underlying contract broken."
+      }
+    ]
+  },
+  {
+    "question": "When should you choose a different approach?",
+    "options": [
+      {
+        "text": "all small results are already required.",
+        "correct": true,
+        "why": "Use an array or async generator when that limitation applies."
+      },
+      {
+        "text": "Whenever the code uses a function.",
+        "correct": false,
+        "why": "A function does not by itself determine cost, ownership or correctness."
+      }
+    ]
+  }
+]} />
+
+## Takeaways
+
+- Check the value that crosses the boundary before choosing the syntax.
+- Calling a generator creates an iterator; next resumes its body to yield.
+- Generators are not automatic caches or cancellation.
+
+## References
+
+- [Node.js](https://nodejs.org/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators)
+- [Redux-Saga](https://redux-saga.js.org/docs/basics/Effect/)
+- [D3](https://d3js.org/d3-array/transform)
+
+Last verified: 2026-10-12.

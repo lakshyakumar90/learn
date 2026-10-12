@@ -1,0 +1,11 @@
+{
+  "title": "Browser and DOM",
+  "pages": [
+    "dom",
+    "selecting",
+    "events",
+    "storage",
+    "networking-cors",
+    "rendering"
+  ]
+}

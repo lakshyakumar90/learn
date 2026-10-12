@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Documented project sources cloned by scripts/fetch-source.ts.
     ".cache/**",
+    ".source/**",
+    "artifacts/**",
   ]),
 ]);
 

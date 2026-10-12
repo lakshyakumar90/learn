@@ -10,6 +10,14 @@ import { StackMap } from '@/components/StackMap';
 import { StackMatrix } from '@/components/StackMatrix';
 import { TechStackIndex } from '@/components/TechStackIndex';
 import { DemoGallery, DemoHero, DemoMedia } from '@/components/demo/DemoGallery';
+import { ConceptCard } from '@/components/blocks/ConceptCard';
+import { Quiz } from '@/components/blocks/Quiz';
+import { TopicMedia } from '@/components/blocks/TopicMedia';
+// Client-only, heavy blocks (code-split; see client-blocks.tsx).
+import { CodeRunner, Exercise, Predict, ScenarioPlayer } from '@/components/blocks/server-blocks';
+import { LiveDemo } from '@/components/blocks/client-blocks';
+import { RealWorld, WhenToUse, CodeCompare, BugHunt } from '@/components/blocks/Practical';
+import { Illustration, Storyboard, AnnotatedImage } from '@/components/blocks/Illustration';
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
@@ -28,6 +36,21 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     Steps,
     Tab,
     Tabs,
+    CodeRunner,
+    Predict,
+    Exercise,
+    Quiz,
+    ConceptCard,
+    ScenarioPlayer,
+    TopicMedia,
+    LiveDemo,
+    RealWorld,
+    WhenToUse,
+    CodeCompare,
+    BugHunt,
+    Illustration,
+    Storyboard,
+    AnnotatedImage,
     ...components,
   };
 }

@@ -1,0 +1,16 @@
+id: prisma
+title: Prisma
+summary: Modeling, migrations, and queries with Prisma. Coming soon.
+category: orms
+tags:
+  - ORM
+  - Database
+  - SQL
+level: beginner
+status: soon
+order: 2
+updated: '2026-10-12'
+keywords:
+  - schema
+  - migration
+  - prisma client

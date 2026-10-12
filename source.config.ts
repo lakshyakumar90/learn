@@ -1,5 +1,7 @@
 import { defineDocs, defineConfig } from 'fumadocs-mdx/config';
 import { docSchema } from './src/lib/doc-schema';
+import { lightTheme, darkTheme } from './src/lib/code/theme';
+import { transformerNotationDiff, transformerNotationHighlight, transformerMetaHighlight } from '@shikijs/transformers';
 
 export const projects = defineDocs({
   dir: 'content/projects',
@@ -8,7 +10,7 @@ export const projects = defineDocs({
 
 export const topics = defineDocs({
   dir: 'content/topics',
-  docs: { schema: docSchema },
+  docs: { schema: docSchema, files: ['**/*.{md,mdx}', '!javascript/IMAGE-STYLE.md'] },
 });
 
 export const books = defineDocs({
@@ -16,4 +18,8 @@ export const books = defineDocs({
   docs: { schema: docSchema },
 });
 
-export default defineConfig();
+export default defineConfig({ mdxOptions: { rehypeCodeOptions: {
+  themes: { light: lightTheme, dark: darkTheme },
+  defaultColor: false,
+  transformers: [transformerNotationDiff(), transformerNotationHighlight(), transformerMetaHighlight()],
+} } });

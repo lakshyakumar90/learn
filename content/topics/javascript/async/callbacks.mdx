@@ -1,0 +1,206 @@
+---
+title: Callbacks
+description: "Navigation creates duplicate receipt handlers."
+---
+
+Navigation creates duplicate receipt handlers. Subscribe once and release the same callback when its owner ends.
+
+<CodeRunner title="Reproduce: A missing return loses a computed total" expect="undefined">
+{`function total(items) {
+  items.reduce((sum, price) => sum + price, 0);
+}
+console.log(total([4, 8]));`}
+</CodeRunner>
+
+## Where you've already seen it
+
+<RealWorld items={[
+  {
+    "name": "React",
+    "detail": "Handlers pass functions to defer work until an interaction.",
+    "source": "https://react.dev/learn/responding-to-events",
+    "year": 2026
+  },
+  {
+    "name": "Underscore",
+    "detail": "Partial pre-fills arguments while leaving the rest for later.",
+    "source": "https://underscorejs.org/docs/modules/partial.html",
+    "year": 2026
+  },
+  {
+    "name": "Node.js",
+    "detail": "EventEmitter calls registered listeners when an event is emitted.",
+    "source": "https://nodejs.org/api/events.html#events",
+    "year": 2026
+  }
+]} />
+
+The year labels the documentation checked, not the first release or adoption date.
+
+## How it works
+
+<Diagram id="js-event-flow" />
+
+Passing a callback registers behavior; it does not necessarily invoke it. The event source chooses when and with which data it runs.
+
+Follow the highlighted step or expand the diagram to inspect the boundary. The visual describes execution or data ownership; timing and memory totals are not inferred from its animation.
+
+## Build it
+
+### Start with the naive version
+
+<CodeCompare title="Make the boundary explicit" before={`function total(items) {
+  items.reduce((sum, price) => sum + price, 0);
+}
+console.log(total([4, 8]));`} after={`function total(items) {
+  return items.reduce((sum, price) => sum + price, 0);
+}
+console.log(total([4, 8]));`} />
+
+### Find its limit
+
+A missing return loses a computed total. Change the input and predict the output before you run it. The failure comes from a specific default, lifetime or ownership assumption; keep that assumption visible in the test.
+
+### Build the working version
+
+<CodeRunner title="Build: Callbacks" expect="receipt 42\nunsubscribed\ncontract true">
+{`function makeBus() {
+  const handlers = new Set();
+  return {
+    on(handler) {
+      handlers.add(handler);
+      return () => handlers.delete(handler);
+    },
+    emit(order) {
+      for (const handler of handlers) handler(order);
+    },
+  };
+}
+const bus = makeBus();
+const remove = bus.on((order) => console.log("receipt", order.id));
+bus.emit({ id: 42 });
+remove();
+bus.emit({ id: 43 });
+console.log("unsubscribed");
+const contractChecks = [
+  typeof remove === "function",
+  typeof bus.emit === "function",
+];
+if (!contractChecks.every(Boolean)) {
+  throw new Error("The boundary contract was broken");
+}
+console.log("contract", contractChecks.every(Boolean));`}
+</CodeRunner>
+
+The console runner is an isolated browser worker. These core examples are also checked in Node; DOM behavior belongs to the browser frame, and fakeFetch is sample data rather than a real network request.
+
+## Why it works this way
+
+Return unsubscribe functions and define failure policy. A promise is usually clearer for one eventual result; events represent repeated notifications.
+
+<ConceptCard variant="under-hood">
+Keep the operation's contract separate from its implementation. A faster path is useful only when it preserves the same outputs, error behavior and ownership rules; validate those boundaries before relying on a host-specific optimization.
+</ConceptCard>
+
+
+
+<WhenToUse use="inputs and outputs define a small contract" avoid="global state makes results unpredictable" alternative="a pure calculation plus separate effects" />
+
+## Mistakes that reach production
+
+### A missing return loses a computed total
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: A missing return loses a computed total" expect="undefined">
+{`function total(items) {
+  items.reduce((sum, price) => sum + price, 0);
+}
+console.log(total([4, 8]));`}
+</CodeRunner>
+
+<CodeRunner title="Fix: A missing return loses a computed total" expect="12">
+{`function total(items) {
+  return items.reduce((sum, price) => sum + price, 0);
+}
+console.log(total([4, 8]));`}
+</CodeRunner>
+
+### A shared global creates hidden input
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: A shared global creates hidden input" expect="22">
+{`let shipping = 3;
+const calculate = (subtotal) => subtotal + shipping;
+shipping = 10;
+console.log(calculate(12));`}
+</CodeRunner>
+
+<CodeRunner title="Fix: A shared global creates hidden input" expect="15">
+{`const calculate = (subtotal, shipping) => subtotal + shipping;
+console.log(calculate(12, 3));`}
+</CodeRunner>
+
+## Challenge
+
+Repair the starter so the boundary check passes. Then change one input to an empty, zero, repeated or missing value and explain whether your fix still preserves the intended contract.
+
+<BugHunt title="Fix the boundary" tests={`assert(total([4, 8]) === 12, "returns the total");`} solution={`function total(items) {
+  return items.reduce((sum, price) => sum + price, 0);
+}
+console.log(total([4, 8]));`}>
+{`function total(items) {
+  items.reduce((sum, price) => sum + price, 0);
+}
+console.log(total([4, 8]));`}
+</BugHunt>
+
+## Check yourself
+
+<Quiz questions={[
+  {
+    "question": "Which change repairs the reproduced failure?",
+    "options": [
+      {
+        "text": "A missing return loses a computed total needs the explicit boundary shown in the fix.",
+        "correct": true,
+        "why": "Compare the corrected value with the reproduction; the test checks the behavior, not a cosmetic rewrite."
+      },
+      {
+        "text": "Keep the same logic and suppress its output.",
+        "correct": false,
+        "why": "Hiding output leaves the underlying contract broken."
+      }
+    ]
+  },
+  {
+    "question": "When should you choose a different approach?",
+    "options": [
+      {
+        "text": "global state makes results unpredictable.",
+        "correct": true,
+        "why": "Use a pure calculation plus separate effects when that limitation applies."
+      },
+      {
+        "text": "Whenever the code uses a function.",
+        "correct": false,
+        "why": "A function does not by itself determine cost, ownership or correctness."
+      }
+    ]
+  }
+]} />
+
+## Takeaways
+
+- Check the value that crosses the boundary before choosing the syntax.
+- Passing a callback registers behavior; it does not necessarily invoke it.
+- Return unsubscribe functions and define failure policy.
+
+## References
+
+- [React](https://react.dev/learn/responding-to-events)
+- [Underscore](https://underscorejs.org/docs/modules/partial.html)
+- [Node.js](https://nodejs.org/api/events.html#events)
+
+Last verified: 2026-10-12.

@@ -16,6 +16,7 @@ const talkEntry = z.object({
  * Folder pages additionally use purpose / owns / files / talksTo / sources / diagram.
  */
 export const docSchema = pageSchema.extend({
+  kind: z.enum(['overview', 'concept']).optional(),
   purpose: z.string().optional(),
   owns: z.array(z.string()).optional(),
   files: z.array(fileEntry).optional(),

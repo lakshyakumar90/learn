@@ -1,0 +1,297 @@
+[
+  {
+    "page": "content/topics/javascript/advanced/design-patterns.mdx",
+    "words": 410,
+    "lines": 20
+  },
+  {
+    "page": "content/topics/javascript/advanced/leaks-debugging.mdx",
+    "words": 398,
+    "lines": 22
+  },
+  {
+    "page": "content/topics/javascript/advanced/metaprogramming.mdx",
+    "words": 392,
+    "lines": 26
+  },
+  {
+    "page": "content/topics/javascript/advanced/modern-features.mdx",
+    "words": 390,
+    "lines": 26
+  },
+  {
+    "page": "content/topics/javascript/advanced/performance-patterns.mdx",
+    "words": 409,
+    "lines": 20
+  },
+  {
+    "page": "content/topics/javascript/advanced/proxy-reflect.mdx",
+    "words": 414,
+    "lines": 23
+  },
+  {
+    "page": "content/topics/javascript/advanced/security.mdx",
+    "words": 403,
+    "lines": 26
+  },
+  {
+    "page": "content/topics/javascript/advanced/tooling.mdx",
+    "words": 389,
+    "lines": 26
+  },
+  {
+    "page": "content/topics/javascript/async/async-await.mdx",
+    "words": 409,
+    "lines": 25
+  },
+  {
+    "page": "content/topics/javascript/async/callbacks.mdx",
+    "words": 414,
+    "lines": 26
+  },
+  {
+    "page": "content/topics/javascript/async/event-loop-browser.mdx",
+    "words": 432,
+    "lines": 38
+  },
+  {
+    "page": "content/topics/javascript/async/event-loop-node.mdx",
+    "words": 419,
+    "lines": 21
+  },
+  {
+    "page": "content/topics/javascript/async/fetch-abort.mdx",
+    "words": 397,
+    "lines": 26
+  },
+  {
+    "page": "content/topics/javascript/async/promise-combinators.mdx",
+    "words": 402,
+    "lines": 23
+  },
+  {
+    "page": "content/topics/javascript/async/promises.mdx",
+    "words": 407,
+    "lines": 27
+  },
+  {
+    "page": "content/topics/javascript/async/streams.mdx",
+    "words": 394,
+    "lines": 20
+  },
+  {
+    "page": "content/topics/javascript/async/sync-vs-async.mdx",
+    "words": 418,
+    "lines": 21
+  },
+  {
+    "page": "content/topics/javascript/async/timers.mdx",
+    "words": 397,
+    "lines": 21
+  },
+  {
+    "page": "content/topics/javascript/async/workers.mdx",
+    "words": 418,
+    "lines": 25
+  },
+  {
+    "page": "content/topics/javascript/browser/dom.mdx",
+    "words": 402,
+    "lines": 27
+  },
+  {
+    "page": "content/topics/javascript/browser/events.mdx",
+    "words": 403,
+    "lines": 21
+  },
+  {
+    "page": "content/topics/javascript/browser/networking-cors.mdx",
+    "words": 425,
+    "lines": 20
+  },
+  {
+    "page": "content/topics/javascript/browser/rendering.mdx",
+    "words": 414,
+    "lines": 24
+  },
+  {
+    "page": "content/topics/javascript/browser/selecting.mdx",
+    "words": 398,
+    "lines": 26
+  },
+  {
+    "page": "content/topics/javascript/browser/storage.mdx",
+    "words": 401,
+    "lines": 20
+  },
+  {
+    "page": "content/topics/javascript/fundamentals/arrays.mdx",
+    "words": 406,
+    "lines": 23
+  },
+  {
+    "page": "content/topics/javascript/fundamentals/control-flow.mdx",
+    "words": 405,
+    "lines": 23
+  },
+  {
+    "page": "content/topics/javascript/fundamentals/destructuring.mdx",
+    "words": 390,
+    "lines": 25
+  },
+  {
+    "page": "content/topics/javascript/fundamentals/errors.mdx",
+    "words": 405,
+    "lines": 22
+  },
+  {
+    "page": "content/topics/javascript/fundamentals/functions.mdx",
+    "words": 409,
+    "lines": 25
+  },
+  {
+    "page": "content/topics/javascript/fundamentals/objects.mdx",
+    "words": 403,
+    "lines": 22
+  },
+  {
+    "page": "content/topics/javascript/fundamentals/strings.mdx",
+    "words": 404,
+    "lines": 21
+  },
+  {
+    "page": "content/topics/javascript/fundamentals/values-types.mdx",
+    "words": 390,
+    "lines": 23
+  },
+  {
+    "page": "content/topics/javascript/fundamentals/variables.mdx",
+    "words": 399,
+    "lines": 26
+  },
+  {
+    "page": "content/topics/javascript/how-it-works/engine.mdx",
+    "words": 392,
+    "lines": 21
+  },
+  {
+    "page": "content/topics/javascript/how-it-works/execution-context.mdx",
+    "words": 404,
+    "lines": 20
+  },
+  {
+    "page": "content/topics/javascript/how-it-works/hoisting.mdx",
+    "words": 417,
+    "lines": 21
+  },
+  {
+    "page": "content/topics/javascript/how-it-works/jit.mdx",
+    "words": 400,
+    "lines": 23
+  },
+  {
+    "page": "content/topics/javascript/how-it-works/memory.mdx",
+    "words": 396,
+    "lines": 22
+  },
+  {
+    "page": "content/topics/javascript/how-it-works/runtime.mdx",
+    "words": 424,
+    "lines": 25
+  },
+  {
+    "page": "content/topics/javascript/how-it-works/scope.mdx",
+    "words": 409,
+    "lines": 21
+  },
+  {
+    "page": "content/topics/javascript/index.mdx",
+    "words": 179,
+    "lines": 0
+  },
+  {
+    "page": "content/topics/javascript/intermediate/classes.mdx",
+    "words": 405,
+    "lines": 23
+  },
+  {
+    "page": "content/topics/javascript/intermediate/closures.mdx",
+    "words": 415,
+    "lines": 23
+  },
+  {
+    "page": "content/topics/javascript/intermediate/higher-order.mdx",
+    "words": 407,
+    "lines": 22
+  },
+  {
+    "page": "content/topics/javascript/intermediate/immutability.mdx",
+    "words": 406,
+    "lines": 25
+  },
+  {
+    "page": "content/topics/javascript/intermediate/iterators.mdx",
+    "words": 397,
+    "lines": 33
+  },
+  {
+    "page": "content/topics/javascript/intermediate/modules.mdx",
+    "words": 421,
+    "lines": 21
+  },
+  {
+    "page": "content/topics/javascript/intermediate/prototypes.mdx",
+    "words": 401,
+    "lines": 26
+  },
+  {
+    "page": "content/topics/javascript/intermediate/regex.mdx",
+    "words": 407,
+    "lines": 22
+  },
+  {
+    "page": "content/topics/javascript/intermediate/symbols-collections.mdx",
+    "words": 407,
+    "lines": 21
+  },
+  {
+    "page": "content/topics/javascript/intermediate/this-binding.mdx",
+    "words": 408,
+    "lines": 26
+  },
+  {
+    "page": "content/topics/javascript/practice/cheat-sheet.mdx",
+    "words": 170,
+    "lines": 0
+  },
+  {
+    "page": "content/topics/javascript/practice/gotchas.mdx",
+    "words": 402,
+    "lines": 20
+  },
+  {
+    "page": "content/topics/javascript/practice/interview-questions.mdx",
+    "words": 415,
+    "lines": 24
+  },
+  {
+    "page": "content/topics/javascript/practice/mini-apps.mdx",
+    "words": 180,
+    "lines": 33
+  },
+  {
+    "page": "content/topics/javascript/start-here/how-to-use.mdx",
+    "words": 214,
+    "lines": 0
+  },
+  {
+    "page": "content/topics/javascript/start-here/popularity.mdx",
+    "words": 186,
+    "lines": 0
+  },
+  {
+    "page": "content/topics/javascript/start-here/what-is.mdx",
+    "words": 166,
+    "lines": 0
+  }
+]

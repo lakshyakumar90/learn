@@ -18,6 +18,9 @@ const LAYER_VAR: Record<DiagramLayer, string> = {
   localdata: 'var(--dg-localdata)',
   device: 'var(--dg-device)',
   cloud: 'var(--dg-cloud)',
+  language: 'var(--dg-language)',
+  engine: 'var(--dg-engine)',
+  runtime: 'var(--dg-runtime)',
 };
 
 export const LayerNode = memo(function LayerNode({

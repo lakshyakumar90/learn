@@ -10,7 +10,8 @@ export function FlowSteps({
   large = false,
 }: {
   flowId: string;
-  steps: FlowStep[];
+  /** Any steps with titles (flow steps, scenario steps, ...). */
+  steps: Array<Pick<FlowStep, 'title'>>;
   large?: boolean;
 }) {
   const step = useFlowUi(flowId).step;
@@ -19,7 +20,7 @@ export function FlowSteps({
   return (
     <ol className="flex flex-col gap-1" aria-label="Steps">
       {steps.map((s, i) => (
-        <li key={s.title}>
+        <li key={`${i}-${s.title}`}>
           <button
             type="button"
             onClick={() => goTo(flowId, i, steps.length)}

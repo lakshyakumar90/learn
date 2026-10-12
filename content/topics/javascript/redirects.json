@@ -1,0 +1,10 @@
+{
+  "start-here/history": "start-here/what-is",
+  "start-here/where-runs": "start-here/what-is",
+  "start-here/pros-cons": "start-here/popularity",
+  "start-here/setup": "start-here/how-to-use",
+  "fundamentals/operators": "fundamentals/values-types",
+  "fundamentals/dates-math-json": "fundamentals/strings",
+  "practice/glossary": "practice/cheat-sheet",
+  "practice/further-reading": "practice/cheat-sheet"
+}

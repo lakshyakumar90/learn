@@ -1,24 +1,36 @@
-import Link from 'next/link';
+import { Suspense } from 'react';
 import { DocsNavbar } from '@/components/DocsNavbar';
-import { siteConfig } from '@/site.config';
+import { Footer } from '@/components/Footer';
+import { CatalogBrowser } from '@/components/catalog/CatalogBrowser';
+
+export const metadata = {
+  title: 'Projects',
+  description: 'Browse every documented codebase by platform, tag, and status — or search them.',
+};
 
 export default function ProjectsPage() {
   return (
     <div className="flex min-h-full flex-1 flex-col">
       <DocsNavbar />
-      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-16">
-        <h1 className="text-3xl font-semibold tracking-tight">Projects</h1>
-        <ul className="flex flex-col gap-4">
-          {siteConfig.projects.map((p) => (
-            <li key={p.slug} className="rounded-xl border p-5">
-              <Link href={`/projects/${p.slug}`} className="text-xl font-medium underline">
-                {p.name}
-              </Link>
-              <p className="mt-1 text-sm opacity-70">{p.description}</p>
-            </li>
-          ))}
-        </ul>
+      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-12">
+        <p className="text-xs font-medium uppercase tracking-wider opacity-50">Projects</p>
+        <h1 className="mt-1 text-3xl font-semibold tracking-tight">Browse projects</h1>
+        <p className="mt-1 max-w-2xl opacity-70">
+          Real codebases, documented end to end. Filter by platform, tag, or status — or just search.
+        </p>
+        <div className="mt-6">
+          <Suspense>
+            <CatalogBrowser
+              collection="projects"
+              searchPlaceholder="Search projects, e.g. “websocket”…"
+              badgeBase="/projects?"
+              emptyTitle="No projects match"
+              emptyLine="Try a different search, or clear the filters to see everything again."
+            />
+          </Suspense>
+        </div>
       </main>
+      <Footer />
     </div>
   );
 }

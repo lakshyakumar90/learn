@@ -91,6 +91,14 @@ interface ExpandedViewProps {
   description: string;
   /** Arrow keys pan the canvas (plain diagrams). Flow views use arrows for steps. */
   panKeys: boolean;
+  /**
+   * Header controls next to the close button. Defaults to the diagram
+   * zoom controls; non-canvas players (code runners, scenario players)
+   * pass their own or an empty fragment.
+   */
+  headerControls?: React.ReactNode;
+  /** Skip the ReactFlow provider (no canvas inside). Defaults to false. */
+  noFlow?: boolean;
   children: React.ReactNode;
 }
 
@@ -106,31 +114,36 @@ export function ExpandedView({
   title,
   description,
   panKeys,
+  headerControls,
+  noFlow = false,
   children,
 }: ExpandedViewProps) {
+  const body = (
+    <>
+      <div className="flex items-center gap-2 border-b px-3 py-2 sm:px-4">
+        <div className="mr-auto min-w-0">
+          <Dialog.Title className="truncate text-base font-semibold">{title}</Dialog.Title>
+          <Dialog.Description className="sr-only">{description}</Dialog.Description>
+        </div>
+        {headerControls ?? <ModalZoomControls panKeys={panKeys} />}
+        <Dialog.Close
+          aria-label="Close"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-stone-900 text-sm font-medium text-white transition-opacity hover:opacity-90 dark:bg-white dark:text-stone-900"
+        >
+          <X size={18} aria-hidden />
+        </Dialog.Close>
+      </div>
+      <div className="modal-body-safe flex min-h-0 flex-1 flex-col overflow-y-auto lg:overflow-visible">
+        {children}
+      </div>
+    </>
+  );
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
         <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex h-[92vh] w-[95vw] max-w-[1500px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border bg-[var(--dg-node-bg)] text-[var(--foreground)] shadow-2xl max-md:h-dvh max-md:w-screen max-md:rounded-none">
-          <ReactFlowProvider>
-            <div className="flex items-center gap-2 border-b px-3 py-2 sm:px-4">
-              <div className="mr-auto min-w-0">
-                <Dialog.Title className="truncate text-base font-semibold">
-                  {title}
-                </Dialog.Title>
-                <Dialog.Description className="sr-only">{description}</Dialog.Description>
-              </div>
-              <ModalZoomControls panKeys={panKeys} />
-              <Dialog.Close
-                aria-label="Close"
-                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-stone-900 text-sm font-medium text-white transition-opacity hover:opacity-90 dark:bg-white dark:text-stone-900"
-              >
-                <X size={18} aria-hidden />
-              </Dialog.Close>
-            </div>
-            <div className="modal-body-safe flex min-h-0 flex-1 flex-col overflow-y-auto lg:overflow-visible">{children}</div>
-          </ReactFlowProvider>
+          {noFlow ? body : <ReactFlowProvider>{body}</ReactFlowProvider>}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

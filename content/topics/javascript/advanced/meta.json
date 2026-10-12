@@ -1,0 +1,13 @@
+{
+  "title": "Advanced",
+  "pages": [
+    "proxy-reflect",
+    "metaprogramming",
+    "leaks-debugging",
+    "performance-patterns",
+    "design-patterns",
+    "security",
+    "tooling",
+    "modern-features"
+  ]
+}

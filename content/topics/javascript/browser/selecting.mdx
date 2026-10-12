@@ -1,0 +1,224 @@
+---
+title: Selecting and changing elements
+description: "A missing button crashes a handler."
+---
+
+A missing button crashes a handler. Query within its owning container and handle a null match.
+
+<CodeRunner title="Reproduce: A missing return loses a computed total" expect="undefined">
+{`function total(items) {
+  items.reduce((sum, price) => sum + price, 0);
+}
+console.log(total([4, 8]));`}
+</CodeRunner>
+
+## Where you've already seen it
+
+<RealWorld items={[
+  {
+    "name": "jQuery",
+    "detail": "Delegated listeners cover new descendants without rebinding each item.",
+    "source": "https://api.jquery.com/on/",
+    "year": 2026
+  },
+  {
+    "name": "D3",
+    "detail": "Selection listeners expose the event and bound data to handlers.",
+    "source": "https://d3js.org/d3-selection/events",
+    "year": 2026
+  },
+  {
+    "name": "React",
+    "detail": "Event handlers update state in response to user interactions.",
+    "source": "https://react.dev/learn/responding-to-events",
+    "year": 2026
+  }
+]} />
+
+The year labels the documentation checked, not the first release or adoption date.
+
+## How it works
+
+<Diagram id="js-event-flow" />
+
+QuerySelector returns the first match or null. QuerySelectorAll is static, while some older collections change as the DOM mutates.
+
+Follow the highlighted step or expand the diagram to inspect the boundary. The visual describes execution or data ownership; timing and memory totals are not inferred from its animation.
+
+## Build it
+
+### Start with the naive version
+
+<CodeCompare title="Make the boundary explicit" before={`function total(items) {
+  items.reduce((sum, price) => sum + price, 0);
+}
+console.log(total([4, 8]));`} after={`function total(items) {
+  return items.reduce((sum, price) => sum + price, 0);
+}
+console.log(total([4, 8]));`} />
+
+### Find its limit
+
+A missing return loses a computed total. Change the input and predict the output before you run it. The failure comes from a specific default, lifetime or ownership assumption; keep that assumption visible in the test.
+
+### Build the working version
+
+<CodeRunner title="Build: Selecting and changing elements" expect="2\nmissing\n2\nmatch count 2\ncontract true">
+{`const rows = [
+  { id: "tea", quantity: 1 },
+  { id: "rice", quantity: 2 },
+  { id: "coffee", quantity: 0 },
+];
+function selectById(id) {
+  return rows.find((row) => row.id === id) ?? null;
+}
+function increment(id) {
+  const row = selectById(id);
+  if (!row) return "missing";
+  row.quantity++;
+  return row.quantity;
+}
+console.log(increment("tea"));
+console.log(increment("unknown"));
+console.log(selectById("rice").quantity);
+console.log("match count", rows.filter((row) => row.quantity > 0).length);
+const contractChecks = [
+  selectById("unknown") === null,
+  selectById("tea").quantity === 2,
+];
+if (!contractChecks.every(Boolean)) {
+  throw new Error("The boundary contract was broken");
+}
+console.log("contract", contractChecks.every(Boolean));`}
+</CodeRunner>
+
+The console runner is an isolated browser worker. These core examples are also checked in Node; DOM behavior belongs to the browser frame, and fakeFetch is sample data rather than a real network request.
+
+<CodeRunner env="dom" title="Scoped selectors and missing matches" expectDom="Quantity: 0" html={`<section id="cart">
+  <button data-action="add">Add tea</button>
+  <p id="status">Quantity: 0</p>
+</section>`} css={``}>
+{`const cart = document.querySelector("#cart");
+const button = cart.querySelector("[data-action=add]");
+const output = cart.querySelector("#status");
+let quantity = 0;
+if (button && output) {
+  button.addEventListener("click", () => {
+    quantity++;
+    output.textContent = "Quantity: " + quantity;
+  });
+}
+const optional = cart.querySelector("[data-action=remove]");
+console.log("optional action exists", optional !== null);`}
+</CodeRunner>
+
+## Why it works this way
+
+Cache stable containers, not disappearing children. Escape externally constructed identifiers and avoid interpolating arbitrary selector fragments.
+
+<ConceptCard variant="under-hood">
+Keep the operation's contract separate from its implementation. A faster path is useful only when it preserves the same outputs, error behavior and ownership rules; validate those boundaries before relying on a host-specific optimization.
+</ConceptCard>
+
+
+
+<WhenToUse use="many dynamic children share actions" avoid="the event does not bubble" alternative="a direct or capture listener" />
+
+## Mistakes that reach production
+
+### A missing return loses a computed total
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: A missing return loses a computed total" expect="undefined">
+{`function total(items) {
+  items.reduce((sum, price) => sum + price, 0);
+}
+console.log(total([4, 8]));`}
+</CodeRunner>
+
+<CodeRunner title="Fix: A missing return loses a computed total" expect="12">
+{`function total(items) {
+  return items.reduce((sum, price) => sum + price, 0);
+}
+console.log(total([4, 8]));`}
+</CodeRunner>
+
+### A shared global creates hidden input
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: A shared global creates hidden input" expect="22">
+{`let shipping = 3;
+const calculate = (subtotal) => subtotal + shipping;
+shipping = 10;
+console.log(calculate(12));`}
+</CodeRunner>
+
+<CodeRunner title="Fix: A shared global creates hidden input" expect="15">
+{`const calculate = (subtotal, shipping) => subtotal + shipping;
+console.log(calculate(12, 3));`}
+</CodeRunner>
+
+## Challenge
+
+Repair the starter so the boundary check passes. Then change one input to an empty, zero, repeated or missing value and explain whether your fix still preserves the intended contract.
+
+<BugHunt title="Fix the boundary" tests={`assert(total([4, 8]) === 12, "returns the total");`} solution={`function total(items) {
+  return items.reduce((sum, price) => sum + price, 0);
+}
+console.log(total([4, 8]));`}>
+{`function total(items) {
+  items.reduce((sum, price) => sum + price, 0);
+}
+console.log(total([4, 8]));`}
+</BugHunt>
+
+## Check yourself
+
+<Quiz questions={[
+  {
+    "question": "Which change repairs the reproduced failure?",
+    "options": [
+      {
+        "text": "A missing return loses a computed total needs the explicit boundary shown in the fix.",
+        "correct": true,
+        "why": "Compare the corrected value with the reproduction; the test checks the behavior, not a cosmetic rewrite."
+      },
+      {
+        "text": "Keep the same logic and suppress its output.",
+        "correct": false,
+        "why": "Hiding output leaves the underlying contract broken."
+      }
+    ]
+  },
+  {
+    "question": "When should you choose a different approach?",
+    "options": [
+      {
+        "text": "the event does not bubble.",
+        "correct": true,
+        "why": "Use a direct or capture listener when that limitation applies."
+      },
+      {
+        "text": "Whenever the code uses a function.",
+        "correct": false,
+        "why": "A function does not by itself determine cost, ownership or correctness."
+      }
+    ]
+  }
+]} />
+
+## Takeaways
+
+- Check the value that crosses the boundary before choosing the syntax.
+- QuerySelector returns the first match or null.
+- Cache stable containers, not disappearing children.
+
+## References
+
+- [jQuery](https://api.jquery.com/on/)
+- [D3](https://d3js.org/d3-selection/events)
+- [React](https://react.dev/learn/responding-to-events)
+
+Last verified: 2026-10-12.

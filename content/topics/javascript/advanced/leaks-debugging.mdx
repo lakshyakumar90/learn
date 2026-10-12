@@ -1,0 +1,203 @@
+---
+title: Memory leaks and debugging
+description: "Your view receives an event more times after every visit."
+---
+
+Your view receives an event more times after every visit. Mount listeners, then clean them up and dispatch again.
+
+<LiveDemo demo="leak" />
+
+## Where you've already seen it
+
+<RealWorld items={[
+  {
+    "name": "Chrome DevTools",
+    "detail": "Heap snapshots reveal retained objects and their retaining paths.",
+    "source": "https://developer.chrome.com/docs/devtools/memory-problems/heap-snapshots",
+    "year": 2026
+  },
+  {
+    "name": "React",
+    "detail": "Effect cleanup releases subscriptions when synchronization stops.",
+    "source": "https://react.dev/learn/synchronizing-with-effects",
+    "year": 2026
+  },
+  {
+    "name": "Vue",
+    "detail": "WeakMap indexes dependency subscriptions by reactive target.",
+    "source": "https://vuejs.org/guide/extras/reactivity-in-depth",
+    "year": 2026
+  }
+]} />
+
+The year labels the documentation checked, not the first release or adoption date.
+
+## How it works
+
+<Diagram id="js-memory-gc" />
+
+A listener is reachable through its target until removed. A retained callback may also keep referenced view data alive.
+
+Follow the highlighted step or expand the diagram to inspect the boundary. The visual describes execution or data ownership; timing and memory totals are not inferred from its animation.
+
+## Build it
+
+### Start with the naive version
+
+<CodeCompare title="Make the boundary explicit" before={`const listeners = new Set();
+const handler = () => 12;
+listeners.add(handler);
+console.log(listeners.size);`} after={`const listeners = new Set();
+const handler = () => 12;
+listeners.add(handler);
+listeners.delete(handler);
+console.log(listeners.size);`} />
+
+### Find its limit
+
+Subscriptions accumulate across mounts. Change the input and predict the output before you run it. The failure comes from a specific default, lifetime or ownership assumption; keep that assumption visible in the test.
+
+### Build the working version
+
+<CodeRunner title="Build: Memory leaks and debugging" expect="cart 12\nbefore cleanup 1\nafter cleanup 0">
+{`function makeEventBus() {
+  const listeners = new Set();
+  return {
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
+    publish(value) {
+      for (const listener of listeners) listener(value);
+    },
+    count() {
+      return listeners.size;
+    },
+  };
+}
+const bus = makeEventBus();
+const release = bus.subscribe((total) => console.log("cart", total));
+bus.publish(12);
+console.log("before cleanup", bus.count());
+release();
+bus.publish(18);
+console.log("after cleanup", bus.count());`}
+</CodeRunner>
+
+The console runner is an isolated browser worker. These core examples are also checked in Node; DOM behavior belongs to the browser frame, and fakeFetch is sample data rather than a real network request.
+
+## Why it works this way
+
+Cleanup belongs to the subscription lifecycle. Listener counts show retention, not heap sizes; collection timing is not asserted.
+
+<ConceptCard variant="under-hood">
+Keep the operation's contract separate from its implementation. A faster path is useful only when it preserves the same outputs, error behavior and ownership rules; validate those boundaries before relying on a host-specific optimization.
+</ConceptCard>
+
+<TopicMedia topic="javascript" slot="devtools-memory" />
+
+<WhenToUse use="cache or subscription lifetime is known" avoid="collection timing is part of correctness" alternative="bounded retention and explicit teardown" />
+
+## Mistakes that reach production
+
+### Subscriptions accumulate across mounts
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: Subscriptions accumulate across mounts" expect="1">
+{`const listeners = new Set();
+const handler = () => 12;
+listeners.add(handler);
+console.log(listeners.size);`}
+</CodeRunner>
+
+<CodeRunner title="Fix: Subscriptions accumulate across mounts" expect="0">
+{`const listeners = new Set();
+const handler = () => 12;
+listeners.add(handler);
+listeners.delete(handler);
+console.log(listeners.size);`}
+</CodeRunner>
+
+### An unbounded cache retains every search
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: An unbounded cache retains every search" expect="3">
+{`const cache = new Map();
+for (const query of ["tea", "rice", "coffee"]) cache.set(query, {});
+console.log(cache.size);`}
+</CodeRunner>
+
+<CodeRunner title="Fix: An unbounded cache retains every search" expect="2">
+{`const cache = new Map();
+for (const query of ["tea", "rice", "coffee"]) {
+  cache.set(query, {});
+  if (cache.size > 2) cache.delete(cache.keys().next().value);
+}
+console.log(cache.size);`}
+</CodeRunner>
+
+## Challenge
+
+Repair the starter so the boundary check passes. Then change one input to an empty, zero, repeated or missing value and explain whether your fix still preserves the intended contract.
+
+<BugHunt title="Fix the boundary" tests={`assert(listeners.size === 0, "releases the subscription");`} solution={`const listeners = new Set();
+const handler = () => 12;
+listeners.add(handler);
+listeners.delete(handler);
+console.log(listeners.size);`}>
+{`const listeners = new Set();
+const handler = () => 12;
+listeners.add(handler);
+console.log(listeners.size);`}
+</BugHunt>
+
+## Check yourself
+
+<Quiz questions={[
+  {
+    "question": "Which change repairs the reproduced failure?",
+    "options": [
+      {
+        "text": "Subscriptions accumulate across mounts needs the explicit boundary shown in the fix.",
+        "correct": true,
+        "why": "Compare the corrected value with the reproduction; the test checks the behavior, not a cosmetic rewrite."
+      },
+      {
+        "text": "Keep the same logic and suppress its output.",
+        "correct": false,
+        "why": "Hiding output leaves the underlying contract broken."
+      }
+    ]
+  },
+  {
+    "question": "When should you choose a different approach?",
+    "options": [
+      {
+        "text": "collection timing is part of correctness.",
+        "correct": true,
+        "why": "Use bounded retention and explicit teardown when that limitation applies."
+      },
+      {
+        "text": "Whenever the code uses a function.",
+        "correct": false,
+        "why": "A function does not by itself determine cost, ownership or correctness."
+      }
+    ]
+  }
+]} />
+
+## Takeaways
+
+- Check the value that crosses the boundary before choosing the syntax.
+- A listener is reachable through its target until removed.
+- Cleanup belongs to the subscription lifecycle.
+
+## References
+
+- [Chrome DevTools](https://developer.chrome.com/docs/devtools/memory-problems/heap-snapshots)
+- [React](https://react.dev/learn/synchronizing-with-effects)
+- [Vue](https://vuejs.org/guide/extras/reactivity-in-depth)
+
+Last verified: 2026-10-12.

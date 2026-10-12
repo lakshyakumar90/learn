@@ -1,0 +1,16 @@
+id: drizzle
+title: Drizzle
+summary: SQL-first ORM notes with Drizzle. Coming soon.
+category: orms
+tags:
+  - ORM
+  - Database
+  - SQL
+level: beginner
+status: soon
+order: 3
+updated: '2026-10-12'
+keywords:
+  - drizzle orm
+  - schema
+  - migration

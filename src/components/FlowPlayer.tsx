@@ -16,23 +16,31 @@ import { FlowTabs } from './flow/FlowTabs';
 const FLOW_ID = 'end-to-end';
 
 /** Single auto-advance timer. Rendered once (inline tree) so playback never doubles. */
-function FlowTimer({ total, canAnimate }: { total: number; canAnimate: boolean }) {
-  const playing = useFlowUi(FLOW_ID).playing;
-  const step = useFlowUi(FLOW_ID).step;
-  const speed = useFlowUi(FLOW_ID).speed;
+export function FlowTimer({
+  total,
+  canAnimate,
+  flowId = FLOW_ID,
+}: {
+  total: number;
+  canAnimate: boolean;
+  flowId?: string;
+}) {
+  const playing = useFlowUi(flowId).playing;
+  const step = useFlowUi(flowId).step;
+  const speed = useFlowUi(flowId).speed;
 
   useEffect(() => {
     if (!playing || !canAnimate || total === 0) return;
     if (step >= total - 1) {
-      useFlowStore.getState().stop(FLOW_ID);
+      useFlowStore.getState().stop(flowId);
       return;
     }
     const t = window.setTimeout(
-      () => useFlowStore.getState().next(FLOW_ID, total),
+      () => useFlowStore.getState().next(flowId, total),
       FLOW_STEP_MS / speed,
     );
     return () => window.clearTimeout(t);
-  }, [playing, step, speed, total, canAnimate]);
+  }, [playing, step, speed, total, canAnimate, flowId]);
 
   return null;
 }
@@ -54,7 +62,15 @@ function FlowNarration({ large = false }: { large?: boolean }) {
 }
 
 /** Space / arrows in the expanded view: playback, never canvas pan. */
-function FlowModalHotkeys({ total, canAnimate }: { total: number; canAnimate: boolean }) {
+export function FlowModalHotkeys({
+  total,
+  canAnimate,
+  flowId = FLOW_ID,
+}: {
+  total: number;
+  canAnimate: boolean;
+  flowId?: string;
+}) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
@@ -64,19 +80,19 @@ function FlowModalHotkeys({ total, canAnimate }: { total: number; canAnimate: bo
         // Let focused buttons keep their native Space behaviour.
         if (target && target.closest('button, a, [role="tab"]')) return;
         e.preventDefault();
-        if (canAnimate) state.toggle(FLOW_ID, total, true);
-        else state.next(FLOW_ID, total);
+        if (canAnimate) state.toggle(flowId, total, true);
+        else state.next(flowId, total);
       } else if (e.key === 'ArrowRight') {
         e.preventDefault();
-        state.next(FLOW_ID, total);
+        state.next(flowId, total);
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
-        state.back(FLOW_ID);
+        state.back(flowId);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [total, canAnimate]);
+  }, [total, canAnimate, flowId]);
   return null;
 }
 

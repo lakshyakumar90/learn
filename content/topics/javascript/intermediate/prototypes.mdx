@@ -1,0 +1,234 @@
+---
+title: Prototypes and the prototype chain
+description: "Every plugin duplicates the same run method."
+---
+
+Every plugin duplicates the same run method. Share behavior through a prototype and keep names on instances.
+
+<CodeRunner title="Reproduce: A detached method loses its receiver" expect="missing">
+{`const toolbar = {
+  name: "cart",
+  read() {
+    return this?.name ?? "missing";
+  },
+};
+const callback = toolbar.read;
+console.log(callback());`}
+</CodeRunner>
+
+## Where you've already seen it
+
+<RealWorld items={[
+  {
+    "name": "Node.js",
+    "detail": "EventEmitter sets ordinary listeners this to the emitter.",
+    "source": "https://nodejs.org/api/events.html#passing-arguments-and-this-to-listeners",
+    "year": 2026
+  },
+  {
+    "name": "Underscore",
+    "detail": "Bind fixes a receiver for later callback invocation.",
+    "source": "https://underscorejs.org/docs/modules/bind.html",
+    "year": 2026
+  },
+  {
+    "name": "React",
+    "detail": "Class methods can bind this before being passed as handlers.",
+    "source": "https://react.dev/reference/react/Component",
+    "year": 2026
+  }
+]} />
+
+The year labels the documentation checked, not the first release or adoption date.
+
+## How it works
+
+<Diagram id="js-prototype-chain" />
+
+Lookup checks own properties before the prototype chain. Array.map comes from Array.prototype; hasOwn distinguishes inherited behavior.
+
+Follow the highlighted step or expand the diagram to inspect the boundary. The visual describes execution or data ownership; timing and memory totals are not inferred from its animation.
+
+## Build it
+
+### Start with the naive version
+
+<CodeCompare title="Make the boundary explicit" before={`const toolbar = {
+  name: "cart",
+  read() {
+    return this?.name ?? "missing";
+  },
+};
+const callback = toolbar.read;
+console.log(callback());`} after={`const toolbar = {
+  name: "cart",
+  read() {
+    return this?.name ?? "missing";
+  },
+};
+const callback = toolbar.read.bind(toolbar);
+console.log(callback());`} />
+
+### Find its limit
+
+A detached method loses its receiver. Change the input and predict the output before you run it. The failure comes from a specific default, lifetime or ownership assumption; keep that assumption visible in the test.
+
+### Build the working version
+
+<CodeRunner title="Build: Prototypes and the prototype chain" expect="tea\ninherits enabled true\nowns enabled false\nshared method true\nmap lives on prototype true\ncontract true">
+{`const pluginBase = {
+  enabled: true,
+  run(input) {
+    return input.trim();
+  },
+};
+function makePlugin(name) {
+  const plugin = Object.create(pluginBase);
+  plugin.name = name;
+  return plugin;
+}
+const searchPlugin = makePlugin("search");
+const importPlugin = makePlugin("import");
+console.log(searchPlugin.run(" tea "));
+console.log("inherits enabled", searchPlugin.enabled);
+console.log("owns enabled", Object.hasOwn(searchPlugin, "enabled"));
+console.log("shared method", searchPlugin.run === importPlugin.run);
+console.log("map lives on prototype", Object.hasOwn(Array.prototype, "map"));
+const contractChecks = [
+  Object.getPrototypeOf(searchPlugin) === pluginBase,
+  !Object.hasOwn(searchPlugin, "run"),
+];
+if (!contractChecks.every(Boolean)) {
+  throw new Error("The boundary contract was broken");
+}
+console.log("contract", contractChecks.every(Boolean));`}
+</CodeRunner>
+
+The console runner is an isolated browser worker. These core examples are also checked in Node; DOM behavior belongs to the browser frame, and fakeFetch is sample data rather than a real network request.
+
+## Why it works this way
+
+Do not edit built-in prototypes. Prefer composition when plugin capabilities vary independently instead of forcing deep inheritance.
+
+<ConceptCard variant="under-hood">
+Keep the operation's contract separate from its implementation. A faster path is useful only when it preserves the same outputs, error behavior and ownership rules; validate those boundaries before relying on a host-specific optimization.
+</ConceptCard>
+
+
+
+<WhenToUse use="a method is passed as a callback" avoid="the function needs no receiver" alternative="explicit arguments or a wrapper" />
+
+## Mistakes that reach production
+
+### A detached method loses its receiver
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: A detached method loses its receiver" expect="missing">
+{`const toolbar = {
+  name: "cart",
+  read() {
+    return this?.name ?? "missing";
+  },
+};
+const callback = toolbar.read;
+console.log(callback());`}
+</CodeRunner>
+
+<CodeRunner title="Fix: A detached method loses its receiver" expect="cart">
+{`const toolbar = {
+  name: "cart",
+  read() {
+    return this?.name ?? "missing";
+  },
+};
+const callback = toolbar.read.bind(toolbar);
+console.log(callback());`}
+</CodeRunner>
+
+### An inherited method is mistaken for own data
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: An inherited method is mistaken for own data" expect="true">
+{`const row = Object.create({ enabled: true });
+const owns = "enabled" in row;
+console.log(owns);`}
+</CodeRunner>
+
+<CodeRunner title="Fix: An inherited method is mistaken for own data" expect="false">
+{`const row = Object.create({ enabled: true });
+const owns = Object.hasOwn(row, "enabled");
+console.log(owns);`}
+</CodeRunner>
+
+## Challenge
+
+Repair the starter so the boundary check passes. Then change one input to an empty, zero, repeated or missing value and explain whether your fix still preserves the intended contract.
+
+<BugHunt title="Fix the boundary" tests={`assert(callback() === "cart", "keeps the receiver");`} solution={`const toolbar = {
+  name: "cart",
+  read() {
+    return this?.name ?? "missing";
+  },
+};
+const callback = toolbar.read.bind(toolbar);
+console.log(callback());`}>
+{`const toolbar = {
+  name: "cart",
+  read() {
+    return this?.name ?? "missing";
+  },
+};
+const callback = toolbar.read;
+console.log(callback());`}
+</BugHunt>
+
+## Check yourself
+
+<Quiz questions={[
+  {
+    "question": "Which change repairs the reproduced failure?",
+    "options": [
+      {
+        "text": "A detached method loses its receiver needs the explicit boundary shown in the fix.",
+        "correct": true,
+        "why": "Compare the corrected value with the reproduction; the test checks the behavior, not a cosmetic rewrite."
+      },
+      {
+        "text": "Keep the same logic and suppress its output.",
+        "correct": false,
+        "why": "Hiding output leaves the underlying contract broken."
+      }
+    ]
+  },
+  {
+    "question": "When should you choose a different approach?",
+    "options": [
+      {
+        "text": "the function needs no receiver.",
+        "correct": true,
+        "why": "Use explicit arguments or a wrapper when that limitation applies."
+      },
+      {
+        "text": "Whenever the code uses a function.",
+        "correct": false,
+        "why": "A function does not by itself determine cost, ownership or correctness."
+      }
+    ]
+  }
+]} />
+
+## Takeaways
+
+- Check the value that crosses the boundary before choosing the syntax.
+- Lookup checks own properties before the prototype chain.
+- Do not edit built-in prototypes.
+
+## References
+
+- [Node.js](https://nodejs.org/api/events.html#passing-arguments-and-this-to-listeners)
+- [Underscore](https://underscorejs.org/docs/modules/bind.html)
+- [React](https://react.dev/reference/react/Component)
+
+Last verified: 2026-10-12.

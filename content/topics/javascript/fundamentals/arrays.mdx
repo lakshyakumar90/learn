@@ -1,0 +1,198 @@
+---
+title: Arrays and array methods
+description: "Changing a quantity also edits the previous receipt."
+---
+
+Changing a quantity also edits the previous receipt. Replace the changed item and preserve the old array.
+
+<CodeRunner title="Reproduce: Sort changes the original order" expect="4,6,8">
+{`const prices = [8, 4, 6];
+const sorted = prices.sort((a, b) => a - b);
+console.log(prices.join(","));`}
+</CodeRunner>
+
+## Where you've already seen it
+
+<RealWorld items={[
+  {
+    "name": "React",
+    "detail": "List rendering maps data to keyed UI elements.",
+    "source": "https://react.dev/learn/rendering-lists",
+    "year": 2026
+  },
+  {
+    "name": "Underscore",
+    "detail": "GroupBy partitions records by a computed key.",
+    "source": "https://underscorejs.org/docs/modules/groupBy.html",
+    "year": 2026
+  },
+  {
+    "name": "D3",
+    "detail": "Array utilities summarize data before drawing a visualization.",
+    "source": "https://d3js.org/d3-array/summarize",
+    "year": 2026
+  }
+]} />
+
+The year labels the documentation checked, not the first release or adoption date.
+
+## How it works
+
+<Diagram id="js-types" />
+
+Map returns a new array, filter selects lines and reduce totals them. The changed object also needs a copy.
+
+Follow the highlighted step or expand the diagram to inspect the boundary. The visual describes execution or data ownership; timing and memory totals are not inferred from its animation.
+
+## Build it
+
+### Start with the naive version
+
+<CodeCompare title="Make the boundary explicit" before={`const prices = [8, 4, 6];
+const sorted = prices.sort((a, b) => a - b);
+console.log(prices.join(","));`} after={`const prices = [8, 4, 6];
+const sorted = [...prices].sort((a, b) => a - b);
+console.log(prices.join(","));`} />
+
+### Find its limit
+
+Sort changes the original order. Change the input and predict the output before you run it. The failure comes from a specific default, lifetime or ownership assumption; keep that assumption visible in the test.
+
+### Build the working version
+
+<CodeRunner title="Build: Arrays and array methods" expect="total 20\nold quantity 2\nnew quantity 3\nseparate arrays true\ncontract true">
+{`const cart = [
+  { id: "tea", price: 4, quantity: 2 },
+  { id: "rice", price: 8, quantity: 1 },
+];
+function updateQuantity(items, id, quantity) {
+  return items.map((item) => {
+    return item.id === id ? { ...item, quantity } : item;
+  });
+}
+const updated = updateQuantity(cart, "tea", 3);
+const inStock = updated.filter((item) => item.quantity > 0);
+const total = inStock.reduce((sum, item) => {
+  return sum + item.price * item.quantity;
+}, 0);
+console.log("total", total);
+console.log("old quantity", cart[0].quantity);
+console.log("new quantity", updated[0].quantity);
+console.log("separate arrays", cart !== updated);
+const contractChecks = [cart[0].quantity === 2, updated[0].quantity === 3];
+if (!contractChecks.every(Boolean)) {
+  throw new Error("The boundary contract was broken");
+}
+console.log("contract", contractChecks.every(Boolean));`}
+</CodeRunner>
+
+The console runner is an isolated browser worker. These core examples are also checked in Node; DOM behavior belongs to the browser frame, and fakeFetch is sample data rather than a real network request.
+
+## Why it works this way
+
+An array copy still shares nested records. Copy changed paths deliberately and reuse unchanged references only while their ownership contract stays safe.
+
+<ConceptCard variant="under-hood">
+Keep the operation's contract separate from its implementation. A faster path is useful only when it preserves the same outputs, error behavior and ownership rules; validate those boundaries before relying on a host-specific optimization.
+</ConceptCard>
+
+
+
+<WhenToUse use="a list transformation should preserve history" avoid="full scans dominate a huge interaction" alternative="a keyed store or an index" />
+
+## Mistakes that reach production
+
+### Sort changes the original order
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: Sort changes the original order" expect="4,6,8">
+{`const prices = [8, 4, 6];
+const sorted = prices.sort((a, b) => a - b);
+console.log(prices.join(","));`}
+</CodeRunner>
+
+<CodeRunner title="Fix: Sort changes the original order" expect="8,4,6">
+{`const prices = [8, 4, 6];
+const sorted = [...prices].sort((a, b) => a - b);
+console.log(prices.join(","));`}
+</CodeRunner>
+
+### Copying a list still shares its records
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: Copying a list still shares its records" expect="3">
+{`const items = [{ quantity: 1 }];
+const next = [...items];
+next[0].quantity = 3;
+console.log(items[0].quantity);`}
+</CodeRunner>
+
+<CodeRunner title="Fix: Copying a list still shares its records" expect="1">
+{`const items = [{ quantity: 1 }];
+const next = items.map((item) => ({ ...item }));
+next[0].quantity = 3;
+console.log(items[0].quantity);`}
+</CodeRunner>
+
+## Challenge
+
+Repair the starter so the boundary check passes. Then change one input to an empty, zero, repeated or missing value and explain whether your fix still preserves the intended contract.
+
+<BugHunt title="Fix the boundary" tests={`assert(prices.join(",") === "8,4,6", "keeps the original order");`} solution={`const prices = [8, 4, 6];
+const sorted = [...prices].sort((a, b) => a - b);
+console.log(prices.join(","));`}>
+{`const prices = [8, 4, 6];
+const sorted = prices.sort((a, b) => a - b);
+console.log(prices.join(","));`}
+</BugHunt>
+
+## Check yourself
+
+<Quiz questions={[
+  {
+    "question": "Which change repairs the reproduced failure?",
+    "options": [
+      {
+        "text": "Sort changes the original order needs the explicit boundary shown in the fix.",
+        "correct": true,
+        "why": "Compare the corrected value with the reproduction; the test checks the behavior, not a cosmetic rewrite."
+      },
+      {
+        "text": "Keep the same logic and suppress its output.",
+        "correct": false,
+        "why": "Hiding output leaves the underlying contract broken."
+      }
+    ]
+  },
+  {
+    "question": "When should you choose a different approach?",
+    "options": [
+      {
+        "text": "full scans dominate a huge interaction.",
+        "correct": true,
+        "why": "Use a keyed store or an index when that limitation applies."
+      },
+      {
+        "text": "Whenever the code uses a function.",
+        "correct": false,
+        "why": "A function does not by itself determine cost, ownership or correctness."
+      }
+    ]
+  }
+]} />
+
+## Takeaways
+
+- Check the value that crosses the boundary before choosing the syntax.
+- Map returns a new array, filter selects lines and reduce totals them.
+- An array copy still shares nested records.
+
+## References
+
+- [React](https://react.dev/learn/rendering-lists)
+- [Underscore](https://underscorejs.org/docs/modules/groupBy.html)
+- [D3](https://d3js.org/d3-array/summarize)
+
+Last verified: 2026-10-12.

@@ -1,0 +1,15 @@
+{
+  "title": "Intermediate",
+  "pages": [
+    "closures",
+    "this-binding",
+    "prototypes",
+    "classes",
+    "iterators",
+    "symbols-collections",
+    "modules",
+    "higher-order",
+    "immutability",
+    "regex"
+  ]
+}

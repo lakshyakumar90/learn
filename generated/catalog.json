@@ -1,0 +1,161 @@
+[
+  {
+    "id": "drizzle",
+    "collection": "topics",
+    "title": "Drizzle",
+    "summary": "SQL-first ORM notes with Drizzle. Coming soon.",
+    "categories": [
+      "orms"
+    ],
+    "primaryCategory": "orms",
+    "tags": [
+      "ORM",
+      "Database",
+      "SQL"
+    ],
+    "level": "beginner",
+    "status": "soon",
+    "href": "/topics/drizzle",
+    "updated": "2026-10-12",
+    "pageCount": 0,
+    "keywords": [
+      "drizzle orm",
+      "schema",
+      "migration"
+    ],
+    "order": 3
+  },
+  {
+    "id": "javascript",
+    "collection": "topics",
+    "title": "JavaScript",
+    "summary": "From first script to the event loop — runnable examples, visualizers, quizzes.",
+    "categories": [
+      "languages"
+    ],
+    "primaryCategory": "languages",
+    "tags": [
+      "Language",
+      "Runtime",
+      "Browser",
+      "Async"
+    ],
+    "level": "all",
+    "status": "live",
+    "cover": "/media/javascript/cover.jpg",
+    "href": "/topics/javascript",
+    "updated": "2026-10-12",
+    "pageCount": 60,
+    "keywords": [
+      "event loop",
+      "closure",
+      "promise",
+      "hoisting",
+      "prototype",
+      "async",
+      "await",
+      "scope",
+      "this",
+      "debounce",
+      "fetch",
+      "dom",
+      "modules",
+      "garbage collection",
+      "task queue",
+      "microtask"
+    ],
+    "order": 1
+  },
+  {
+    "id": "prisma",
+    "collection": "topics",
+    "title": "Prisma",
+    "summary": "Modeling, migrations, and queries with Prisma. Coming soon.",
+    "categories": [
+      "orms"
+    ],
+    "primaryCategory": "orms",
+    "tags": [
+      "ORM",
+      "Database",
+      "SQL"
+    ],
+    "level": "beginner",
+    "status": "soon",
+    "href": "/topics/prisma",
+    "updated": "2026-10-12",
+    "pageCount": 0,
+    "keywords": [
+      "schema",
+      "migration",
+      "prisma client"
+    ],
+    "order": 2
+  },
+  {
+    "id": "excalidraw",
+    "collection": "projects",
+    "title": "Excalidraw",
+    "summary": "Collaborative drawing: guest scenes, auth, real-time rooms, Redis persistence.",
+    "categories": [],
+    "primaryCategory": null,
+    "tags": [
+      "Next.js",
+      "TypeScript",
+      "WebSocket",
+      "Redis",
+      "Postgres"
+    ],
+    "platform": "web",
+    "status": "live",
+    "href": "/projects/excalidraw",
+    "updated": "2026-10-12",
+    "pageCount": 32,
+    "keywords": [],
+    "order": 0
+  },
+  {
+    "id": "devconnect",
+    "collection": "projects",
+    "title": "DevConnect",
+    "summary": "Social platform for developers: profiles, connections, feed, jobs, chat.",
+    "categories": [],
+    "primaryCategory": null,
+    "tags": [
+      "React 19",
+      "Express 5",
+      "MongoDB",
+      "Socket.io",
+      "Redis"
+    ],
+    "platform": "web",
+    "status": "live",
+    "href": "/projects/devconnect",
+    "updated": "2026-10-06",
+    "pageCount": 37,
+    "keywords": [],
+    "order": 1
+  },
+  {
+    "id": "habitly",
+    "collection": "projects",
+    "title": "Habitly",
+    "summary": "Offline-first habit tracker: SQLite, reminders, stats, cloud sync.",
+    "categories": [],
+    "primaryCategory": null,
+    "tags": [
+      "Expo",
+      "React Native",
+      "TypeScript",
+      "SQLite",
+      "Firebase"
+    ],
+    "platform": "mobile",
+    "status": "live",
+    "href": "/projects/habitly",
+    "updated": "2026-10-06",
+    "pageCount": 41,
+    "keywords": [],
+    "order": 2
+  }
+]

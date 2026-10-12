@@ -1,0 +1,197 @@
+---
+title: Promise combinators
+description: "One weather widget failure hides the entire dashboard."
+---
+
+One weather widget failure hides the entire dashboard. Preserve independent widget outcomes.
+
+<CodeRunner title="Reproduce: A rejected request has no useful fallback" expect="true">
+{`const result = await Promise.reject(new Error("offline")).catch(() => "");
+console.log(result === "");`}
+</CodeRunner>
+
+## Where you've already seen it
+
+<RealWorld items={[
+  {
+    "name": "Node.js",
+    "detail": "Filesystem promises expose completion without blocking other requests.",
+    "source": "https://nodejs.org/api/fs.html#promises-api",
+    "year": 2026
+  },
+  {
+    "name": "React Router",
+    "detail": "Loaders accept promises to prepare route data before rendering.",
+    "source": "https://reactrouter.com/start/data/data-loading",
+    "year": 2026
+  },
+  {
+    "name": "Axios",
+    "detail": "Its promise API lets callers await requests and handle failures.",
+    "source": "https://axios-http.com/docs/api_intro",
+    "year": 2026
+  }
+]} />
+
+The year labels the documentation checked, not the first release or adoption date.
+
+## How it works
+
+<Diagram id="js-promise-states" />
+
+AllSettled returns a status record for every input. All requires every success, race settles first and any finds the first fulfillment.
+
+Follow the highlighted step or expand the diagram to inspect the boundary. The visual describes execution or data ownership; timing and memory totals are not inferred from its animation.
+
+## Build it
+
+### Start with the naive version
+
+<CodeCompare title="Make the boundary explicit" before={`const result = await Promise.reject(new Error("offline")).catch(() => "");
+console.log(result === "");`} after={`const result = await Promise.reject(new Error("offline")).catch(
+  (error) => error.message,
+);
+console.log(result);`} />
+
+### Find its limit
+
+A rejected request has no useful fallback. Change the input and predict the output before you run it. The failure comes from a specific default, lifetime or ownership assumption; keep that assumption visible in the test.
+
+### Build the working version
+
+<CodeRunner title="Build: Promise combinators" expect="profile ready\nfallback weather unavailable\nposts ready\nwidgets 3\ncontract true">
+{`async function loadWidget(name, fails) {
+  await sleep(5);
+  if (fails) throw new Error(name + " unavailable");
+  return { name, ready: true };
+}
+const results = await Promise.allSettled([
+  loadWidget("profile", false),
+  loadWidget("weather", true),
+  loadWidget("posts", false),
+]);
+for (const result of results) {
+  if (result.status === "fulfilled") console.log(result.value.name, "ready");
+  else console.log("fallback", result.reason.message);
+}
+console.log("widgets", results.length);
+const contractChecks = [
+  results.filter((item) => item.status === "fulfilled").length === 2,
+  results.length === 3,
+];
+if (!contractChecks.every(Boolean)) {
+  throw new Error("The boundary contract was broken");
+}
+console.log("contract", contractChecks.every(Boolean));`}
+</CodeRunner>
+
+The console runner is an isolated browser worker. These core examples are also checked in Node; DOM behavior belongs to the browser frame, and fakeFetch is sample data rather than a real network request.
+
+## Why it works this way
+
+Coordination does not cancel work. Use AbortSignal for deadlines and bound concurrency before starting thousands of requests.
+
+<ConceptCard variant="under-hood">
+Keep the operation's contract separate from its implementation. A faster path is useful only when it preserves the same outputs, error behavior and ownership rules; validate those boundaries before relying on a host-specific optimization.
+</ConceptCard>
+
+
+
+<WhenToUse use="independent requests can overlap" avoid="a write might be repeated by retries" alternative="an idempotency key and retry policy" />
+
+## Mistakes that reach production
+
+### A rejected request has no useful fallback
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: A rejected request has no useful fallback" expect="true">
+{`const result = await Promise.reject(new Error("offline")).catch(() => "");
+console.log(result === "");`}
+</CodeRunner>
+
+<CodeRunner title="Fix: A rejected request has no useful fallback" expect="offline">
+{`const result = await Promise.reject(new Error("offline")).catch(
+  (error) => error.message,
+);
+console.log(result);`}
+</CodeRunner>
+
+### A missing return loses the result
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: A missing return loses the result" expect="undefined">
+{`const result = await Promise.resolve(12).then((total) => {
+  total + 3;
+});
+console.log(result);`}
+</CodeRunner>
+
+<CodeRunner title="Fix: A missing return loses the result" expect="15">
+{`const result = await Promise.resolve(12).then((total) => {
+  return total + 3;
+});
+console.log(result);`}
+</CodeRunner>
+
+## Challenge
+
+Repair the starter so the boundary check passes. Then change one input to an empty, zero, repeated or missing value and explain whether your fix still preserves the intended contract.
+
+<BugHunt title="Fix the boundary" tests={`assert(result === "offline", "reports the failure");`} solution={`const result = await Promise.reject(new Error("offline")).catch(
+  (error) => error.message,
+);
+console.log(result);`}>
+{`const result = await Promise.reject(new Error("offline")).catch(() => "");
+console.log(result === "");`}
+</BugHunt>
+
+## Check yourself
+
+<Quiz questions={[
+  {
+    "question": "Which change repairs the reproduced failure?",
+    "options": [
+      {
+        "text": "A rejected request has no useful fallback needs the explicit boundary shown in the fix.",
+        "correct": true,
+        "why": "Compare the corrected value with the reproduction; the test checks the behavior, not a cosmetic rewrite."
+      },
+      {
+        "text": "Keep the same logic and suppress its output.",
+        "correct": false,
+        "why": "Hiding output leaves the underlying contract broken."
+      }
+    ]
+  },
+  {
+    "question": "When should you choose a different approach?",
+    "options": [
+      {
+        "text": "a write might be repeated by retries.",
+        "correct": true,
+        "why": "Use an idempotency key and retry policy when that limitation applies."
+      },
+      {
+        "text": "Whenever the code uses a function.",
+        "correct": false,
+        "why": "A function does not by itself determine cost, ownership or correctness."
+      }
+    ]
+  }
+]} />
+
+## Takeaways
+
+- Check the value that crosses the boundary before choosing the syntax.
+- AllSettled returns a status record for every input.
+- Coordination does not cancel work.
+
+## References
+
+- [Node.js](https://nodejs.org/api/fs.html#promises-api)
+- [React Router](https://reactrouter.com/start/data/data-loading)
+- [Axios](https://axios-http.com/docs/api_intro)
+
+Last verified: 2026-10-12.

@@ -23,7 +23,7 @@ export function Diagram({ id }: { id: string }) {
 
   useEffect(() => {
     let cancelled = false;
-    setPlaced(null);
+    queueMicrotask(() => { if (!cancelled) setPlaced(null); });
     if (spec) {
       getLayout(spec).then((result) => {
         if (!cancelled) setPlaced(result);

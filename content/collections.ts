@@ -1,7 +1,8 @@
 /**
  * Landing page content. Project cards are driven by
- * src/projects.config.ts (live projects first); topics and books stay
- * "Coming soon" placeholders, so adding an item needs no UI change.
+ * src/projects.config.ts (live projects first); the topics section is
+ * driven by content/taxonomy.ts + generated/catalog.json, so adding a
+ * category or topic needs no UI change.
  */
 import { PROJECTS } from '../src/projects.config';
 
@@ -17,12 +18,6 @@ export interface ProjectCard {
   status: CardStatus;
   platform: 'web' | 'mobile';
   cover?: string;
-}
-
-export interface TopicCard {
-  name: string;
-  line: string;
-  status: CardStatus;
 }
 
 export interface BookCard {
@@ -62,13 +57,6 @@ export const projectCards: ProjectCard[] = [
     platform: p.platform,
     cover: p.cover,
   })),
-];
-
-export const topicCards: TopicCard[] = [
-  { name: 'Languages', line: 'Notes on programming languages.', status: 'soon' },
-  { name: 'Frameworks', line: 'Notes on frameworks and their ideas.', status: 'soon' },
-  { name: 'Concepts and ideas', line: 'Cross-cutting concepts, explained once.', status: 'soon' },
-  { name: 'Migrations', line: 'Notes from moving real systems.', status: 'soon' },
 ];
 
 export const bookCards: BookCard[] = [

@@ -1,0 +1,31 @@
+id: javascript
+title: JavaScript
+summary: From first script to the event loop — runnable examples, visualizers, quizzes.
+category: languages
+tags:
+  - Language
+  - Runtime
+  - Browser
+  - Async
+level: all
+status: live
+cover: /media/javascript/cover.jpg
+order: 1
+updated: '2026-10-12'
+keywords:
+  - event loop
+  - closure
+  - promise
+  - hoisting
+  - prototype
+  - async
+  - await
+  - scope
+  - this
+  - debounce
+  - fetch
+  - dom
+  - modules
+  - garbage collection
+  - task queue
+  - microtask

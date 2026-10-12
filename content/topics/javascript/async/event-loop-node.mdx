@@ -1,0 +1,223 @@
+---
+title: The event loop in Node.js
+description: "A CPU-heavy request makes the health endpoint wait."
+---
+
+A CPU-heavy request makes the health endpoint wait. Keep callbacks short and isolate long computations.
+
+<CodeRunner title="Reproduce: A promise yield does not give a timer its turn" expect="work,timer">
+{`const order = [];
+setTimeout(() => order.push("timer"), 0);
+await Promise.resolve();
+order.push("work");
+await sleep(10);
+console.log(order.join(","));`}
+</CodeRunner>
+
+## Where you've already seen it
+
+<RealWorld items={[
+  {
+    "name": "Chrome DevTools",
+    "detail": "Long-task recordings help identify work delaying browser interactions.",
+    "source": "https://developer.chrome.com/docs/devtools/performance/reference",
+    "year": 2026
+  },
+  {
+    "name": "Node.js",
+    "detail": "Short callbacks let other clients receive their event-loop turn.",
+    "source": "https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop",
+    "year": 2026
+  },
+  {
+    "name": "React",
+    "detail": "Transitions make non-urgent renders interruptible; arbitrary loops still block.",
+    "source": "https://react.dev/reference/react/useTransition",
+    "year": 2026
+  }
+]} />
+
+The year labels the documentation checked, not the first release or adoption date.
+
+## How it works
+
+<ScenarioPlayer scenario="node-phases" />
+
+Node's loop executes callbacks while host facilities handle external waiting. Its phases and nextTick behavior are not the browser rendering cycle.
+
+Follow the highlighted step or expand the diagram to inspect the boundary. The visual describes execution or data ownership; timing and memory totals are not inferred from its animation.
+
+## Build it
+
+### Start with the naive version
+
+<CodeCompare title="Make the boundary explicit" before={`const order = [];
+setTimeout(() => order.push("timer"), 0);
+await Promise.resolve();
+order.push("work");
+await sleep(10);
+console.log(order.join(","));`} after={`const order = [];
+setTimeout(() => order.push("timer"), 0);
+await sleep(0);
+order.push("work");
+console.log(order.join(","));`} />
+
+### Find its limit
+
+A promise yield does not give a timer its turn. Change the input and predict the output before you run it. The failure comes from a specific default, lifetime or ownership assumption; keep that assumption visible in the test.
+
+### Build the working version
+
+<CodeRunner title="Build: The event loop in Node.js" expect="request received\nhealth check ready\nhandled 10000\nuse setImmediate for a Node check-phase yield\ncontract true">
+{`const jobs = Array.from({ length: 10000 }, (_, id) => id);
+async function handleBatch(queue, size) {
+  let handled = 0;
+  for (let start = 0; start < queue.length; start += size) {
+    const batch = queue.slice(start, start + size);
+    handled += batch.length;
+    await sleep(0);
+  }
+  return handled;
+}
+console.log("request received");
+const work = handleBatch(jobs, 1000);
+const healthCheck = Promise.resolve("health check ready");
+console.log(await healthCheck);
+console.log("handled", await work);
+console.log("use setImmediate for a Node check-phase yield");
+const contractChecks = [jobs.length === 10000, (await work) === 10000];
+if (!contractChecks.every(Boolean)) {
+  throw new Error("The boundary contract was broken");
+}
+console.log("contract", contractChecks.every(Boolean));`}
+</CodeRunner>
+
+The console example proves callback order in a worker, not browser paint. The live frame runs on the page's browser thread; the worker button starts a separate worker. Node does not have a rendering phase.
+
+## Why it works this way
+
+The simulator omits some libuv phases. Main-module timeout versus immediate order is not portable; ESM startup also changes microtask context.
+
+<ConceptCard variant="under-hood">
+Keep the operation's contract separate from its implementation. A faster path is useful only when it preserves the same outputs, error behavior and ownership rules; validate those boundaries before relying on a host-specific optimization.
+</ConceptCard>
+
+
+
+<WhenToUse use="large work must leave other callbacks time" avoid="coordination costs exceed tiny calculations" alternative="a worker for sustained CPU work" />
+
+## Mistakes that reach production
+
+### A promise yield does not give a timer its turn
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: A promise yield does not give a timer its turn" expect="work,timer">
+{`const order = [];
+setTimeout(() => order.push("timer"), 0);
+await Promise.resolve();
+order.push("work");
+await sleep(10);
+console.log(order.join(","));`}
+</CodeRunner>
+
+<CodeRunner title="Fix: A promise yield does not give a timer its turn" expect="timer,work">
+{`const order = [];
+setTimeout(() => order.push("timer"), 0);
+await sleep(0);
+order.push("work");
+console.log(order.join(","));`}
+</CodeRunner>
+
+### An awaited heavy function still starts synchronously
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: An awaited heavy function still starts synchronously" expect="work,input">
+{`const order = [];
+async function work() {
+  order.push("work");
+}
+const pending = work();
+order.push("input");
+await pending;
+console.log(order.join(","));`}
+</CodeRunner>
+
+<CodeRunner title="Fix: An awaited heavy function still starts synchronously" expect="input,work">
+{`const order = [];
+async function work() {
+  await sleep(0);
+  order.push("work");
+}
+const pending = work();
+order.push("input");
+await pending;
+console.log(order.join(","));`}
+</CodeRunner>
+
+## Challenge
+
+Repair the starter so the boundary check passes. Then change one input to an empty, zero, repeated or missing value and explain whether your fix still preserves the intended contract.
+
+<BugHunt title="Fix the boundary" tests={`assert(order.join(",") === "timer,work", "yields a task turn");`} solution={`const order = [];
+setTimeout(() => order.push("timer"), 0);
+await sleep(0);
+order.push("work");
+console.log(order.join(","));`}>
+{`const order = [];
+setTimeout(() => order.push("timer"), 0);
+await Promise.resolve();
+order.push("work");
+await sleep(10);
+console.log(order.join(","));`}
+</BugHunt>
+
+## Check yourself
+
+<Quiz questions={[
+  {
+    "question": "Which change repairs the reproduced failure?",
+    "options": [
+      {
+        "text": "A promise yield does not give a timer its turn needs the explicit boundary shown in the fix.",
+        "correct": true,
+        "why": "Compare the corrected value with the reproduction; the test checks the behavior, not a cosmetic rewrite."
+      },
+      {
+        "text": "Keep the same logic and suppress its output.",
+        "correct": false,
+        "why": "Hiding output leaves the underlying contract broken."
+      }
+    ]
+  },
+  {
+    "question": "When should you choose a different approach?",
+    "options": [
+      {
+        "text": "coordination costs exceed tiny calculations.",
+        "correct": true,
+        "why": "Use a worker for sustained CPU work when that limitation applies."
+      },
+      {
+        "text": "Whenever the code uses a function.",
+        "correct": false,
+        "why": "A function does not by itself determine cost, ownership or correctness."
+      }
+    ]
+  }
+]} />
+
+## Takeaways
+
+- Check the value that crosses the boundary before choosing the syntax.
+- Node's loop executes callbacks while host facilities handle external waiting.
+- The simulator omits some libuv phases.
+
+## References
+
+- [Chrome DevTools](https://developer.chrome.com/docs/devtools/performance/reference)
+- [Node.js](https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop)
+- [React](https://react.dev/reference/react/useTransition)
+
+Last verified: 2026-10-12.

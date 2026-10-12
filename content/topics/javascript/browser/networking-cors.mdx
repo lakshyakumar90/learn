@@ -1,0 +1,197 @@
+---
+title: Networking and CORS
+description: "A request succeeds on the server but fails in the browser."
+---
+
+A request succeeds on the server but fails in the browser. Distinguish HTTP errors, cancellation and browser policy before changing the client.
+
+<CodeRunner title="Reproduce: An HTTP failure is mistaken for success" expect="true">
+{`const response = await fakeFetch("/missing", { latencyMs: 1 });
+const accepted = Boolean(response);
+console.log(accepted);`}
+</CodeRunner>
+
+## Where you've already seen it
+
+<RealWorld items={[
+  {
+    "name": "Node.js",
+    "detail": "Fetch exposes a promise API backed by Undici.",
+    "source": "https://nodejs.org/api/globals.html#fetch",
+    "year": 2026
+  },
+  {
+    "name": "Axios",
+    "detail": "Request configuration accepts signals for cancellation.",
+    "source": "https://axios-http.com/docs/cancellation",
+    "year": 2026
+  },
+  {
+    "name": "TanStack Query",
+    "detail": "Query functions receive an AbortSignal to cancel obsolete requests.",
+    "source": "https://tanstack.com/query/latest/docs/framework/react/guides/query-cancellation",
+    "year": 2026
+  }
+]} />
+
+The year labels the documentation checked, not the first release or adoption date.
+
+## How it works
+
+<Diagram id="js-runtime" />
+
+Fetch may resolve on an HTTP error, so inspect ok. CORS uses server headers; no-cors does not make an opaque response readable.
+
+Follow the highlighted step or expand the diagram to inspect the boundary. The visual describes execution or data ownership; timing and memory totals are not inferred from its animation.
+
+## Build it
+
+### Start with the naive version
+
+<CodeCompare title="Make the boundary explicit" before={`const response = await fakeFetch("/missing", { latencyMs: 1 });
+const accepted = Boolean(response);
+console.log(accepted);`} after={`const response = await fakeFetch("/missing", { latencyMs: 1 });
+const accepted = response.ok;
+console.log(accepted);`} />
+
+### Find its limit
+
+An HTTP failure is mistaken for success. Change the input and predict the output before you run it. The failure comes from a specific default, lifetime or ownership assumption; keep that assumption visible in the test.
+
+### Build the working version
+
+<CodeRunner title="Build: Networking and CORS" expect="success true\nusers 3">
+{`async function requestJson(url, options = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 100);
+  try {
+    const response = await fakeFetch(url, {
+      ...options,
+      signal: controller.signal,
+      latencyMs: 5,
+    });
+    if (!response.ok) return { ok: false, reason: "HTTP " + response.status };
+    return { ok: true, data: await response.json() };
+  } catch (error) {
+    return { ok: false, reason: error.name };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+const result = await requestJson("/users");
+console.log("success", result.ok);
+console.log("users", result.data.length);`}
+</CodeRunner>
+
+The console runner is an isolated browser worker. These core examples are also checked in Node; DOM behavior belongs to the browser frame, and fakeFetch is sample data rather than a real network request.
+
+## Why it works this way
+
+The sandbox verifies status and timeout logic with fakeFetch, not real CORS. Inspect actual response headers in the Network panel.
+
+<ConceptCard variant="under-hood">
+Keep the operation's contract separate from its implementation. A faster path is useful only when it preserves the same outputs, error behavior and ownership rules; validate those boundaries before relying on a host-specific optimization.
+</ConceptCard>
+
+<TopicMedia topic="javascript" slot="devtools-network" />
+
+<WhenToUse use="a replaceable UI action owns a request" avoid="cancellation is expected to undo a write" alternative="a request ID and server idempotency" />
+
+## Mistakes that reach production
+
+### An HTTP failure is mistaken for success
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: An HTTP failure is mistaken for success" expect="true">
+{`const response = await fakeFetch("/missing", { latencyMs: 1 });
+const accepted = Boolean(response);
+console.log(accepted);`}
+</CodeRunner>
+
+<CodeRunner title="Fix: An HTTP failure is mistaken for success" expect="false">
+{`const response = await fakeFetch("/missing", { latencyMs: 1 });
+const accepted = response.ok;
+console.log(accepted);`}
+</CodeRunner>
+
+### A delayed result replaces a newer query
+
+Run the reproduction, then the corrected version. Compare the value at the boundary; the fix changes the cause rather than hiding the symptom.
+
+<CodeRunner title="Bug: A delayed result replaces a newer query" expect="old results">
+{`let latest = 2;
+let displayed = "";
+const requestId = 1;
+displayed = "old results";
+console.log(displayed);`}
+</CodeRunner>
+
+<CodeRunner title="Fix: A delayed result replaces a newer query" expect="true">
+{`let latest = 2;
+let displayed = "";
+const requestId = 1;
+if (requestId === latest) displayed = "old results";
+console.log(displayed === "");`}
+</CodeRunner>
+
+## Challenge
+
+Repair the starter so the boundary check passes. Then change one input to an empty, zero, repeated or missing value and explain whether your fix still preserves the intended contract.
+
+<BugHunt title="Fix the boundary" tests={`assert(!accepted, "checks HTTP status");`} solution={`const response = await fakeFetch("/missing", { latencyMs: 1 });
+const accepted = response.ok;
+console.log(accepted);`}>
+{`const response = await fakeFetch("/missing", { latencyMs: 1 });
+const accepted = Boolean(response);
+console.log(accepted);`}
+</BugHunt>
+
+## Check yourself
+
+<Quiz questions={[
+  {
+    "question": "Which change repairs the reproduced failure?",
+    "options": [
+      {
+        "text": "An HTTP failure is mistaken for success needs the explicit boundary shown in the fix.",
+        "correct": true,
+        "why": "Compare the corrected value with the reproduction; the test checks the behavior, not a cosmetic rewrite."
+      },
+      {
+        "text": "Keep the same logic and suppress its output.",
+        "correct": false,
+        "why": "Hiding output leaves the underlying contract broken."
+      }
+    ]
+  },
+  {
+    "question": "When should you choose a different approach?",
+    "options": [
+      {
+        "text": "cancellation is expected to undo a write.",
+        "correct": true,
+        "why": "Use a request ID and server idempotency when that limitation applies."
+      },
+      {
+        "text": "Whenever the code uses a function.",
+        "correct": false,
+        "why": "A function does not by itself determine cost, ownership or correctness."
+      }
+    ]
+  }
+]} />
+
+## Takeaways
+
+- Check the value that crosses the boundary before choosing the syntax.
+- Fetch may resolve on an HTTP error, so inspect ok.
+- The sandbox verifies status and timeout logic with fakeFetch, not real CORS.
+
+## References
+
+- [Node.js](https://nodejs.org/api/globals.html#fetch)
+- [Axios](https://axios-http.com/docs/cancellation)
+- [TanStack Query](https://tanstack.com/query/latest/docs/framework/react/guides/query-cancellation)
+
+Last verified: 2026-10-12.

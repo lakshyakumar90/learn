@@ -1,0 +1,37 @@
+---
+title: "JavaScript: what runs where"
+description: Choose the host that owns the work before choosing its APIs.
+kind: overview
+---
+
+Your button updates a page, while your report reads a file. Both can use JavaScript, but their hosts supply different capabilities.
+
+<Diagram id="js-runtime" />
+
+## Choose a host
+
+| Work | Host | Boundary |
+|---|---|---|
+| Buttons, forms and visible nodes | Browser page | DOM and browser permissions |
+| Heavy pure calculations | Web Worker | Message passing; no page DOM |
+| Files, services and server requests | Node | Process privileges; no page DOM |
+
+Reusable calculations accept their dependencies. Host-specific setup stays at the edge so a test can supply sample data.
+
+## A short timeline that explains today's code
+
+JavaScript began as browser scripting in 1995. ECMAScript standardization followed in 1997; the 2015 edition brought lexical bindings, modules and promises into one widely used language generation.
+
+That context explains why you still encounter var, callbacks and multiple module formats. Learn them when maintaining that code; new code can choose explicit bindings and modules.
+
+## Try the first useful lessons
+
+[Validate a cart quantity](../fundamentals/values-types), [create safe text](../browser/dom), then [see why a page freezes](../async/event-loop-browser).
+
+## References
+
+- [ECMA-262 editions](https://ecma-international.org/publications-and-standards/standards/ecma-262/).
+- [JavaScript context](https://developer.mozilla.org/en-US/docs/Web/JavaScript).
+- [Node documentation](https://nodejs.org/api/).
+
+Last verified: 2026-10-12.

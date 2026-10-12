@@ -1,0 +1,14 @@
+{
+  "title": "Fundamentals",
+  "pages": [
+    "values-types",
+    "variables",
+    "control-flow",
+    "functions",
+    "strings",
+    "arrays",
+    "objects",
+    "destructuring",
+    "errors"
+  ]
+}
