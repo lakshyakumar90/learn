@@ -64,3 +64,16 @@ test('no horizontal overflow at 390px', async ({ page }) => {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(1);
 });
+test('projects page matches the topics shell', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/projects');
+  await expect(page.getByRole('heading', { name: 'Browse projects' })).toBeVisible();
+  const aside = page.getByLabel('Projects filters');
+  await expect(aside).toBeVisible();
+  expect(await aside.evaluate((el) => getComputedStyle(el).position)).toBe('sticky');
+  expect(await aside.evaluate((el) => getComputedStyle(el).overflowY)).toBe('auto');
+  await expect(page.getByRole('contentinfo')).toHaveCount(0);
+  await page.getByRole('checkbox', { name: /Mobile/ }).check();
+  await expect(page).toHaveURL(/platform=mobile/);
+  await expect(page.getByRole('article', { name: /Habitly/ })).toBeVisible();
+});
