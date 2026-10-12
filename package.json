@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "pnpm build-catalog && pnpm fetch-source && pnpm extract-deps && pnpm check-deps && pnpm check-sources && pnpm check-demo && pnpm check-topics && pnpm check-snippets && pnpm check-js-examples && pnpm check-event-loop && pnpm build-search-index && pnpm build-redirects",
+    "prebuild": "pnpm build-catalog && pnpm fetch-source && pnpm extract-deps && pnpm check-deps && pnpm check-sources && pnpm check-demo && pnpm check-topics && pnpm check-snippets && pnpm check-js-examples && pnpm check-ts-examples && pnpm check-event-loop && pnpm build-search-index && pnpm build-redirects",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -20,6 +20,8 @@
     "check-demo": "tsx scripts/check-demo.ts",
     "check-topics": "tsx scripts/check-topics.ts",
     "check-js-examples": "tsx scripts/check-js-examples.ts",
+    "check-ts-examples": "tsx scripts/check-ts-examples.ts",
+    "vendor-ts-libs": "tsx scripts/vendor-ts-libs.ts",
     "check-event-loop": "tsx scripts/check-event-loop.ts",
     "new": "tsx scripts/new-project.ts",
     "postinstall": "fumadocs-mdx",
@@ -53,6 +55,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@codemirror/lint": "^6.9.7",
     "@playwright/test": "^1.64.0",
     "@tailwindcss/turbopack": "^4",
     "@types/js-yaml": "^4.0.9",
@@ -68,6 +71,7 @@
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5",
+    "typescript6": "npm:@typescript/typescript6@6.0.2",
     "vitest": "^5.0.3",
     "zod": "^4.6.5"
   },

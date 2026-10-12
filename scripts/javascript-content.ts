@@ -74,7 +74,7 @@ export function prose(text: string): string {
   const clean = text
     .replace(/```[\s\S]*?```/g, " ")
     .replace(
-      /<(CodeRunner|Predict|Exercise|InterviewQuestions|CodeBlock)\b[\s\S]*?<\/\1>/g,
+      /<(CodeRunner|Predict|Exercise|InterviewQuestions|CodeBlock|TypeCheck)\b[\s\S]*?<\/\1>/g,
       " ",
     )
     .replace(/<(Diagram|ScenarioPlayer|Quiz)\b[^>]*\/>/g, " ")

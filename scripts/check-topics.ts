@@ -23,7 +23,19 @@ import { validateQuestions } from '../src/lib/interview';
 
 const ROOT = join(__dirname, '..');
 const TOPICS = join(ROOT, 'content', 'topics');
-const JS = join(TOPICS, 'javascript');
+
+/** Per-topic rules. Concept-page structure is shared; only the
+ *  adapted pages and puzzle/challenge minima differ. */
+interface TopicRules {
+  dir: string;
+  nonConcept: Set<string>;
+  /** puzzles page <Predict> minimum (0 = uses TypeCheck instead). */
+  minPredict: number;
+  /** compile-puzzles page <TypeCheck> minimum (0 = uses Predict). */
+  minTypeChecks: number;
+  /** challenges page <Exercise> minimum. */
+  minChallenges: number;
+}
 
 /** JavaScript pages that adapt the template (not concept pages). */
 const JS_NON_CONCEPT = new Set([
@@ -36,6 +48,23 @@ const JS_NON_CONCEPT = new Set([
   'challenges.mdx',
   'cheat-sheet.mdx',
 ]);
+
+/** TypeScript pages that adapt the template (not concept pages). */
+const TS_NON_CONCEPT = new Set([
+  'index.mdx',
+  'why-typescript.mdx',
+  'how-it-works.mdx',
+  'pros-cons.mdx',
+  'question-bank.mdx',
+  'compile-puzzles.mdx',
+  'challenges.mdx',
+  'cheat-sheet.mdx',
+]);
+
+const TOPIC_RULES: TopicRules[] = [
+  { dir: 'javascript', nonConcept: JS_NON_CONCEPT, minPredict: 12, minTypeChecks: 0, minChallenges: 10 },
+  { dir: 'typescript', nonConcept: TS_NON_CONCEPT, minPredict: 0, minTypeChecks: 12, minChallenges: 8 },
+];
 
 const REMOVED_TAGS = [
   'LiveDemo',
@@ -164,20 +193,28 @@ function checkConceptPage(file: string): void {
   if (words > 450) fail(`${rel} has ${words} words of prose (max 450)`);
 }
 
-function checkSpecialPage(file: string): void {
+function checkSpecialPage(file: string, rules: TopicRules): void {
   const rel = relative(ROOT, file);
   const slug = basename(file, '.mdx');
   const text = readFileSync(file, 'utf8');
-  if (slug === 'puzzles') {
+  if (slug === 'puzzles' && rules.minPredict > 0) {
     const count = [...text.matchAll(/<Predict\b/g)].length;
-    if (count < 12) fail(`${rel} has ${count} puzzles (need 12)`);
+    if (count < rules.minPredict) fail(`${rel} has ${count} puzzles (need ${rules.minPredict})`);
     for (const m of text.matchAll(/<Predict\b([\s\S]*?)>/g)) {
       if (!/answerLines=/.test(m[1])) fail(`${rel}: a <Predict> is missing answerLines`);
     }
   }
+  if (slug === 'compile-puzzles' && rules.minTypeChecks > 0) {
+    const count = [...text.matchAll(/<TypeCheck\b/g)].length;
+    if (count < rules.minTypeChecks) fail(`${rel} has ${count} puzzles (need ${rules.minTypeChecks})`);
+    for (const m of text.matchAll(/<TypeCheck\b([\s\S]*?)>/g)) {
+      if (!/\bid="/.test(m[1])) fail(`${rel}: a <TypeCheck> is missing id`);
+      if (!/\banswer=/.test(m[1])) fail(`${rel}: a <TypeCheck> is missing answer`);
+    }
+  }
   if (slug === 'challenges') {
     const blocks = [...text.matchAll(/<Exercise\b([\s\S]*?)>([\s\S]*?)<\/Exercise>/g)];
-    if (blocks.length < 10) fail(`${rel} has ${blocks.length} challenges (need 10)`);
+    if (blocks.length < rules.minChallenges) fail(`${rel} has ${blocks.length} challenges (need ${rules.minChallenges})`);
     for (const b of blocks) {
       if (!/tests=\{`/.test(b[1]) || !/solution=\{`/.test(b[1])) {
         fail(`${rel}: an <Exercise> is missing tests or solution`);
@@ -192,13 +229,20 @@ function checkSpecialPage(file: string): void {
   }
 }
 
+function ruleFor(normPath: string): TopicRules | undefined {
+  return TOPIC_RULES.find(
+    (r) => normPath === `content/topics/${r.dir}` || normPath.startsWith(`content/topics/${r.dir}/`),
+  );
+}
+
 function main(): void {
   checkMeta(TOPICS);
   for (const file of walk(TOPICS)) {
     if (!file.endsWith('.mdx')) continue;
     const rel = relative(ROOT, file);
     const norm = rel.replaceAll('\\', '/');
-    if (!norm.startsWith('content/topics/javascript/')) continue;
+    const rules = ruleFor(norm);
+    if (!rules) continue;
     const name = basename(file);
     for (const tag of REMOVED_TAGS) {
       if (new RegExp(`<${tag}[\\s>]`).test(readFileSync(file, 'utf8'))) {
@@ -213,14 +257,18 @@ function main(): void {
     for (const match of readFileSync(file, 'utf8').matchAll(/<img\b([^>]*)>/g)) {
       if (!/\balt="[^"]+"/.test(match[1])) fail(`${rel} has an <img> without alt text`);
     }
-    if (JS_NON_CONCEPT.has(name)) checkSpecialPage(file);
+    if (rules.nonConcept.has(name)) checkSpecialPage(file, rules);
     else checkConceptPage(file);
   }
 
-  // Questions contract against the real sidebar slugs.
-  const meta = JSON.parse(readFileSync(join(JS, 'meta.json'), 'utf8')) as { pages: string[] };
-  const slugs = meta.pages.filter((p) => !p.startsWith('---'));
-  for (const e of validateQuestions(slugs)) fail(e);
+  // Questions contract against each topic's real sidebar slugs.
+  for (const rules of TOPIC_RULES) {
+    const metaFile = join(TOPICS, rules.dir, 'meta.json');
+    if (!existsSync(metaFile)) continue;
+    const meta = JSON.parse(readFileSync(metaFile, 'utf8')) as { pages: string[] };
+    const slugs = meta.pages.filter((p) => !p.startsWith('---'));
+    for (const e of validateQuestions(slugs, rules.dir)) fail(e);
+  }
 
   console.log(`check-topics: ${pages} concept page(s) validated.`);
   if (errors.length > 0) {

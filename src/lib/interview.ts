@@ -1,9 +1,10 @@
 /**
  * Interview questions: single source of truth in
- * content/topics/javascript/interview/questions.yaml.
+ * content/topics/<dir>/interview/questions.yaml.
  *
  * Server components and build scripts import the loader; the client
  * question bank receives questions as props (type-only import).
+ * `dir` defaults to 'javascript' so existing callers keep working.
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -24,20 +25,23 @@ export type InterviewQuestion = z.infer<typeof questionSchema>;
 
 export const MAX_ANSWER_WORDS = 120;
 
-let cache: InterviewQuestion[] | null = null;
+let cache = new Map<string, InterviewQuestion[]>();
 
-export function loadQuestions(): InterviewQuestion[] {
-  if (cache) return cache;
-  const file = join(
-    process.cwd(),
-    "content/topics/javascript/interview/questions.yaml",
-  );
-  cache = z.array(questionSchema).parse(loadYaml(readFileSync(file, "utf8")));
-  return cache;
+export function questionsPath(dir = 'javascript'): string {
+  return join(process.cwd(), 'content', 'topics', dir, 'interview', 'questions.yaml');
 }
 
-export function getQuestionsByTopic(topic: string): InterviewQuestion[] {
-  return loadQuestions().filter((q) => q.topic === topic);
+export function loadQuestions(dir = 'javascript'): InterviewQuestion[] {
+  const hit = cache.get(dir);
+  if (hit) return hit;
+  const file = questionsPath(dir);
+  const parsed = z.array(questionSchema).parse(loadYaml(readFileSync(file, "utf8")));
+  cache.set(dir, parsed);
+  return parsed;
+}
+
+export function getQuestionsByTopic(topic: string, dir = 'javascript'): InterviewQuestion[] {
+  return loadQuestions(dir).filter((q) => q.topic === topic);
 }
 
 export function answerWordCount(answer: string): number {
@@ -69,10 +73,10 @@ export function validateQuestionList(
 }
 
 /** Build-time validation against the real files. */
-export function validateQuestions(topicSlugs: string[]): string[] {
+export function validateQuestions(topicSlugs: string[], dir = 'javascript'): string[] {
   try {
-    return validateQuestionList(loadQuestions(), topicSlugs);
+    return validateQuestionList(loadQuestions(dir), topicSlugs);
   } catch (e) {
-    return [`questions.yaml: ${(e as Error).message}`];
+    return [`${dir} questions.yaml: ${(e as Error).message}`];
   }
 }
