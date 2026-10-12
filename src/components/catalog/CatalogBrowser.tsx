@@ -449,7 +449,7 @@ export function CatalogBrowser({
         {groups.length > 0 ? (
           <aside
             aria-label={`${collection} filters`}
-            className="catalog-filters-scroll sticky top-14 hidden max-h-[calc(100dvh-3.5rem)] w-60 shrink-0 self-start overflow-y-auto px-1 pb-8 pt-1 [scrollbar-gutter:stable] lg:block"
+            className="catalog-filters-scroll sticky top-14 hidden max-h-[calc(100dvh-3.5rem)] w-60 shrink-0 self-start overflow-y-auto px-1 pb-8 pt-1 lg:block"
           >
             <FilterPanel groups={groups} filters={filters} onToggle={toggle} />
           </aside>

@@ -56,6 +56,8 @@ console.log(next());`}
 
 Try adding a third cart and sharing one `items` array between two factories —
 watch independence break. Then convert `counter` to an object with `reset`.
+Each render in UI code closes over its own props the same way, which is why
+stale values surprise even experienced developers.
 
 <Predict
   title="Loop with var"

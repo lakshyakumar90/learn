@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import { HighlightedCode } from './HighlightedCode';
-import { motion, useReducedMotion } from 'motion/react';
+import { motion } from 'motion/react';
+import { useReducedMotion } from '@/lib/use-reduced-motion';
 import { Maximize2 } from 'lucide-react';
 import { getScenario } from '../../../content/scenarios';
 import { useFlowUi } from '@/lib/flow-store';

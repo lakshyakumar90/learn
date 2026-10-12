@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useReducedMotion } from 'motion/react';
+import { useReducedMotion } from '@/lib/use-reduced-motion';
 
 /**
  * Autoplaying muted loop of the project's demo hero tour on landing

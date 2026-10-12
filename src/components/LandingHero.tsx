@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { motion, useReducedMotion } from 'motion/react';
+import { motion } from 'motion/react';
+import { useReducedMotion } from '@/lib/use-reduced-motion';
 import { ArrowDown, ArrowRight } from 'lucide-react';
 import { KnowledgeMap } from './KnowledgeMap';
 

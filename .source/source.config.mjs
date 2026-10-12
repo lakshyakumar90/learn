@@ -87,7 +87,11 @@ var projects = defineDocs({
 });
 var topics = defineDocs({
   dir: "content/topics",
-  docs: { schema: docSchema, files: ["**/*.{md,mdx}", "!**/CREDITS.md"] }
+  // questions.yaml and CREDITS.md are data files, not docs pages.
+  docs: { schema: docSchema, files: ["**/*.{md,mdx}", "!**/CREDITS.md"] },
+  // Meta is only meta.json: topic.yaml files and questions.yaml are read
+  // directly by scripts and server components, never via .source.
+  meta: { files: ["**/meta.json"] }
 });
 var books = defineDocs({
   dir: "content/books",

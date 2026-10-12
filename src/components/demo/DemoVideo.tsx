@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useReducedMotion } from 'motion/react';
+import { useReducedMotion } from '@/lib/use-reduced-motion';
 import { Play } from 'lucide-react';
 import { DEMO_ASPECT, isPlaceholder, youtubeId, type DemoMediaItem } from '@/lib/demo';
 import { DeviceFrame } from './DeviceFrame';

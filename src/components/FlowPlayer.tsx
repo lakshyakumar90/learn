@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
-import { useReducedMotion } from 'motion/react';
+import { useReducedMotion } from '@/lib/use-reduced-motion';
 import { Maximize2 } from 'lucide-react';
 import { flowOrderForProject, getFlowSpec } from '../../content/flows';
 import { FLOW_STEP_MS, useFlowStore, useFlowUi } from '@/lib/flow-store';
