@@ -1,5 +1,6 @@
 import { highlight } from "@/lib/code/highlight";
 import * as Client from "./client-blocks";
+import { HighlightedCode } from "./HighlightedCode";
 import type { CodeRunnerProps } from "./CodeRunner";
 import type { ExerciseProps } from "./Exercise";
 import type { PredictProps } from "./Predict";
@@ -52,5 +53,35 @@ export async function ScenarioPlayer(props: {
       {...props}
       codePreview={await highlight((data.code ?? []).join("\n"))}
     />
+  );
+}
+
+/**
+ * Display-only code: the same Shiki pipeline, palette, copy button and
+ * language label as the runner preview. For snippets the reader does
+ * not execute; anything runnable must be a CodeRunner/Predict/Exercise.
+ */
+export async function CodeBlock(props: {
+  language?: string;
+  label?: string;
+  children: string;
+}) {
+  const code = String(props.children).replace(/^\n/, "").trimEnd();
+  const language = props.language ?? "javascript";
+  const label =
+    props.label ??
+    (language === "html"
+      ? "index.html"
+      : language === "css"
+        ? "style.css"
+        : "script.js");
+  return (
+    <div className="my-6">
+      <HighlightedCode
+        html={await highlight(code, language)}
+        code={code}
+        label={label}
+      />
+    </div>
   );
 }

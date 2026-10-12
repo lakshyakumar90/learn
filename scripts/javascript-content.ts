@@ -45,7 +45,7 @@ export function snippets(text: string): Snippet[] {
       kind: "fence",
     });
   for (const m of text.matchAll(
-    /<(CodeRunner|Predict|Exercise)\b[\s\S]*?>\s*\{`((?:\\.|[^`])*)`\}\s*<\/\1>/g,
+    /<(CodeRunner|Predict|Exercise|CodeBlock)\b[\s\S]*?>\s*\{`((?:\\.|[^`])*)`\}\s*<\/\1>/g,
   ))
     out.push({
       code: decodeTemplate(m[2]).trim(),
@@ -74,7 +74,7 @@ export function prose(text: string): string {
   const clean = text
     .replace(/```[\s\S]*?```/g, " ")
     .replace(
-      /<(CodeRunner|Predict|Exercise|InterviewQuestions)\b[\s\S]*?<\/\1>/g,
+      /<(CodeRunner|Predict|Exercise|InterviewQuestions|CodeBlock)\b[\s\S]*?<\/\1>/g,
       " ",
     )
     .replace(/<(Diagram|ScenarioPlayer|Quiz)\b[^>]*\/>/g, " ")
