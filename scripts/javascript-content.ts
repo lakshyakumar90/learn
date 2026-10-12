@@ -1,7 +1,14 @@
+/**
+ * Shared MDX-mining helpers for the JavaScript topic checks.
+ * Generic over the current block set (CodeRunner, Predict, Exercise,
+ * InterviewQuestions); component-specific rules live in each check.
+ */
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import matter from "gray-matter";
+
 export const JS_ROOT = join(process.cwd(), "content/topics/javascript");
+
 export function mdxFiles(dir = JS_ROOT): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
     e.isDirectory()
@@ -11,6 +18,7 @@ export function mdxFiles(dir = JS_ROOT): string[] {
         : [],
   );
 }
+
 export function decodeTemplate(raw: string): string {
   // First-party MDX uses literal templates; reject executable interpolation.
   if (/(?<!\\)\$\{/.test(raw))
@@ -19,12 +27,14 @@ export function decodeTemplate(raw: string): string {
     );
   return new Function(`return \`${raw}\`;`)() as string;
 }
+
 export interface Snippet {
   code: string;
   language: string;
   start: number;
   kind: string;
 }
+
 export function snippets(text: string): Snippet[] {
   const out: Snippet[] = [];
   for (const m of text.matchAll(/```([^\n]*)\n([\s\S]*?)```/g))
@@ -35,7 +45,7 @@ export function snippets(text: string): Snippet[] {
       kind: "fence",
     });
   for (const m of text.matchAll(
-    /<(CodeRunner|Predict|Exercise|BugHunt)\b[\s\S]*?>\s*\{`((?:\\.|[^`])*)`\}\s*<\/\1>/g,
+    /<(CodeRunner|Predict|Exercise)\b[\s\S]*?>\s*\{`((?:\\.|[^`])*)`\}\s*<\/\1>/g,
   ))
     out.push({
       code: decodeTemplate(m[2]).trim(),
@@ -54,34 +64,29 @@ export function snippets(text: string): Snippet[] {
     });
   return out;
 }
+
 export function readPage(file: string) {
   return matter(readFileSync(file, "utf8"));
 }
-export function realWorld(
-  text: string,
-): Array<{ name: string; detail: string; source: string; year: number }> {
-  const match = text.match(/<RealWorld\s+items=\{(\[[\s\S]*?\])\}\s*\/>/);
-  return match ? JSON.parse(match[1]) : [];
-}
+
+/** Visible prose only: no fences, no runnable blocks, no JSX, no markdown syntax. */
 export function prose(text: string): string {
-  const parts: string[] = [];
-  parts.push(...realWorld(text).map((i) => `${i.name} ${i.detail}`));
-  for (const m of text.matchAll(
-    /\b(use|avoid|alternative)=("(?:\\.|[^"\\])*")/g,
-  ))
-    parts.push(JSON.parse(m[2]));
   const clean = text
     .replace(/```[\s\S]*?```/g, " ")
-    .replace(/<(CodeRunner|Predict|Exercise|BugHunt)\b[\s\S]*?<\/\1>/g, " ")
     .replace(
-      /<(RealWorld|Quiz|CodeCompare|WhenToUse|Storyboard|AnnotatedImage)\b[\s\S]*?\/>/g,
+      /<(CodeRunner|Predict|Exercise|InterviewQuestions)\b[\s\S]*?<\/\1>/g,
       " ",
     )
+    .replace(/<(Diagram|ScenarioPlayer|Quiz)\b[^>]*\/>/g, " ")
     .replace(/<[^>]+>/g, " ")
-    .replace(/\]\([^)]*\)/g, "]")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^[>\-*+]\s+/gm, "")
     .replace(/[`#*{}]/g, " ");
-  return clean + "\n" + parts.join("\n");
+  return clean;
 }
+
 export function wordCount(text: string) {
   return (text.match(/[\p{L}\p{N}]+(?:[’'-][\p{L}\p{N}]+)*/gu) ?? []).length;
 }

@@ -9,7 +9,6 @@ import type { CatalogItem } from '@/lib/catalog/types';
 import { TAXONOMY } from '../../../content/taxonomy';
 import { CategoryIcon, gradientFor } from './category-icons';
 import { Highlight } from './highlight';
-import { resolveMedia } from '@/lib/media-aliases';
 
 const LEVEL_LABEL: Record<string, string> = {
   beginner: 'Beginner',
@@ -41,7 +40,7 @@ export function CatalogCard({
   const cover = item.cover ? (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={resolveMedia(item.cover)}
+      src={item.cover}
       alt={`${item.title} cover`}
       loading="lazy"
       decoding="async"

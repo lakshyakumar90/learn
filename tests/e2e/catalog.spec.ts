@@ -43,7 +43,7 @@ test('filter sidebar pins while cards scroll, no footer', async ({ page }) => {
   // Panel may run flush to the screen end (viewport minus navbar).
   expect(await aside.evaluate((el) => getComputedStyle(el).maxHeight)).toBe('444px');
   // Near-invisible scrollbar: gutter takes almost no width.
-  expect(await aside.evaluate((el) => el.offsetWidth - el.clientWidth)).toBeLessThanOrEqual(6);
+  expect(await aside.evaluate((el) => (el as HTMLElement).offsetWidth - (el as HTMLElement).clientWidth)).toBeLessThanOrEqual(6);
   const card = page.getByRole('article', { name: /JavaScript/ });
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   // The page really scrolled…

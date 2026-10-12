@@ -35,5 +35,3 @@ export const ScenarioPlayer = dynamic(
   () => import('@/components/blocks/ScenarioPlayer').then((m) => m.ScenarioPlayer),
   {},
 ) as unknown as (props: ScenarioPlayerProps) => React.JSX.Element;
-
-export const LiveDemo = dynamic(() => import('./LiveDemo').then(m => m.LiveDemo)) as (props: { demo: import('@/lib/live-demos').DemoId }) => React.JSX.Element;

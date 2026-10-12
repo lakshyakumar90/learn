@@ -11,25 +11,15 @@ import { getMDXComponents } from '@/mdx-components';
 import rawCatalog from '../../../../../generated/catalog.json';
 import { TAXONOMY } from '../../../../../content/taxonomy';
 import { validateCatalog } from '@/lib/catalog/types';
-import redirects from '../../../../../content/topics/javascript/redirects.json';
-import { TopicRedirect } from '@/components/TopicRedirect';
-
-function redirectTarget(slug: string[]) {
-  if (slug[0] !== 'javascript') return undefined;
-  const target = (redirects as Record<string, string>)[slug.slice(1).join('/')];
-  return target ? `/topics/javascript/${target}` : undefined;
-}
 
 const CATALOG = validateCatalog(rawCatalog);
 
 export function generateStaticParams(): Array<{ slug: string[] }> {
-  return [...topicsSource.generateParams().map((p) => ({ slug: p.slug })), ...Object.keys(redirects).map(key => ({ slug: ['javascript', ...key.split('/')] }))];
+  return topicsSource.generateParams().map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }) {
   const { slug } = await params;
-  const target = redirectTarget(slug);
-  if (target) return { title: 'Lesson moved', alternates: { canonical: target }, robots: { index: false } };
   const page = topicsSource.getPage(slug ?? []);
   if (!page) return {};
   return { title: page.data.title, description: page.data.description };
@@ -93,8 +83,6 @@ function TopicBadges({ topicId }: { topicId: string }) {
 
 export default async function TopicPage({ params }: { params: Promise<{ slug: string[] }> }) {
   const { slug } = await params;
-  const target = redirectTarget(slug);
-  if (target) return <TopicRedirect href={target} />;
   const page = topicsSource.getPage(slug ?? []);
   if (!page) notFound();
   const MDX = page.data.body;

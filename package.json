@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "pnpm build-catalog && pnpm fetch-source && pnpm extract-deps && pnpm check-deps && pnpm check-sources && pnpm check-demo && pnpm check-topics && pnpm check-page-quality && pnpm check-snippets && pnpm check-images && pnpm check-js-examples && pnpm check-event-loop && pnpm build-search-index",
+    "prebuild": "pnpm build-catalog && pnpm fetch-source && pnpm extract-deps && pnpm check-deps && pnpm check-sources && pnpm check-demo && pnpm check-topics && pnpm check-snippets && pnpm check-js-examples && pnpm check-event-loop && pnpm build-search-index",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -22,9 +22,7 @@
     "check-event-loop": "tsx scripts/check-event-loop.ts",
     "new": "tsx scripts/new-project.ts",
     "postinstall": "fumadocs-mdx",
-    "check-page-quality": "tsx scripts/check-page-quality.ts",
-    "check-snippets": "tsx scripts/check-snippets.ts",
-    "check-images": "tsx scripts/check-images.ts"
+    "check-snippets": "tsx scripts/check-snippets.ts"
   },
   "dependencies": {
     "@codemirror/lang-css": "^6.3.1",

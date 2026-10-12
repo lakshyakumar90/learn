@@ -1,31 +1,28 @@
 id: javascript
 title: JavaScript
-summary: From first script to the event loop — runnable examples, visualizers, quizzes.
+summary: JavaScript interview prep: short pages, runnable examples, 150 questions.
 category: languages
 tags:
   - Language
-  - Runtime
+  - Interview
   - Browser
   - Async
 level: all
 status: live
-cover: /media/javascript/cover.jpg
+cover: /topics/javascript/img/hero.svg
 order: 1
 updated: '2026-10-12'
 keywords:
   - event loop
   - closure
-  - promise
   - hoisting
+  - promise
+  - this
   - prototype
   - async
   - await
   - scope
-  - this
   - debounce
   - fetch
   - dom
-  - modules
-  - garbage collection
-  - task queue
-  - microtask
+  - interview questions
