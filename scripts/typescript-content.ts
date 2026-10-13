@@ -10,7 +10,7 @@
  * - <TypeCheck id question answer line? ...> (static diagnostics),
  * - `// path.to.thing: Expected Type` narrowing assertions inside ts code.
  */
-import { readFileSync, readdirSync } from 'node:fs';
+import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 export const TS_ROOT = join(process.cwd(), 'content/topics/typescript');
@@ -252,7 +252,6 @@ export function tsParts(text: string): TsPart[] {
   for (const f of otherFences(text))
     out.push({ code: f.code, language: f.language, start: f.start, kind: 'fence' });
   for (const m of text.matchAll(TAG_RE)) {
-    const tag = m[2];
     const isTs = isTsBlock(m[2]);
     if (m[1] === 'TypeCheck') {
       out.push({

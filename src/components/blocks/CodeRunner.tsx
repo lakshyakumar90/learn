@@ -1,12 +1,18 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, Copy, Expand, Play, RotateCcw, Square } from "lucide-react";
+import { Check, Copy, Expand, FlaskConical, Play, RotateCcw, Square } from "lucide-react";
 import { ExpandedView } from "@/components/ExpandedView";
 import { CodeEditor } from "./CodeEditor";
 import { useConsoleRunner } from "./use-console-runner";
+import { useTsCompiler } from "@/lib/use-ts-compiler";
+import type { TsDiagnostic } from "@/lib/ts-compiler";
 import type { OutputLine } from "@/lib/run-console";
 export interface CodeRunnerProps {
   language?: string;
+  /** TS-only: "false" relaxes strict for the demo (displayed). */
+  strict?: string;
+  /** TS-only: declared diagnostic codes, comma-separated (build-verified). */
+  errors?: string;
   env?: "console" | "dom";
   expect?: string;
   title?: string;
@@ -186,8 +192,278 @@ export function DomRunner({
     </div>
   );
 }
+/**
+ * TypeScript console runner: same worker-executed JavaScript as the plain
+ * runner, but every Check/Run first type-checks with the pinned compiler
+ * in a lazily-loaded worker. Types and Output are separate tabs; the
+ * compiler loads only on first interaction, never on page load.
+ */
+function TsRunner({
+  title,
+  initial,
+  preview,
+  strict,
+  expect,
+}: {
+  title: string;
+  initial: string;
+  preview: string;
+  strict: boolean;
+  expect?: string;
+}) {
+  const [code, setCode] = useState(initial);
+  const [tab, setTab] = useState<'types' | 'output'>('types');
+  const [diagnostics, setDiagnostics] = useState<TsDiagnostic[]>([]);
+  const [checkedOnce, setCheckedOnce] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [emitError, setEmitError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [open, setOpen] = useState(false);
+  const runner = useConsoleRunner();
+  const ts = useTsCompiler();
+  const busy = checking || runner.running || ts.status === 'loading';
+
+  const doCheck = useCallback(async (): Promise<TsDiagnostic[]> => {
+    setChecking(true);
+    try {
+      const diags = await ts.check(code, strict);
+      setDiagnostics(diags);
+      setCheckedOnce(true);
+      return diags;
+    } finally {
+      setChecking(false);
+    }
+  }, [ts, code, strict]);
+
+  // Run = type-check first, then run the emitted JavaScript — even when
+  // the check reports errors, because emitting anyway is the lesson.
+  const runBoth = useCallback(async () => {
+    await doCheck();
+    setTab('output');
+    try {
+      const js = await ts.emit(code, strict);
+      setEmitError(null);
+      runner.run(js);
+    } catch (e) {
+      setEmitError(e instanceof Error ? e.message : String(e));
+    }
+  }, [doCheck, ts, code, strict, runner]);
+
+  const resetAll = useCallback(() => {
+    setCode(initial);
+    setDiagnostics([]);
+    setCheckedOnce(false);
+    setEmitError(null);
+    runner.reset();
+  }, [initial, runner]);
+
+  const tabs = ['types', 'output'] as const;
+  const toolbar = (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="mr-auto font-medium">{title}</span>
+      <button
+        className={BUTTON}
+        onClick={() => void doCheck()}
+        disabled={busy || ts.status === 'error'}
+        aria-label="Check types"
+      >
+        <FlaskConical size={16} />
+        {checking ? 'Checking…' : 'Check types'}
+      </button>
+      <button
+        className={BUTTON}
+        onClick={runner.running ? runner.stop : () => void runBoth()}
+        disabled={(busy && !runner.running) || ts.status === 'error'}
+        aria-label={runner.running ? 'Stop run' : 'Run check and code (Control Enter)'}
+      >
+        {runner.running ? <Square size={16} /> : <Play size={16} />}
+        {runner.running ? 'Stop' : 'Run'}
+      </button>
+      <button className={BUTTON} onClick={resetAll} aria-label="Reset example">
+        <RotateCcw size={16} />
+        Reset
+      </button>
+      <button
+        className={BUTTON}
+        aria-label="Copy code"
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(code);
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 1200);
+          } catch {
+            setCopied(false);
+          }
+        }}
+      >
+        {copied ? <Check size={16} /> : <Copy size={16} />}Copy
+      </button>
+      <button
+        className={BUTTON}
+        aria-label="Expand runner"
+        onClick={() => setOpen(true)}
+      >
+        <Expand size={16} />
+        Expand
+      </button>
+    </div>
+  );
+
+  const typesPanel = (
+    <div aria-label="Type diagnostics" aria-live="polite">
+      {ts.status === 'error' ? (
+        <p className="rounded-lg border p-3 text-sm text-red-800 dark:text-red-300">
+          {ts.loadError}
+        </p>
+      ) : !checkedOnce && ts.status === 'idle' ? (
+        <p className="text-sm opacity-70">
+          Compiler not loaded. Check or Run loads it here ({ts.estimatedSize}) —
+          nothing downloads until you do.
+        </p>
+      ) : checking || ts.status === 'loading' ? (
+        <p className="text-sm opacity-70">
+          {ts.status === 'loading'
+            ? `Loading compiler (${ts.estimatedSize})…`
+            : 'Checking…'}
+        </p>
+      ) : diagnostics.length === 0 ? (
+        <p className="text-sm text-green-700 dark:text-green-300">No type errors.</p>
+      ) : (
+        <ul className="flex flex-col gap-1 text-sm">
+          {diagnostics.map((d, i) => (
+            <li
+              key={i}
+              className="rounded-lg border p-2 font-mono text-[13px] text-red-800 dark:text-red-300"
+            >
+              <span className="font-semibold">TS{d.code}</span> {d.message}{' '}
+              <span className="opacity-70">
+                (line {d.line}, col {d.col})
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+
+  const outputPanel = (
+    <>
+      {checkedOnce && diagnostics.length > 0 && (
+        <p className="rounded-lg border p-2 text-sm opacity-80">
+          TypeScript reports errors but still emits JavaScript; here is what
+          it printed.
+        </p>
+      )}
+      <div className="code-output" aria-label="Program output" aria-live="polite">
+        {!runner.lines.length &&
+          !runner.error &&
+          !emitError &&
+          (runner.running ? 'Running…' : 'Press Run to see the output.')}
+        {runner.lines.map((l, i) => (
+          <pre className={KIND_STYLE[l.kind]} key={i}>
+            {l.text}
+          </pre>
+        ))}
+        {runner.error && (
+          <pre className={KIND_STYLE.error}>{runner.error.message}</pre>
+        )}
+        {emitError && <pre className={KIND_STYLE.error}>{emitError}</pre>}
+        {runner.timedOut && <p>Stopped after 5 seconds.</p>}
+        {runner.truncated && <p>Output limit reached.</p>}
+      </div>
+      {expect && (
+        <details className="text-sm">
+          <summary>Expected output</summary>
+          <pre className="code-output">{expect.replaceAll('\\n', '\n')}</pre>
+        </details>
+      )}
+    </>
+  );
+
+  const body = (
+    <div className="min-w-0 space-y-3">
+      <p className="text-xs text-[var(--code-comment)]">{ts.label(strict)}</p>
+      <div role="tablist" aria-label="Result panes" className="flex gap-1">
+        {tabs.map((t, i) => (
+          <button
+            type="button"
+            key={t}
+            role="tab"
+            aria-selected={tab === t}
+            tabIndex={tab === t ? 0 : -1}
+            onKeyDown={(e) => {
+              if (['ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                const n = (i + (e.key === 'ArrowRight' ? 1 : -1) + 2) % 2;
+                setTab(tabs[n]);
+                (
+                  e.currentTarget.parentElement?.children[n] as HTMLElement
+                )?.focus();
+              }
+            }}
+            onClick={() => setTab(t)}
+            className={BUTTON + (tab === t ? ' border-[var(--dg-browser)]' : '')}
+          >
+            {t === 'types' ? 'Types' : 'Output'}
+          </button>
+        ))}
+      </div>
+      <CodeEditor
+        code={code}
+        onChange={setCode}
+        preview={preview}
+        onRun={() => void runBoth()}
+        language="typescript"
+        label="TypeScript editor"
+        lint
+        diagnostics={diagnostics}
+      />
+      <div role="tabpanel" aria-label={tab === 'types' ? 'Type diagnostics' : 'Program output'}>
+        {tab === 'types' ? typesPanel : outputPanel}
+      </div>
+      <details className="text-xs text-[var(--code-comment)]">
+        <summary>Runner helpers</summary>
+        <p>
+          <code>sleep(ms)</code> waits; <code>fakeFetch(url)</code> returns
+          deterministic sample data. TypeScript is stripped before running;
+          imports and exports are not available in the sandbox.
+        </p>
+      </details>
+    </div>
+  );
+
+  return (
+    <>
+      <div
+        role="group"
+        aria-label={title}
+        className="my-6 min-w-0 space-y-3 rounded-xl border p-3 sm:p-4"
+      >
+        {toolbar}
+        {!open && body}
+      </div>
+      <ExpandedView
+        open={open}
+        onOpenChange={setOpen}
+        title={title}
+        description="Edit and run code. Escape closes."
+        panKeys={false}
+        noFlow
+        headerControls={<span />}
+      >
+        <div className="w-full min-w-0 space-y-3 overflow-y-auto p-4">
+          {toolbar}
+          {body}
+        </div>
+      </ExpandedView>
+    </>
+  );
+}
+
 export function CodeRunner({
   env = "console",
+  language = "javascript",
+  strict,
   expect,
   title = "Try the code",
   html = "",
@@ -199,6 +475,57 @@ export function CodeRunner({
   expectDom,
 }: CodeRunnerProps) {
   const initial = normalize(children);
+  // Branch before any hook: JS and TS runners own their hooks separately.
+  if (env === "console" && (language === "typescript" || language === "ts")) {
+    return (
+      <TsRunner
+        title={title}
+        initial={initial}
+        preview={preview}
+        strict={strict === "false" ? false : true}
+        expect={expect}
+      />
+    );
+  }
+  return (
+    <JsRunner
+      env={env}
+      title={title}
+      initial={initial}
+      preview={preview}
+      html={html}
+      css={css}
+      htmlPreview={htmlPreview}
+      cssPreview={cssPreview}
+      expect={expect}
+      expectDom={expectDom}
+    />
+  );
+}
+
+function JsRunner({
+  env,
+  title,
+  initial,
+  preview,
+  html,
+  css,
+  htmlPreview,
+  cssPreview,
+  expect,
+  expectDom,
+}: {
+  env: "console" | "dom";
+  title: string;
+  initial: string;
+  preview: string;
+  html: string;
+  css: string;
+  htmlPreview: string;
+  cssPreview: string;
+  expect?: string;
+  expectDom?: string;
+}) {
   const [code, setCode] = useState(initial);
   const runner = useConsoleRunner();
   const [open, setOpen] = useState(false);

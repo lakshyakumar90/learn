@@ -1,6 +1,13 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import type { EditorView } from "@codemirror/view";
+import type { Compartment } from "@codemirror/state";
+
+export interface EditorDiagnostic {
+  line: number;
+  col: number;
+  message: string;
+}
 
 export function CodeEditor({
   code,
@@ -9,6 +16,8 @@ export function CodeEditor({
   onChange,
   onRun,
   label = "JavaScript editor",
+  diagnostics = [],
+  lint = false,
 }: {
   code: string;
   preview: string;
@@ -16,14 +25,26 @@ export function CodeEditor({
   onChange: (code: string) => void;
   onRun?: () => void;
   label?: string;
+  /** Type-checker diagnostics; rendered as gutter marks + underlines. */
+  diagnostics?: EditorDiagnostic[];
+  /** Enable the lint gutter. False by default so JS editors look unchanged. */
+  lint?: boolean;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const mount = useRef<HTMLDivElement>(null);
   const view = useRef<EditorView | null>(null);
+  const lintCompartmentRef = useRef<Compartment | null>(null);
+  const forceLintRef = useRef<((view: EditorView) => void) | null>(null);
   const latest = useRef({ code, onChange, onRun });
   useEffect(() => {
     latest.current = { code, onChange, onRun };
   }, [code, onChange, onRun]);
+  // Diagnostics are pushed into the editor via a compartment so the
+  // TypeScript tab can mark lines without rebuilding the editor.
+  const diagRef = useRef(diagnostics);
+  useEffect(() => {
+    diagRef.current = diagnostics;
+  }, [diagnostics]);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
@@ -35,12 +56,13 @@ export function CodeEditor({
       try {
         const [
           { EditorView, keymap },
-          { EditorState },
+          { EditorState, Compartment: StateCompartment },
           { HighlightStyle, syntaxHighlighting },
           { tags },
           { javascript },
           { html },
           { css },
+          { linter, lintGutter, forceLinting },
         ] = await Promise.all([
           import("@codemirror/view"),
           import("@codemirror/state"),
@@ -49,8 +71,12 @@ export function CodeEditor({
           import("@codemirror/lang-javascript"),
           import("@codemirror/lang-html"),
           import("@codemirror/lang-css"),
+          import("@codemirror/lint"),
         ]);
         if (cancelled || !mount.current) return;
+        const lintCompartment = new StateCompartment();
+        lintCompartmentRef.current = lintCompartment;
+        forceLintRef.current = forceLinting;
         const style = HighlightStyle.define([
           { tag: [tags.keyword, tags.modifier], color: "var(--code-keyword)" },
           { tag: tags.string, color: "var(--code-string)" },
@@ -87,6 +113,41 @@ export function CodeEditor({
                   ? css()
                   : javascript({ typescript: language === "typescript" }),
               syntaxHighlighting(style),
+              ...(lint
+                ? [
+                    lintGutter(),
+                    lintCompartment.of(
+                      linter((view) => {
+                        const out: Array<{
+                          from: number;
+                          to: number;
+                          severity: "error";
+                          message: string;
+                        }> = [];
+                        for (const d of diagRef.current) {
+                          try {
+                            const line = view.state.doc.line(
+                              Math.min(Math.max(d.line, 1), view.state.doc.lines),
+                            );
+                            const from = Math.min(
+                              line.from + Math.max(d.col - 1, 0),
+                              line.to,
+                            );
+                            out.push({
+                              from,
+                              to: Math.min(from + 1, line.to),
+                              severity: "error",
+                              message: d.message,
+                            });
+                          } catch {
+                            /* stale position after edits; next run refreshes */
+                          }
+                        }
+                        return out;
+                      }),
+                    ),
+                  ]
+                : []),
               EditorView.contentAttributes.of({
                 "aria-label": label,
                 spellcheck: "false",
@@ -155,6 +216,13 @@ export function CodeEditor({
         changes: { from: 0, to: editor.state.doc.length, insert: code },
       });
   }, [code]);
+  // Re-mark diagnostics without rebuilding the editor. The linter
+  // closure reads diagRef, so forcing is enough to pick up new results.
+  useEffect(() => {
+    const editor = view.current;
+    const force = forceLintRef.current;
+    if (editor && force) force(editor);
+  }, [diagnostics]);
   return (
     <div ref={container} className="code-surface code-editor">
       <div className="code-toolbar">

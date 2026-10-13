@@ -4,6 +4,7 @@ import {
   Exercise,
   Predict,
   ScenarioPlayer,
+  TypeCheck,
 } from "@/components/blocks/server-blocks";
 import { Diagram } from "@/components/Diagram";
 import { highlight } from "@/lib/code/highlight";
@@ -28,6 +29,14 @@ console.log(cart.price * cart.quantity);`;
 
 const domJs = `document.querySelector("#status").textContent = "DOM ready";
 console.log("DOM ready");`;
+
+const tsStaticCode = `// A typed cart line.
+const price: number = 4;
+const quantity: number = 2;
+function total(p: number, q: number): number {
+  return p * q;
+}
+console.log(total(price, quantity));`;
 
 export default async function KitchenSink() {
   return (
@@ -68,6 +77,36 @@ export default async function KitchenSink() {
       </Predict>
       <ScenarioPlayer scenario="event-loop-micro-vs-macro" />
       <Diagram id="js-runtime" />
+      <div data-static-ts>
+        <CodeBlock language="typescript">{tsStaticCode}</CodeBlock>
+      </div>
+      <CodeRunner
+        title="TS token check"
+        language="typescript"
+        errors="TS2322"
+        expect="Aarav Sharma"
+      >
+{`async function loadUser(id: number): Promise<string> {
+  const res = await fakeFetch("/users/" + id, { latencyMs: 5 });
+  const user = await res.json();
+  return user.name;
+}
+const label: string = loadUser(1);
+console.log(await loadUser(1));`}
+      </CodeRunner>
+      <TypeCheck
+        id="kitchen-sink-assignability"
+        question="Will this compile?"
+        answer="no"
+        line="4"
+        explanation="A number is not assignable to a string."
+      >
+{`function greet(name: string): string {
+  return "hi " + name;
+}
+const who: string = greet(42);
+console.log(who);`}
+      </TypeCheck>
     </main>
   );
 }

@@ -3,10 +3,12 @@
  * so pages displaying the version never ship it).
  */
 import { describe, expect, it } from "vitest";
+import ts from "typescript6";
 import {
   compilerLabel,
   findBannedTs,
   findImportExport,
+  narrowedTypeAtLine,
   parseFenceMeta,
   SANDBOX_TS_VERSION,
 } from "../src/lib/ts-compiler";
@@ -44,5 +46,16 @@ describe("ts-compiler config", () => {
     expect(findImportExport('import type { A } from "./a";')).toHaveLength(1);
     expect(findImportExport("export const x = 1;")).toHaveLength(1);
     expect(findImportExport("// import nothing\nconst x = 1;")).toEqual([]);
+  });
+
+  it("resolves narrowed types without libs", () => {
+    const code = [
+      "declare const order: { status: string } | null;",
+      "if (order !== null) {",
+      "  console.log(order.status);",
+      "}",
+    ].join("\n");
+    expect(narrowedTypeAtLine(ts, code, true, 3, "order.status")).toBe("string");
+    expect(narrowedTypeAtLine(ts, code, true, 3, "order.missing")).toBeUndefined();
   });
 });

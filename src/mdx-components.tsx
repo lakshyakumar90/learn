@@ -14,7 +14,7 @@ import { ConceptCard } from '@/components/blocks/ConceptCard';
 import { Quiz } from '@/components/blocks/Quiz';
 import { InterviewQuestions } from '@/components/blocks/InterviewQuestions';
 // Client-only, heavy blocks (code-split; see client-blocks.tsx).
-import { CodeBlock, CodeRunner, Exercise, Predict, QuestionBank, ScenarioPlayer } from '@/components/blocks/server-blocks';
+import { CodeBlock, CodeRunner, Exercise, Predict, QuestionBank, ScenarioPlayer, TypeCheck } from '@/components/blocks/server-blocks';
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
@@ -36,6 +36,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     CodeRunner,
     Predict,
     Exercise,
+    TypeCheck,
     Quiz,
     CodeBlock,
     InterviewQuestions,

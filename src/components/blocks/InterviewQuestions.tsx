@@ -4,9 +4,10 @@ import { QuestionDetails } from "./QuestionItem";
 /**
  * A page's interview questions as an accessible accordion.
  * Native <details> elements: keyboard operable, collapsed by default.
+ * `dir` selects the topic folder (defaults to JavaScript).
  */
-export function InterviewQuestions({ topic }: { topic: string }) {
-  const items = getQuestionsByTopic(topic);
+export function InterviewQuestions({ topic, dir = 'javascript' }: { topic: string; dir?: string }) {
+  const items = getQuestionsByTopic(topic, dir);
   if (items.length === 0) return null;
   return (
     <section aria-label="Interview questions" className="my-6">

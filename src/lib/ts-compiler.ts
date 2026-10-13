@@ -148,6 +148,27 @@ export interface TsProgram {
 }
 
 /**
+ * Globals the sandbox injects at runtime, declared for the checker.
+ * Kept as a string (never linted) so `any` here is honest, not lazy:
+ * the real helpers are untyped on purpose.
+ */
+export const RUNNER_AMBIENT =
+  'declare function sleep(ms: number): Promise<void>;\n' +
+  'declare function fakeFetch(url: string, opts?: any): Promise<any>;\n' +
+  'declare function resetHelpers(): void;\n';
+
+/**
+ * Checked code is wrapped EXACTLY like the runtime wraps it (ambient
+ * globals, then an async IIFE so top-level await type-checks the way it
+ * runs). Visible user line N lives at actual line N + CHECK_LINE_OFFSET.
+ */
+export const CHECK_LINE_OFFSET = 4;
+
+function wrapForCheck(code: string): string {
+  return `${RUNNER_AMBIENT}(async () => {\n${code}\n})();`;
+}
+
+/**
  * Check + emit for one in-memory file, backed by any lib provider
  * (vendored fetch in the worker, node_modules reads at build time).
  * Returns diagnostics first (never throws for user code).
@@ -159,6 +180,7 @@ export function createTsProgram(
   getLib: (baseName: string) => string | undefined,
 ): TsProgram {
   const file = '/snippet.ts';
+  const wrapped = wrapForCheck(code);
   const options = resolveTsOptions(tsMod, strict) as Parameters<
     typeof ts.createProgram
   >[1];
@@ -166,7 +188,7 @@ export function createTsProgram(
   const host: ts.CompilerHost = {
     ...baseHost,
     getSourceFile: (name, lang, ...rest) => {
-      if (name === file) return tsMod.createSourceFile(name, code, lang, true);
+      if (name === file) return tsMod.createSourceFile(name, wrapped, lang, true);
       const lib = getLib(name.split('/').pop()!);
       if (lib !== undefined)
         return tsMod.createSourceFile(name, lib, lang, true);
@@ -186,7 +208,7 @@ export function createTsProgram(
       }
     },
     readFile: (name) => {
-      if (name === file) return code;
+      if (name === file) return wrapped;
       const lib = getLib(name.split('/').pop()!);
       if (lib !== undefined) return lib;
       try {
@@ -203,22 +225,26 @@ export function createTsProgram(
   };
   const program = tsMod.createProgram([file], options, host);
   const source = program.getSourceFile(file)!;
-  const toDiag = (d: ts.Diagnostic): TsDiagnostic => {
+  const toDiag = (d: ts.Diagnostic): TsDiagnostic | null => {
     const pos =
       d.file && d.start !== undefined
         ? d.file.getLineAndCharacterOfPosition(d.start)
         : { line: 0, character: 0 };
+    const line = pos.line + 1 - CHECK_LINE_OFFSET;
+    if (line < 1) return null;
     return {
       code: d.code,
       message: tsMod.flattenDiagnosticMessageText(d.messageText, ' '),
-      line: pos.line + 1,
+      line,
       col: pos.character + 1,
     };
   };
   const diagnostics = [
     ...program.getSyntacticDiagnostics(source),
     ...program.getSemanticDiagnostics(source),
-  ].map(toDiag);
+  ]
+    .map(toDiag)
+    .filter((d): d is TsDiagnostic => d !== null);
   const emitJs = (): string => {
     let js = '';
     program.emit(
@@ -277,7 +303,7 @@ export function narrowedTypeAtLine(
   const options = resolveTsOptions(tsMod, strict) as Parameters<
     typeof ts.createProgram
   >[1];
-  const source = tsMod.createSourceFile(file, code, tsMod.ScriptTarget.ES2022, true);
+  const source = tsMod.createSourceFile(file, wrapForCheck(code), tsMod.ScriptTarget.ES2022, true);
   // A bare source file is enough: narrowing assertions only need the
   // checker over user code, and lib gaps would only add noise.
   const host: ts.CompilerHost = {
@@ -300,7 +326,8 @@ export function narrowedTypeAtLine(
   const visit = (node: ts.Node): void => {
     if (found !== undefined) return;
     const start = source.getLineAndCharacterOfPosition(node.getStart(source));
-    if (start.line + 1 === line && node.getText(source) === path) {
+    // Assertion lines are user-visible; the checked copy is offset.
+    if (start.line + 1 === line + CHECK_LINE_OFFSET && node.getText(source) === path) {
       found = checker.typeToString(checker.getTypeAtLocation(node));
       return;
     }

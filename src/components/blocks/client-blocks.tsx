@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import type { CodeRunnerProps } from '@/components/blocks/CodeRunner';
 import type { PredictProps } from '@/components/blocks/Predict';
 import type { ExerciseProps } from '@/components/blocks/Exercise';
+import type { TypeCheckProps } from '@/components/blocks/TypeCheck';
 
 export interface ScenarioPlayerProps {
   scenario: string;
@@ -30,6 +31,11 @@ export const Exercise = dynamic(
   () => import('@/components/blocks/Exercise').then((m) => m.Exercise),
   {},
 ) as unknown as (props: ExerciseProps) => React.JSX.Element;
+
+export const TypeCheck = dynamic(
+  () => import('@/components/blocks/TypeCheck').then((m) => m.TypeCheck),
+  {},
+) as unknown as (props: TypeCheckProps) => React.JSX.Element;
 
 export const ScenarioPlayer = dynamic(
   () => import('@/components/blocks/ScenarioPlayer').then((m) => m.ScenarioPlayer),
