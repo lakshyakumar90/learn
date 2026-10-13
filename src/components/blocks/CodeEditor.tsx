@@ -183,9 +183,31 @@ export function CodeEditor({
                   fontFamily: "var(--font-geist-mono), monospace",
                   fontVariantLigatures: "none",
                   lineHeight: "1.6",
+                  caretColor: "var(--code-fg)",
                 },
                 ".cm-line": { padding: "0 12px" },
                 ".cm-scroller": { overflowX: "auto" },
+                ".cm-gutters": {
+                  backgroundColor: "var(--code-bg)",
+                  color: "var(--code-comment)",
+                  borderColor: "var(--dg-node-border)",
+                },
+                ".cm-cursor, .cm-dropCursor": {
+                  borderLeftColor: "var(--code-fg)",
+                },
+                ".cm-tooltip": {
+                  backgroundColor: "var(--code-bg)",
+                  color: "var(--code-fg)",
+                  border: "1px solid var(--dg-node-border)",
+                },
+                ".cm-tooltip-arrow:before": {
+                  borderTopColor: "var(--dg-node-border)",
+                  borderBottomColor: "var(--dg-node-border)",
+                },
+                ".cm-tooltip-arrow:after": {
+                  borderTopColor: "var(--code-bg)",
+                  borderBottomColor: "var(--code-bg)",
+                },
                 "&.cm-focused": {
                   outline: "2px solid var(--dg-browser)",
                   outlineOffset: "-2px",

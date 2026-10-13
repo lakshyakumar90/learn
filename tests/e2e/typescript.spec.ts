@@ -25,6 +25,18 @@ for (const theme of ["light", "dark"] as const) {
         ...new Set(elements.map((e) => getComputedStyle(e).color)),
       ]);
     expect(editorColors.length).toBeGreaterThanOrEqual(4);
+    // Gutter and caret must use the same palette as the code surface.
+    const palette = await page
+      .getByRole("group", { name: "TS token check" })
+      .locator(".cm-editor")
+      .evaluate((el) => ({
+        background: getComputedStyle(el).backgroundColor,
+        foreground: getComputedStyle(el).color,
+        gutter: getComputedStyle(el.querySelector(".cm-gutters")!).backgroundColor,
+        caret: getComputedStyle(el.querySelector(".cm-content")!).caretColor,
+      }));
+    expect(palette.gutter).toBe(palette.background);
+    expect(palette.caret).toBe(palette.foreground);
   });
 }
 
