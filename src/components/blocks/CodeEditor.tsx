@@ -232,7 +232,7 @@ export function CodeEditor({
       view.current?.destroy();
       view.current = null;
     };
-  }, [language, label]);
+  }, [language, label, lint]);
   useEffect(() => {
     const editor = view.current;
     if (editor && editor.state.doc.toString() !== code)

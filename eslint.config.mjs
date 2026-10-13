@@ -16,6 +16,9 @@ const eslintConfig = defineConfig([
     ".cache/**",
     ".source/**",
     "artifacts/**",
+    // Vendored TypeScript compiler and standard libraries.
+    "public/vendor/**",
+    "public/ts-libs/**",
   ]),
 ]);
 
