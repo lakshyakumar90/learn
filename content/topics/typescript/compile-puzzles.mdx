@@ -1,0 +1,165 @@
+---
+title: Will it compile puzzles
+description: Twelve type puzzles with real compiler diagnostics.
+---
+
+Twelve puzzles, same rules as interviews: read, commit to Yes or No (and
+the failing line), then reveal the real diagnostics. Every reveal shows
+what the pinned compiler actually reported — the machine grades you, not
+your confidence.
+
+<TypeCheck
+  id="ts-p-excess"
+  question="Puzzle 1: extra property"
+  answer="no"
+  line="5"
+  explanation="Fresh object literals may only list known properties, so nickname fails at the declaration."
+>
+{`interface Account {
+  id: number;
+  name: string;
+}
+const account: Account = { id: 1, name: "sam", nickname: "s" };
+console.log(account);`}
+</TypeCheck>
+
+<TypeCheck
+  id="ts-p-narrow"
+  question="Puzzle 2: guarded length"
+  answer="yes"
+  explanation="The typeof guard proves text is a string, so length is safe and the snippet is clean."
+>
+{`function shout(text: string | null): string {
+  if (text === null) {
+    return "";
+  }
+  return text.toUpperCase();
+}
+console.log(shout("hi"));`}
+</TypeCheck>
+
+<TypeCheck
+  id="ts-p-readonly"
+  question="Puzzle 3: frozen list"
+  answer="no"
+  line="2"
+  explanation="Readonly arrays expose no push method, so the mutation fails where it is attempted."
+>
+{`const scores: readonly number[] = [10, 20];
+scores.push(30);
+console.log(scores);`}
+</TypeCheck>
+
+<TypeCheck
+  id="ts-p-union"
+  question="Puzzle 4: union into number"
+  answer="no"
+  line="2"
+  explanation="A string-or-number cannot flow into a number slot, so the assignment fails."
+>
+{`const mixed: string | number = "a";
+const exact: number = mixed;
+console.log(exact);`}
+</TypeCheck>
+
+<TypeCheck
+  id="ts-p-generic"
+  question="Puzzle 5: inferred identity"
+  answer="yes"
+  explanation="Inference fills T with string from the argument, so the declared string result matches."
+>
+{`function identity<T>(value: T): T {
+  return value;
+}
+const word: string = identity("hello");
+console.log(word);`}
+</TypeCheck>
+
+<TypeCheck
+  id="ts-p-index"
+  question="Puzzle 6: dictionary values"
+  answer="no"
+  line="4"
+  explanation="The index signature promises numbers, so a string value fails at the declaration."
+>
+{`interface Scores {
+  [player: string]: number;
+}
+const table: Scores = { sam: 3, jo: "many" };
+console.log(table);`}
+</TypeCheck>
+
+<TypeCheck
+  id="ts-p-any"
+  question="Puzzle 7: leaking any"
+  answer="yes"
+  explanation="Any flows anywhere without complaint, so the string variable accepts it silently."
+>
+{`const payload: any = { count: "three" };
+const count: number = payload.count;
+console.log(count);`}
+</TypeCheck>
+
+<TypeCheck
+  id="ts-p-never"
+  question="Puzzle 8: throwing helper"
+  answer="yes"
+  explanation="Never is assignable to every type, so a throwing helper fits a string slot cleanly."
+>
+{`function fail(message: string): never {
+  throw new Error(message);
+}
+const name: string = fail("boom");
+console.log(name);`}
+</TypeCheck>
+
+<TypeCheck
+  id="ts-p-optional"
+  question="Puzzle 9: missing argument"
+  answer="no"
+  line="2"
+  explanation="An optional parameter is string-or-undefined inside, so returning it as string fails."
+>
+{`function greet(name?: string): string {
+  return name;
+}
+console.log(greet());`}
+</TypeCheck>
+
+<TypeCheck
+  id="ts-p-assert"
+  question="Puzzle 10: claimed string"
+  answer="yes"
+  explanation="Assertions from unknown are allowed, so the claimed string passes with no diagnostic."
+>
+{`const raw: unknown = "preview";
+const text: string = raw as string;
+console.log(text);`}
+</TypeCheck>
+
+<TypeCheck
+  id="ts-p-tuple"
+  question="Puzzle 11: tuple push"
+  answer="yes"
+  explanation="Push accepts any member of the tuple union, so appending a number compiles cleanly."
+>
+{`const pair: [string, number] = ["a", 1];
+pair.push(2);
+console.log(pair);`}
+</TypeCheck>
+
+<TypeCheck
+  id="ts-p-indexed"
+  question="Puzzle 12: plain index"
+  answer="yes"
+  explanation="Without the unchecked-index flag, element access yields string, so the assignment is clean."
+>
+{`const names: string[] = ["sam", "jo"];
+const first: string = names[0];
+console.log(first);`}
+</TypeCheck>
+
+## References
+
+- [TypeScript Handbook: narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html).
+- [TypeScript Handbook: everyday types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html).

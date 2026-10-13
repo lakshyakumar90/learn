@@ -1,0 +1,100 @@
+---
+title: tsconfig and strict mode
+description: What strict turns on, what each flag catches, and target versus lib.
+---
+
+`tsconfig.json` is where a project sets its standards: how strict the
+checker is, what language level to emit, and which built-in libraries
+exist. Interviewers ask "what does strict actually enable?" — `strict:
+true` is one switch arming a family of flags.
+
+## Real-life situation
+
+A legacy project turns `strict` on and fifty errors appear overnight.
+Almost all are real: an `undefined` passed as a name, a variable read
+before assignment, a `null` nobody admitted. Each flag below catches one
+species — `strictNullChecks` (no silent `undefined`), `noImplicitAny`
+(no silent `any`), `strictPropertyInitialization` and friends. Turning
+them on file by file beats turning them off forever.
+
+## Visual
+
+<Diagram id="ts-strict-flags" />
+
+## Try it
+
+<CodeRunner
+  title="Strict catches the undefined"
+  language="typescript"
+  errors="TS2322"
+  expect="sj\nhi sam\nhi jo\nA\nNONE"
+>
+{`function initials(first: string, last: string): string {
+  return first[0] + last[0];
+}
+const pair = ["sam", "jo"];
+console.log(initials(pair[0], pair[1]));
+function greet(user: { name: string }): string {
+  return "hi " + user.name;
+}
+console.log(greet({ name: "sam" }));
+function pickName(known: boolean): string | undefined {
+  return known ? "jo" : undefined;
+}
+const maybe = pickName(true);
+console.log(greet({ name: maybe }));
+function firstTag(tags: string[]): string {
+  const found = tags.find(function (t) {
+    return t.length > 0;
+  });
+  return (found ?? "none").toUpperCase();
+}
+console.log(firstTag(["a", "bb"]));
+console.log(firstTag([]));`}
+</CodeRunner>
+
+Try changing `pickName`'s return type to `string` — the Types tab goes
+quiet, because the checker trusts the new promise. `target`
+chooses the emitted language level (this topic uses ES2022) while `lib`
+chooses which built-ins exist (`DOM` for browsers). Our sandbox pins
+both, and every runner labels its mode.
+
+With strict off, the same code compiles silently — the override below is
+displayed, exactly as the page promises:
+
+<CodeRunner
+  title="Same code, strict off"
+  language="typescript"
+  strict="false"
+  expect="hi undefined"
+>
+{`const maybe: string | undefined = ["sam", "jo"][2];
+function greet(user: { name: string }): string {
+  return "hi " + user.name;
+}
+console.log(greet({ name: maybe }));`}
+</CodeRunner>
+
+<TypeCheck
+  id="ts-strict-undefined"
+  question="Will it compile?"
+  answer="no"
+  line="1"
+  explanation="Strict null checks forbid undefined where a string is required, so the declaration fails."
+>
+{`const name: string = undefined;
+console.log(name);`}
+</TypeCheck>
+
+<InterviewQuestions topic="tsconfig-strict" dir="typescript" />
+
+## Key takeaways
+
+- `strict: true` arms the flag family — null checks and no silent `any` first.
+- `target` is emit level, `lib` is available built-ins; they are independent.
+- Legacy code: enable flags incrementally, never surrender globally.
+
+## References
+
+- [TypeScript Handbook: tsconfig reference](https://www.typescriptlang.org/tsconfig).
+- [TypeScript Handbook: strict mode](https://www.typescriptlang.org/docs/handbook/2/basic-types.html#strictness).

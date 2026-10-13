@@ -1,0 +1,45 @@
+---
+title: Cheat sheet and 30-second answers
+description: One page of ready-to-say answers for the night before.
+---
+
+Thirty seconds each, out loud, no notes. If any answer wobbles, follow its
+link back to the full page.
+
+## Core
+
+| Question | 30-second answer |
+|---|---|
+| Why TypeScript? | Catches typos and bad refactors at compile time; types erase at emit. ([why](./why-typescript)) |
+| Checking vs emit? | Independent — errors still emit; runtime sees plain JavaScript. ([how](./how-it-works)) |
+| Structural typing? | Same shape means compatible, whatever the name. ([how](./how-it-works)) |
+| Node and `.ts` files? | Strips types without checking; on by default, stable since 24.12.0. ([how](./how-it-works)) |
+| TypeScript 7? | Native Go compiler since July 2026; API users stay on the 6.x line. ([why](./why-typescript)) |
+| `interface` vs `type`? | Interfaces for object shapes; aliases for unions and compositions. ([objects](./objects-interfaces-types)) |
+| Excess property check? | Fresh literals may only list known fields. ([objects](./objects-interfaces-types)) |
+| `any` vs `unknown`? | `any` silences, `unknown` forces a guard — prefer guards. ([any](./any-unknown-assertions)) |
+| `as` vs guard? | Assertions claim, guards prove; `satisfies` checks without widening. ([any](./any-unknown-assertions)) |
+| Narrowing tools? | `typeof`, `in`, `instanceof`, literal equality, custom `is`. ([unions](./unions-narrowing)) |
+| Discriminated union? | One shared literal field; each branch knows its shape. ([unions](./unions-narrowing)) |
+| Generics in one line? | Placeholders the caller fills per call, inferred first. ([generics](./generics)) |
+| Enum vs string union? | Unions erase and match text; enums emit runtime objects. ([enums](./enums-literals)) |
+
+## Types at work
+
+| Question | 30-second answer |
+|---|---|
+| `Partial` / `Pick` / `Omit`? | Derive optional, subset, and remainder shapes from one source. ([utils](./utility-types)) |
+| `keyof` and `typeof`? | List keys, borrow a value's type, index one field out. ([utils](./utility-types)) |
+| `private` / `readonly`? | Editor promises only — the emit ignores them. ([classes](./classes)) |
+| `.d.ts` files? | Shape promises for plain JavaScript; `@types` when the lib ships none. ([modules](./modules-declarations)) |
+| `import type`? | Type-only meaning; bundlers drop it, Node strips it. ([modules](./modules-declarations)) |
+| `strict` enables? | Null checks, no silent `any`, init checks — one switch, a family. ([tsconfig](./tsconfig-strict)) |
+| `target` vs `lib`? | Emit level versus available built-ins; independent knobs. ([tsconfig](./tsconfig-strict)) |
+| Typing fetch? | Generic envelope plus a runtime guard at the network edge. ([react](./react-api-calls)) |
+| Migration order? | `checkJs`, JSDoc, rename one file, tighten strictness last. ([migrating](./migrating-js)) |
+| When not to use it? | Throwaways and tiny static pages; never as proof of correctness. ([pros](./pros-cons)) |
+
+## References
+
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html).
+- [TypeScript release notes](https://www.typescriptlang.org/docs/handbook/release-notes/overview.html).

@@ -1,0 +1,42 @@
+---
+title: Pros and cons
+description: Honest trade-offs of TypeScript, and when not to use it.
+---
+
+TypeScript pays for itself on teams and long-lived code, and charges
+rent everywhere else. Interviewers ask "when wouldn't you use it?" to
+check you see both sides — memorize the honest version below.
+
+## Where it wins
+
+Refactors stop being scary: rename a field and the compiler lists every
+caller you missed. Onboarding gets faster because signatures document
+themselves — a new hire reads `chargeCard(amount: number, currency:
+string)` instead of guessing. Typos and swapped arguments fail in the
+editor, minutes after writing, instead of in production weeks later.
+
+## Where it costs
+
+Small scripts and prototypes move slower: every quick experiment wants
+annotations, config, and a build step. Library boundaries leak complexity
+— someone must write and maintain type definitions, and advanced types
+can puzzle readers more than the runtime code they describe. Build times
+grow with project size (one reason the native 7.0 compiler landed in
+2026), and types can never validate external data: an API can still send
+whatever it wants at runtime.
+
+## When not to use it
+
+Skip it for throwaway scripts, one-off migrations, and tiny static pages
+with no logic worth checking. Skip the strictest settings on week one of
+a brownfield migration — partial adoption beats an all-or-nothing stall
+(see [migrating a JavaScript project](./migrating-js)). And never treat a
+green check as proof: it proves consistency with your annotations, not
+with reality.
+
+<InterviewQuestions topic="pros-cons" dir="typescript" />
+
+## References
+
+- [TypeScript Handbook: introduction](https://www.typescriptlang.org/docs/handbook/intro.html).
+- [Announcing TypeScript 7.0](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/).

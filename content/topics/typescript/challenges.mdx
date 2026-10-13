@@ -1,0 +1,243 @@
+---
+title: Type challenges
+description: Nine interview-level typing tasks with tests and hidden solutions.
+---
+
+Nine tasks interviewers actually assign. Each starts broken — make the
+tests green with zero type errors, no `any`, no ignore comments, no `!`.
+Then peek at one possible solution. All checks run in the page; nothing
+leaves your browser.
+
+<Exercise
+  title="1. first of any array"
+  language="typescript"
+  tests={`assert(first(["a", "b"]) === "a", "takes strings");
+assert(first([10, 20]) === 10, "keeps numbers");
+assert(first([]) === undefined, "empty is undefined");`}
+  solution={`function first<T>(items: T[]): T | undefined {
+  return items[0];
+}`}
+>
+{`function first(items: number[]): number {
+  return items[0];
+}`}
+</Exercise>
+
+<Exercise
+  title="2. cart reducer"
+  language="typescript"
+  tests={`assert(reduceCart(10, { kind: "add", amount: 5 }) === 15, "adds");
+assert(reduceCart(10, { kind: "reset" }) === 0, "resets");`}
+  solution={`type CartAction = { kind: "add"; amount: number } | { kind: "reset" };
+function reduceCart(total: number, action: CartAction): number {
+  if (action.kind === "add") {
+    return total + action.amount;
+  }
+  return 0;
+}`}
+>
+{`type CartAction = { kind: "add"; amount: number } | { kind: "reset" };
+function reduceCart(total: number, action: CartAction): number {
+  if (action.kind === "add") {
+    return total + action.amount;
+  }
+  return total + action.amount;
+}`}
+</Exercise>
+
+<Exercise
+  title="3. safe display name"
+  language="typescript"
+  tests={`assert(displayName({ name: "sam" }) === "sam", "reads name");
+assert(displayName({}) === "guest", "missing name");
+assert(displayName(null) === "guest", "null");
+assert(displayName("sam") === "guest", "wrong shape");`}
+  solution={`function displayName(raw: unknown): string {
+  if (typeof raw === "object" && raw !== null && "name" in raw) {
+    const record = raw as { name: unknown };
+    if (typeof record.name === "string") {
+      return record.name;
+    }
+  }
+  return "guest";
+}`}
+>
+{`function displayName(raw: unknown): string {
+  const record = raw as { name: string };
+  return record.name;
+}`}
+</Exercise>
+
+<Exercise
+  title="4. typed event bus"
+  language="typescript"
+  tests={`const heard: string[] = [];
+const bus = new Bus();
+bus.on(function (message: string) {
+  heard.push(message);
+});
+bus.emit("hi");
+bus.emit("there");
+assert(heard.length === 2, "both heard");
+assert(heard.join(",") === "hi,there", "in order");`}
+  solution={`type Handler = (message: string) => void;
+class Bus {
+  private handlers: Handler[] = [];
+  on(handler: Handler): void {
+    this.handlers.push(handler);
+  }
+  emit(message: string): void {
+    for (const handler of this.handlers) {
+      handler(message);
+    }
+  }
+}`}
+>
+{`type Handler = (message: string) => void;
+class Bus {
+  private handlers: unknown[] = [];
+  on(handler: Handler): void {
+    this.handlers.push(handler);
+  }
+  emit(message: string): void {
+    for (const handler of this.handlers) {
+      handler(message);
+    }
+  }
+}`}
+</Exercise>
+
+<Exercise
+  title="5. partial from scratch"
+  language="typescript"
+  tests={`interface Profile {
+  name: string;
+  age: number;
+}
+const draft: MyPartial<Profile> = {};
+assert(Object.keys(draft).length === 0, "empty ok");
+const aged: MyPartial<Profile> = { age: 30 };
+assert(aged.age === 30, "partial fill");`}
+  solution={`type MyPartial<T> = { [K in keyof T]?: T[K] };`}
+>
+{`type MyPartial<T> = T;`}
+</Exercise>
+
+<Exercise
+  title="6. rescue legacy total"
+  language="typescript"
+  tests={`assert(total([1, 2, 3]) === 6, "sums three");
+assert(total([]) === 0, "empty is zero");`}
+  solution={`function total(prices: number[]): number {
+  let sum = 0;
+  for (const price of prices) {
+    sum = sum + price;
+  }
+  return sum;
+}`}
+>
+{`function total(prices) {
+  let sum = 0;
+  for (const price of prices) {
+    sum = sum + price;
+  }
+  return sum;
+}`}
+</Exercise>
+
+<Exercise
+  title="7. typed fetch"
+  language="typescript"
+  tests={`const user = await getUser(1);
+assert(user.name === "Aarav Sharma", "loads name");
+assert(user.id === 1, "loads id");`}
+  solution={`interface ApiUser {
+  id: number;
+  name: string;
+}
+async function getUser(id: number): Promise<ApiUser> {
+  const response = await fakeFetch("https://api.example.com/users/" + id);
+  const user = (await response.json()) as ApiUser;
+  return user;
+}`}
+>
+{`interface ApiUser {
+  id: number;
+  name: string;
+}
+async function getUser(id: number): Promise<ApiUser> {
+  const response = await fakeFetch("https://api.example.com/users/" + id);
+  return response;
+}`}
+</Exercise>
+
+<Exercise
+  title="8. rename without mutating"
+  language="typescript"
+  tests={`const cart: CartItem[] = [
+  { id: 1, name: "book", price: 12 },
+  { id: 2, name: "pen", price: 3 },
+];
+const next = rename(cart, 1, "novel");
+assert(next[0].name === "novel", "renamed");
+assert(cart[0].name === "book", "original kept");
+assert(next[1] === cart[1], "others shared");`}
+  solution={`interface CartItem {
+  readonly id: number;
+  name: string;
+  price: number;
+}
+function rename(items: CartItem[], id: number, name: string): CartItem[] {
+  return items.map(function (item) {
+    if (item.id === id) {
+      return { id: item.id, name: name, price: item.price };
+    }
+    return item;
+  });
+}`}
+>
+{`interface CartItem {
+  readonly id: number;
+  name: string;
+  price: number;
+}
+function rename(items: CartItem[], id: number, name: string): CartItem[] {
+  for (const item of items) {
+    if (item.id === id) {
+      item.name = name;
+    }
+  }
+  return items;
+}`}
+</Exercise>
+
+<Exercise
+  title="9. exhaustive status labels"
+  language="typescript"
+  tests={`assert(label("new") === "fresh order", "new");
+assert(label("paid") === "money in", "paid");
+assert(label("shipped") === "on its way", "shipped");`}
+  solution={`type Status = "new" | "paid" | "shipped";
+function label(status: Status): string {
+  if (status === "new") {
+    return "fresh order";
+  }
+  if (status === "paid") {
+    return "money in";
+  }
+  return "on its way";
+}`}
+>
+{`type Status = "new" | "paid" | "shipped";
+function label(status: Status): string {
+  if (status === "new") {
+    return "fresh order";
+  }
+  return "money in";
+}`}
+</Exercise>
+
+## References
+
+- [TypeScript Handbook: generics](https://www.typescriptlang.org/docs/handbook/2/generics.html).
+- [TypeScript Handbook: narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html).

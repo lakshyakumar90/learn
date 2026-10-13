@@ -1,0 +1,21 @@
+{
+  "start-here/what-is": "why-typescript",
+  "start-here/history": "why-typescript",
+  "start-here/setup": "index",
+  "start-here/pros-cons": "pros-cons",
+  "fundamentals/types": "basic-types",
+  "fundamentals/interfaces": "objects-interfaces-types",
+  "fundamentals/functions": "functions",
+  "fundamentals/unions": "unions-narrowing",
+  "fundamentals/generics": "generics",
+  "fundamentals/enums": "enums-literals",
+  "fundamentals/classes": "classes",
+  "intermediate/utility-types": "utility-types",
+  "intermediate/any-unknown": "any-unknown-assertions",
+  "intermediate/modules": "modules-declarations",
+  "intermediate/tsconfig": "tsconfig-strict",
+  "practice/interview-questions": "question-bank",
+  "practice/gotchas": "compile-puzzles",
+  "practice/challenges": "challenges",
+  "practice/cheat-sheet": "cheat-sheet"
+}

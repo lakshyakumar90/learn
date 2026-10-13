@@ -1,0 +1,100 @@
+---
+title: Modules and declaration files
+description: import type, .d.ts bridges, @types and the declare keyword.
+---
+
+Your typed code constantly meets untyped JavaScript: libraries, legacy
+files, globals. Declaration files (`.d.ts`) describe those neighbors so
+the checker can verify your side of the conversation. Interviewers ask
+"where do the types for lodash come from?" — this page is that answer.
+
+## Real-life situation
+
+You install a small slug helper written in plain JavaScript. No
+annotations, no checking — every call is a guess. A declaration file
+bridges the gap: it promises `slugify(text: string): string` without
+touching the library, and suddenly wrong calls fail in your editor. When
+a library ships no types, the community DefinitelyTyped collection
+(`@types/...` packages) usually has them.
+
+## Visual
+
+<Diagram id="ts-dts-bridge" />
+
+## Try it
+
+<CodeRunner
+  title="Describe values you did not write"
+  language="typescript"
+  errors="TS2322"
+  expect="red-chair\nshop v2.1.0\ntea-pot\ncode 2.1.0"
+>
+{`function slugify(text: string): string {
+  return text.trim().toLowerCase().split(" ").join("-");
+}
+const shopVersion = "2.1.0";
+type Slugify = typeof slugify;
+function productSlug(name: string, make: Slugify): string {
+  const clean = name.trim().toLowerCase();
+  return make(clean);
+}
+function versionLabel(prefix: string, version: string): string {
+  return prefix + " v" + version;
+}
+const make: Slugify = slugify;
+console.log(productSlug("  Red Chair ", make));
+console.log(versionLabel("shop", shopVersion));
+console.log(make("Tea Pot"));
+const code: number = shopVersion;
+console.log("code " + code);`}
+</CodeRunner>
+
+Try changing the `code` annotation to `string` — clean. `typeof`
+borrows a value's type without repeating it, which is exactly what a
+`.d.ts` file contains: `declare function slugify(text: string):
+string;` — a promise with no body. `import type` brings in only the type
+meaning, so bundlers can drop the import entirely (Node's own type
+stripping needs that keyword to erase imports correctly).
+
+The static version of the bridge, build-checked below, shows the typed
+side: the same promises a `.d.ts` file would hold, with bodies so the
+page can verify them. The real `.d.ts` would contain only the `declare`
+lines (shown as inline code above, never executed).
+
+```ts
+function slugify(text: string): string {
+  return text.trim().toLowerCase().split(" ").join("-");
+}
+const shopVersion = "2.1.0";
+const slug: string = slugify("Red Chair");
+const tag: string = shopVersion;
+console.log(slug + " " + tag);
+```
+
+For JavaScript-side module mechanics, see
+[modules](/topics/javascript/modern-syntax) in the JavaScript topic.
+
+<TypeCheck
+  id="ts-module-typeof"
+  question="Will it compile?"
+  answer="yes"
+  explanation="Typeof borrows the constant's type, so a second number fits the borrowed alias."
+>
+{`const limit = 10;
+type Limit = typeof limit;
+const next: Limit = 10;
+console.log(next);`}
+</TypeCheck>
+
+<InterviewQuestions topic="modules-declarations" dir="typescript" />
+
+## Key takeaways
+
+- `.d.ts` files promise shapes for plain JavaScript — no rewrite needed.
+- `typeof` borrows types; `import type` erases fully at emit.
+- Missing library types? Look for `@types/...` first, declare second.
+
+## References
+
+- [TypeScript Handbook: modules](https://www.typescriptlang.org/docs/handbook/2/modules.html).
+- [TypeScript Handbook: declaration files](https://www.typescriptlang.org/docs/handbook/declaration-files/introduction.html).

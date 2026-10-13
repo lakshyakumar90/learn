@@ -1,0 +1,23 @@
+id: typescript
+title: TypeScript
+summary: "Types for the JavaScript you already write: the concepts interviews ask about."
+category: languages
+tags:
+  - Language
+  - Types
+  - Interview
+level: all
+status: live
+cover: /topics/typescript/img/hero.svg
+order: 2
+updated: '2026-10-13'
+keywords:
+  - interface vs type
+  - generics
+  - narrowing
+  - any vs unknown
+  - strict mode
+  - utility types
+  - tsconfig
+  - discriminated union
+  - interview questions

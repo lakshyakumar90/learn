@@ -1,0 +1,83 @@
+---
+title: Generics
+description: Reusable functions and interfaces with constraints and defaults.
+---
+
+Generics let one definition serve many types without surrendering
+checking. Interviewers ask for the one-line version first — "a
+placeholder the caller fills in" — then probe constraints and defaults.
+
+## Real-life situation
+
+Every API response in your app has the same envelope (`data` plus
+`status`) but different payloads. Without generics you duplicate the
+interface per endpoint or fall back to `any`. With `ApiResponse<T>`,
+each call fills in its own `T` and keeps full checking — one definition,
+every endpoint typed.
+
+## Visual
+
+<Diagram id="ts-generic-io" />
+
+## Try it
+
+<CodeRunner
+  title="One envelope, many payloads"
+  language="typescript"
+  errors="TS2322"
+  expect="200\na\n6\n5"
+>
+{`interface ApiResponse<T> {
+  data: T;
+  status: number;
+}
+function wrap<T>(value: T): ApiResponse<T> {
+  return { data: value, status: 200 };
+}
+function first<T>(items: T[]): T | undefined {
+  return items[0];
+}
+const names = wrap(["a", "b"]);
+console.log(names.status);
+console.log(first(names.data));
+const n: number = wrap(5).data;
+console.log(n + 1);
+const broken: string = wrap(5).data;
+console.log(broken);`}
+</CodeRunner>
+
+Try fixing the last two lines to `const broken: number = ...` — clean.
+Notice `wrap(["a", "b"])` needed no explicit type argument: inference
+fills `T` from the call. Constraints (`T extends { id: number }`)
+demand a minimum shape, and defaults (`T = string`) kick in when the
+caller says nothing.
+
+Generics also carry interfaces (`Box<T>`), classes, and type aliases.
+The rule of thumb: generic over what varies per call, concrete about
+everything else.
+
+<TypeCheck
+  id="ts-generic-wrap"
+  question="Will it compile?"
+  answer="yes"
+  explanation="Inference fills T with number from the argument, so the result is number[] as declared."
+>
+{`function wrap<T>(value: T): T[] {
+  return [value];
+}
+const xs: number[] = wrap(1);
+console.log(xs);`}
+</TypeCheck>
+
+<InterviewQuestions topic="generics" dir="typescript" />
+
+## Key takeaways
+
+- `T` is filled per call — by inference first, explicitly when needed.
+- Constrain with `extends` to demand a shape; default with `=`.
+- One generic definition beats N copies or a silent `any`.
+
+## References
+
+- [TypeScript Handbook: generics](https://www.typescriptlang.org/docs/handbook/2/generics.html).
+- [TypeScript Handbook: everyday types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html).

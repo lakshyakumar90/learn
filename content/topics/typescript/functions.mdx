@@ -1,0 +1,88 @@
+---
+title: Functions
+description: Parameters, returns, optional and default values, and callbacks.
+---
+
+Function signatures are contracts callers cannot wiggle out of: how many
+arguments, in what order, of which types, and what comes back.
+Interviewers test whether you read a signature the way the compiler
+does — positionally, not by name.
+
+## Real-life situation
+
+A payment helper takes an amount and a currency. Someone calls it as
+`chargeCard("USD", 25)` — names swapped. JavaScript charges twenty-five
+"USD"s at runtime; TypeScript rejects the call before review. Add an
+optional tip with a default, and the signature documents itself better
+than any comment.
+
+## Visual
+
+<Diagram id="ts-fn-signature" />
+
+## Try it
+
+<CodeRunner
+  title="Payment called in the wrong order"
+  language="typescript"
+  errors="TS2345"
+  expect="charged 25 USD\n20\n25\nreceipt printed\nreceipt printed\ncharged USD 25"
+>
+{`function chargeCard(amount: number, currency: string): string {
+  const label = amount + " " + currency;
+  return "charged " + label;
+}
+function withTip(amount: number, tip: number = 0): number {
+  return amount + tip;
+}
+function runTwice(task: () => void): void {
+  task();
+  task();
+}
+console.log(chargeCard(25, "USD"));
+console.log(withTip(20));
+console.log(withTip(20, 5));
+runTwice(function () {
+  console.log("receipt printed");
+});
+console.log(chargeCard("USD", 25));`}
+</CodeRunner>
+
+Try fixing the last line to `chargeCard(25, "USD")` — the Types tab goes
+clean. Then change `runTwice`'s parameter to `(code: number) => void` and
+watch the anonymous function fail: callbacks are checked against the
+parameter they are passed to, which is why inline handlers usually need
+no annotations at all.
+
+Optional parameters (`tip?: number`) may be skipped; default parameters
+(`tip = 0`) fill themselves in. Overloads — several signatures, one
+implementation — appear in library definitions; you will read them far
+more often than you write them. For function values, see also
+[closures](/topics/javascript/closures) in the JavaScript topic.
+
+<TypeCheck
+  id="ts-fn-arity"
+  question="Will it compile?"
+  answer="no"
+  line="4"
+  explanation="The second parameter expects a number, so passing a string fails at the call."
+>
+{`function total(price: number, tax: number): number {
+  return price + tax;
+}
+const bill: number = total(10, "5");
+console.log(bill);`}
+</TypeCheck>
+
+<InterviewQuestions topic="functions" dir="typescript" />
+
+## Key takeaways
+
+- Arguments match positionally: order and count are part of the contract.
+- Defaults document themselves; callbacks inherit types from context.
+- `void` means "ignore the result", not "returns nothing usable".
+
+## References
+
+- [TypeScript Handbook: more on functions](https://www.typescriptlang.org/docs/handbook/2/functions.html).
+- [MDN: functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions).

@@ -1,4 +1,170 @@
 {
+  "ts-any-leak": {
+    "diagnostics": []
+  },
+  "ts-basic-assign": {
+    "diagnostics": [
+      {
+        "code": 2322,
+        "message": "Type 'string' is not assignable to type 'number'.",
+        "line": 1,
+        "col": 7
+      }
+    ]
+  },
+  "ts-class-private": {
+    "diagnostics": [
+      {
+        "code": 2341,
+        "message": "Property 'code' is private and only accessible within class 'Vault'.",
+        "line": 5,
+        "col": 19
+      }
+    ]
+  },
+  "ts-p-excess": {
+    "diagnostics": [
+      {
+        "code": 2353,
+        "message": "Object literal may only specify known properties, and 'nickname' does not exist in type 'Account'.",
+        "line": 5,
+        "col": 48
+      }
+    ]
+  },
+  "ts-p-narrow": {
+    "diagnostics": []
+  },
+  "ts-p-readonly": {
+    "diagnostics": [
+      {
+        "code": 2339,
+        "message": "Property 'push' does not exist on type 'readonly number[]'.",
+        "line": 2,
+        "col": 8
+      }
+    ]
+  },
+  "ts-p-union": {
+    "diagnostics": [
+      {
+        "code": 2322,
+        "message": "Type 'string' is not assignable to type 'number'.",
+        "line": 2,
+        "col": 7
+      }
+    ]
+  },
+  "ts-p-generic": {
+    "diagnostics": []
+  },
+  "ts-p-index": {
+    "diagnostics": [
+      {
+        "code": 2322,
+        "message": "Type 'string' is not assignable to type 'number'.",
+        "line": 4,
+        "col": 33
+      }
+    ]
+  },
+  "ts-p-any": {
+    "diagnostics": []
+  },
+  "ts-p-never": {
+    "diagnostics": []
+  },
+  "ts-p-optional": {
+    "diagnostics": [
+      {
+        "code": 2322,
+        "message": "Type 'string | undefined' is not assignable to type 'string'.   Type 'undefined' is not assignable to type 'string'.",
+        "line": 2,
+        "col": 3
+      }
+    ]
+  },
+  "ts-p-assert": {
+    "diagnostics": []
+  },
+  "ts-p-tuple": {
+    "diagnostics": []
+  },
+  "ts-p-indexed": {
+    "diagnostics": []
+  },
+  "ts-enum-assign": {
+    "diagnostics": []
+  },
+  "ts-fn-arity": {
+    "diagnostics": [
+      {
+        "code": 2345,
+        "message": "Argument of type 'string' is not assignable to parameter of type 'number'.",
+        "line": 4,
+        "col": 32
+      }
+    ]
+  },
+  "ts-generic-wrap": {
+    "diagnostics": []
+  },
+  "ts-migrate-let": {
+    "diagnostics": [
+      {
+        "code": 2454,
+        "message": "Variable 'nickname' is used before being assigned.",
+        "line": 2,
+        "col": 13
+      }
+    ]
+  },
+  "ts-module-typeof": {
+    "diagnostics": []
+  },
+  "ts-object-excess": {
+    "diagnostics": [
+      {
+        "code": 2353,
+        "message": "Object literal may only specify known properties, and 'nickname' does not exist in type 'Card'.",
+        "line": 5,
+        "col": 40
+      }
+    ]
+  },
+  "ts-react-props": {
+    "diagnostics": [
+      {
+        "code": 2345,
+        "message": "Argument of type '{ count: number; }' is not assignable to parameter of type 'CardProps'.   Property 'title' is missing in type '{ count: number; }' but required in type 'CardProps'.",
+        "line": 8,
+        "col": 12
+      }
+    ]
+  },
+  "ts-strict-undefined": {
+    "diagnostics": [
+      {
+        "code": 2322,
+        "message": "Type 'undefined' is not assignable to type 'string'.",
+        "line": 1,
+        "col": 7
+      }
+    ]
+  },
+  "ts-union-literal": {
+    "diagnostics": [
+      {
+        "code": 2322,
+        "message": "Type '\"left\"' is not assignable to type '\"up\" | \"down\"'.",
+        "line": 1,
+        "col": 7
+      }
+    ]
+  },
+  "ts-utility-partial": {
+    "diagnostics": []
+  },
   "kitchen-sink-assignability": {
     "diagnostics": [
       {

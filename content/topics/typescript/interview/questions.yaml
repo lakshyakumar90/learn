@@ -1,0 +1,1569 @@
+# Interview questions for the TypeScript topic. Single source of truth:
+# <InterviewQuestions topic="<slug>"/> renders a page's questions and the
+# question bank renders all of them. Answers stay under 120 words.
+- id: why-typescript-1
+  topic: why-typescript
+  level: basic
+  question: "What is TypeScript?"
+  answer: |
+    TypeScript is a typed superset of JavaScript maintained alongside the
+    `typescript` compiler package. You write `.ts` files with optional type
+    annotations, then the compiler checks them and emits plain `.js` you can
+    run anywhere JavaScript runs. Valid JavaScript is usually valid TypeScript,
+    so you can adopt it gradually. Think of it as JavaScript plus a static
+    checker that catches mistakes before your code runs.
+  followUps:
+    - "Where does type checking happen — runtime or before?"
+  tags: ["basics", "intro"]
+- id: why-typescript-2
+  topic: why-typescript
+  level: basic
+  question: "Why would you choose TypeScript over plain JavaScript?"
+  answer: |
+    You get earlier feedback on the mistakes JavaScript hides until runtime:
+    misspelled properties, wrong argument shapes, and forgotten `null` cases.
+    Types also act as living documentation, so you spend less time guessing what
+    a function expects. Editors use them for precise autocomplete and safe
+    renames. For teams and long-lived codebases, that means fewer runtime
+    surprises and faster refactors, at the cost of writing and maintaining
+    the annotations.
+  followUps:
+    - "What does TypeScript cost you in return?"
+  tags: ["benefits", "teams"]
+- id: why-typescript-3
+  topic: why-typescript
+  level: intermediate
+  question: "What changed with TypeScript 7's native compiler?"
+  answer: |
+    TypeScript 7, released July 8 2026, ships a native compiler written in Go
+    inside the `typescript` package for much faster checking and builds. The
+    native compiler does not offer a programmatic JavaScript API, so tools that
+    called the old API should use the `@typescript/typescript6` compatibility
+    package, which provides the `tsc6` binary and re-exports the 6.0 API.
+    Everyday `tsc` command-line usage stays familiar.
+  followUps:
+    - "What should a tool author do if they relied on the compiler API?"
+  tags: ["toolchain", "compiler"]
+- id: why-typescript-4
+  topic: why-typescript
+  level: basic
+  question: "What kinds of bugs does TypeScript catch for you?"
+  answer: |
+    It catches shape mismatches: calling a function with the wrong arguments,
+    reading a property that does not exist, or assuming a value is defined when
+    it can be `null`. It also flags misspelled names and incorrect assignments
+    across files, which plain JavaScript would only reveal at runtime. You still
+    need tests for logic errors, but the compiler removes a whole class of
+    silly wiring mistakes before you even run the code.
+  followUps:
+    - "Can TypeScript catch logic errors too?"
+  tags: ["bugs", "safety"]
+- id: why-typescript-5
+  topic: why-typescript
+  level: intermediate
+  question: "When does TypeScript check your types?"
+  answer: |
+    It checks statically, before your code runs — when your editor highlights
+    an error or when you run `tsc` in your build. Nothing about the check
+    survives into the emitted JavaScript. That means a passing check tells you
+    the code was consistent at build time, not that runtime data will match.
+    Data from an API or user input still needs runtime validation, because the
+    compiler cannot see what the network will send.
+  followUps:
+    - "Why do you still need runtime validation for API data?"
+  tags: ["checking", "build"]
+- id: how-it-works-1
+  topic: how-it-works
+  level: basic
+  question: "How does the tsc compiler turn TypeScript into JavaScript?"
+  answer: |
+    You run `tsc` over your `.ts` files and it does two jobs: it checks your
+    types against each other, then it strips the type syntax and emits plain
+    `.js`. Modern syntax is downleveled to match your `target`, so optional
+    chaining or classes still run on older runtimes. You configure the input,
+    output folder, and language level in `tsconfig.json`, and the emitted files
+    are what you actually deploy and run.
+  followUps:
+    - "What part of the output can you run in the browser?"
+  tags: ["tsc", "compile"]
+- id: how-it-works-2
+  topic: how-it-works
+  level: basic
+  question: "What does it mean that TypeScript types are erasable?"
+  answer: |
+    It means every annotation, interface, and type alias is removed when the
+    code is emitted — no trace remains at runtime. The emitted JavaScript
+    behaves exactly as if you had written it by hand without types. You cannot
+    inspect an interface in running code or branch on it, because it no longer
+    exists. If you need a runtime check, you must write real JavaScript logic
+    such as a `typeof` test or a validation function.
+  followUps:
+    - "Can you check an interface with an if statement at runtime?"
+  tags: ["erasable", "emit"]
+- id: how-it-works-3
+  topic: how-it-works
+  level: intermediate
+  question: "Does TypeScript do any runtime type checking?"
+  answer: |
+    No, the compiler performs no runtime checking itself. Once your `.ts` is
+    emitted to `.js`, all types are gone and execution follows normal JavaScript
+    rules — a wrong-typed API response flows straight through. The safety comes
+    entirely from the build-time check plus the runtime guards you write
+    yourself. That is why teams pair TypeScript with small validators at
+    program boundaries, where outside data enters typed code.
+  followUps:
+    - "Where should you put runtime checks in a typed app?"
+  tags: ["runtime", "checking"]
+- id: how-it-works-4
+  topic: how-it-works
+  level: basic
+  question: "How can Node.js run .ts files directly with type stripping?"
+  answer: |
+    Recent Node versions can run `.ts` files by stripping the type syntax
+    without doing any type checking, so development feels instant. The feature
+    first appeared around v22.6.0, became enabled by default through the v22
+    and v23 line, and stabilized later — check your exact Node version before
+    relying on it. Remember it only removes types: type errors still run, and
+    syntax Node cannot strip cleanly needs a real build step.
+  followUps:
+    - "Does running a .ts file in Node prove its types are correct?"
+  tags: ["node", "stripping"]
+- id: how-it-works-5
+  topic: how-it-works
+  level: intermediate
+  question: "If tsc reports a type error, does it still emit JavaScript?"
+  answer: |
+    By default yes — checking and emitting are separate steps, so `tsc` prints
+    the errors but still writes `.js` output unless you set `noEmitOnError`.
+    That surprises beginners who expect errors to block the build. In practice
+    you decide: leave the default for quick iteration, or enable
+    `noEmitOnError` in CI so broken types cannot ship. Either way, fix the
+    reported errors — the emitted code still runs as plain JavaScript.
+  followUps:
+    - "How would you block a deploy on type errors?"
+  tags: ["tsc", "emit"]
+- id: how-it-works-6
+  topic: how-it-works
+  level: intermediate
+  question: "What tools besides tsc can compile TypeScript?"
+  answer: |
+    Many tools transpile TypeScript by stripping types without full checking:
+    `esbuild`, `swc`, `tsx`, and bundlers built on them compile single files
+    very fast. That speed is ideal for development and bundling, but none of
+    them replaces `tsc` for correctness — they happily emit code with type
+    errors. A common setup uses a fast transpiler to build and runs `tsc
+    --noEmit` alongside it purely to check types.
+  followUps:
+    - "Why run tsc --noEmit next to a fast bundler?"
+  tags: ["tooling", "transpile"]
+- id: pros-cons-1
+  topic: pros-cons
+  level: basic
+  question: "What are the main benefits of TypeScript?"
+  answer: |
+    You catch wiring mistakes early, document intent in the code itself, and get
+    far better editor help — accurate jumps, autocomplete, and renames that
+    update every caller. Refactors that feel risky in JavaScript become
+    mechanical: change a shape and the compiler lists every place to fix. For
+    shared libraries, published `.d.ts` files let consumers use your API
+    correctly without reading the source. The payoff grows with codebase size
+    and team size.
+  followUps:
+    - "How do types help when refactoring?"
+  tags: ["benefits", "refactor"]
+- id: pros-cons-2
+  topic: pros-cons
+  level: basic
+  question: "What are the main costs of adopting TypeScript?"
+  answer: |
+    You pay in setup and upkeep: a build step, a `tsconfig.json` to maintain,
+    and annotations to write for every boundary. Third-party libraries
+    occasionally need extra `@types` packages or small local declarations.
+    Beginners also fight the compiler at first, especially around `null` and
+    third-party shapes. For tiny scripts the overhead can outweigh the help,
+    so weigh the long-term maintenance win against the short-term slowdown.
+  followUps:
+    - "What extra packages do untyped libraries sometimes need?"
+  tags: ["costs", "tradeoffs"]
+- id: pros-cons-3
+  topic: pros-cons
+  level: intermediate
+  question: "When should you NOT use TypeScript?"
+  answer: |
+    Skip it for throwaway scripts, quick prototypes, and tiny automations where
+    a build step slows you down more than types help. It also adds friction to
+    highly dynamic code — heavy metaprogramming or loosely shaped plugin
+    systems can force you into `any` everywhere, defeating the purpose. If your
+    team will not maintain the types, an untyped codebase with good tests beats
+    a half-typed one that everyone ignores. Choose the tool that fits the
+    lifespan of the code.
+  followUps:
+    - "What is a better fit than TypeScript for a one-off script?"
+  tags: ["tradeoffs", "judgment"]
+- id: pros-cons-4
+  topic: pros-cons
+  level: intermediate
+  question: "How does TypeScript compare to JavaScript with JSDoc type checking?"
+  answer: |
+    Both give you editor help and `tsc` checking, but JSDoc keeps you in plain
+    `.js` with types written as comments, while TypeScript uses dedicated `.ts`
+    syntax. JSDoc suits gradual adoption or teams that cannot add a build step,
+    since the code runs as-is. Full TypeScript scales better: its syntax stays
+    readable for complex generics, and refactoring tools understand it more
+    reliably. You can even mix them with `allowJs` and `checkJs` during a
+    migration.
+  followUps:
+    - "How would you check plain JS files with the TypeScript compiler?"
+  tags: ["jsdoc", "migration"]
+- id: basic-types-1
+  topic: basic-types
+  level: basic
+  question: "What are the most common basic types in TypeScript?"
+  answer: |
+    You will use `string`, `number`, `boolean`, `null`, and `undefined` for
+    everyday values, plus `bigint` and `symbol` for rarer cases. Arrays are
+    written `string[]` and objects get inline shapes like `{ name: string }`.
+    `void` marks functions that return nothing useful. Start with these small
+    building blocks — every interface, union, and generic you meet later is
+    composed from them.
+  followUps:
+    - "How do you write the type of an array of strings?"
+  tags: ["basics", "annotations"]
+- id: basic-types-2
+  topic: basic-types
+  level: basic
+  question: "How do you add a type annotation to a variable?"
+  answer: |
+    You add a colon plus the type after the name, like `let name: string =
+    'Asha'`. The annotation tells the compiler what you intend, and it rejects
+    any later assignment that disagrees. You only need it where inference cannot
+    figure things out — for empty declarations like `let user: User` or
+    function boundaries. Inside a function body, prefer letting inference do
+    the work so the code stays quiet.
+  followUps:
+    - "When can you leave the annotation off?"
+  tags: ["syntax", "annotations"]
+- id: basic-types-3
+  topic: basic-types
+  level: basic
+  question: "How does type inference work, and when should you rely on it?"
+  answer: |
+    The compiler infers a type from the initializer, so `let count = 0` is
+    treated as `number` without you writing anything. Rely on it for locals —
+    it keeps code short and stays accurate. Write explicit annotations at
+    function parameters and return positions, where there is no initializer to
+    learn from and where the annotation documents your contract for every
+    caller. Hover over a variable in your editor to see what was inferred.
+  followUps:
+    - "Where does inference fall short?"
+  tags: ["inference", "basics"]
+- id: basic-types-4
+  topic: basic-types
+  level: basic
+  question: "How do null and undefined differ in TypeScript?"
+  answer: |
+    `undefined` means a value is missing — an uninitialized variable or a
+    skipped optional property. `null` means you deliberately set emptiness, like
+    clearing a selected user. With `strictNullChecks` on, they are distinct
+    types and you must handle each before use, which removes the classic
+    `Cannot read properties of null` crash. Be explicit about which one your
+    function accepts and returns.
+  followUps:
+    - "What does strictNullChecks change here?"
+  tags: ["null", "undefined"]
+- id: basic-types-5
+  topic: basic-types
+  level: basic
+  question: "How do you type arrays in TypeScript?"
+  answer: |
+    You write the element type plus brackets, like `string[]` or `number[]`,
+    which is shorthand for `Array<string>`. The compiler then checks every
+    element on creation and every access afterwards — pushing a `number` into a
+    `string[]` is an error. Use `readonly string[]` when callers should not
+    mutate the array. For fixed-length mixed shapes, reach for a tuple instead
+    of a plain array.
+  followUps:
+    - "When would you use a tuple instead of an array?"
+  tags: ["arrays", "basics"]
+- id: basic-types-6
+  topic: basic-types
+  level: basic
+  question: "What is a tuple and when would you use one?"
+  answer: |
+    A tuple is a fixed-length array where each position has its own type, like
+    `[string, number]` for a name-age pair. You annotate it with brackets
+    around the sequence, and the compiler checks both the length and each
+    slot's type. Use tuples for small, positionally meaningful returns such as
+    `[user, error]` helpers. For anything with named fields, prefer an object —
+    names document intent better than positions do.
+  followUps:
+    - "How is [string, number] different from (string | number)[]?"
+  tags: ["tuples", "arrays"]
+- id: basic-types-7
+  topic: basic-types
+  level: intermediate
+  question: "What does void mean as a function return type?"
+  answer: |
+    `void` means the function returns nothing you should use — typical for
+    callbacks, event handlers, and side-effect helpers. You can still `return`
+    early with no value, but assigning the result is pointless. Do not confuse
+    it with `undefined` as a value type: `void` describes intent at the
+    function boundary, while `undefined` is a concrete value that can appear
+    anywhere. Annotate effect-only functions `: void` to keep callers honest.
+  followUps:
+    - "How is void different from undefined?"
+  tags: ["void", "functions"]
+- id: basic-types-8
+  topic: basic-types
+  level: intermediate
+  question: "What does never mean, and when do you see it?"
+  answer: |
+    `never` marks values that cannot occur: a function that always throws or
+    loops forever, or a code branch that should be unreachable. You meet it most
+    in exhaustive `switch` statements, where narrowing every union member leaves
+    `never` in the final `default` — assigning anything there proves a case was
+    missed. It also appears when you intersect incompatible types. Treat a
+    `never` sighting as the compiler telling you this path is impossible.
+  followUps:
+    - "How does never help with exhaustive switches?"
+  tags: ["never", "narrowing"]
+- id: objects-interfaces-types-1
+  topic: objects-interfaces-types
+  level: basic
+  question: "How do you describe the shape of an object in TypeScript?"
+  answer: |
+    You write an object literal type naming each property and its type, like
+    `{ name: string; age: number }`. The compiler then requires those exact
+    properties with compatible values. Add `?` for optional members and
+    `readonly` for fields that must not be reassigned. For reused shapes, lift
+    the literal into an `interface` or `type` alias so every function shares
+    one named contract instead of repeating the literal.
+  followUps:
+    - "How do you mark a property optional?"
+  tags: ["objects", "shapes"]
+- id: objects-interfaces-types-2
+  topic: objects-interfaces-types
+  level: intermediate
+  question: "What is the difference between interface and type?"
+  answer: |
+    Both name an object shape, and for everyday use they are interchangeable.
+    An `interface` can be extended with `extends` and re-opened across
+    declarations, which libraries use to augment shapes. A `type` alias can
+    additionally name unions, tuples, and mapped shapes that an interface
+    cannot express. As a rule of thumb, use `interface` for public object
+    contracts and `type` when you need unions or computed transformations.
+  followUps:
+    - "Which one can name a union like string | number?"
+  tags: ["interface", "type"]
+- id: objects-interfaces-types-3
+  topic: objects-interfaces-types
+  level: basic
+  question: "How do optional properties work?"
+  answer: |
+    You add `?` after the name, like `nickname?: string`, which lets callers
+    omit the property entirely. Inside your code the value reads as `string |
+    undefined`, so you must handle the missing case before using it. Keep
+    optional fields for genuinely absent data, not for values you always set —
+    overusing `?` pushes `undefined` checks onto every reader. Pair optionals
+    with defaults or narrowing at the point of use.
+  followUps:
+    - "What type does an optional property read as?"
+  tags: ["optional", "objects"]
+- id: objects-interfaces-types-4
+  topic: objects-interfaces-types
+  level: basic
+  question: "What does readonly do on a property?"
+  answer: |
+    It forbids reassignment after creation, so `readonly id: string` can be set
+    once in the object literal or constructor and never changed again. The
+    compiler rejects later writes, which protects identifiers and shared
+    config. Note it is a compile-time guard only — the emitted JavaScript still
+    allows the write at runtime. For arrays, use `readonly T[]` or
+    `Readonly<T>` to get the same one-way protection across the whole shape.
+  followUps:
+    - "Does readonly protect you at runtime?"
+  tags: ["readonly", "safety"]
+- id: objects-interfaces-types-5
+  topic: objects-interfaces-types
+  level: intermediate
+  question: "What are excess property checks?"
+  answer: |
+    When you pass a fresh object literal to a typed position, the compiler
+    rejects unknown extra properties — passing `{ name, age, nick }` where only
+    `{ name, age }` is expected is an error. It catches your typos instead of
+    silently ignoring the extra field. The check only applies to fresh
+    literals; assigning through a variable skips it. If extras are legitimate,
+    add an index signature or extend the target type rather than working
+    around the error.
+  followUps:
+    - "Why does the same object pass through a variable but fail inline?"
+  tags: ["excess", "literals"]
+- id: objects-interfaces-types-6
+  topic: objects-interfaces-types
+  level: intermediate
+  question: "How do you extend an interface or combine object types?"
+  answer: |
+    You extend an interface with `extends`, like `interface Admin extends User
+    { level: number }`, which inherits every member of `User` plus the new
+    ones. With type aliases you intersect instead: `type Admin = User & {
+    level: number }`. Both produce one flattened shape the compiler checks as
+    a whole. Prefer `extends` for clear hierarchies and intersections when you
+    compose small reusable pieces. Conflicting property types in an
+    intersection become `never`.
+  followUps:
+    - "What happens if two intersected types disagree on a property?"
+  tags: ["extends", "intersection"]
+- id: objects-interfaces-types-7
+  topic: objects-interfaces-types
+  level: intermediate
+  question: "What is structural typing?"
+  answer: |
+    TypeScript checks what an object contains, not what class or interface name
+    it was declared with. If a function wants `{ name: string }`, any object
+    with at least a string `name` is accepted — extra properties are fine and no
+    explicit `implements` is needed. That keeps plain object literals and
+    third-party shapes interoperable. The tradeoff is that two unrelated shapes
+    with the same members look identical to the checker, so use branding or
+    literal tags when identity matters.
+  followUps:
+    - "Do you need implements for a plain object to match an interface?"
+  tags: ["structural", "shapes"]
+- id: objects-interfaces-types-8
+  topic: objects-interfaces-types
+  level: intermediate
+  question: "How do index signatures work?"
+  answer: |
+    They describe objects with unknown keys but known value types, like `{ [key:
+    string]: number }` for a score table. You read and write any string key and
+    the compiler enforces the value type. Use them for dictionaries and lookup
+    maps, but prefer explicit properties or `Record` unions when the keys are
+    known — named fields document intent and catch typos that an open index
+    signature would silently accept.
+  followUps:
+    - "When is Record a better fit than an index signature?"
+  tags: ["index", "record"]
+- id: functions-1
+  topic: functions
+  level: basic
+  question: "How do you type a function's parameters and return value?"
+  answer: |
+    You annotate each parameter and the result, like `function add(a: number, b:
+    number): number`. Parameters need explicit types because there is nothing
+    to infer them from, while the return annotation documents the contract for
+    callers. The compiler then rejects wrong-typed arguments and checks that
+    every code path returns a compatible value. Keep the annotations at the
+    boundary and let locals inside the body infer.
+  followUps:
+    - "Can you leave the return type off?"
+  tags: ["functions", "annotations"]
+- id: functions-2
+  topic: functions
+  level: basic
+  question: "How do optional and default parameters work?"
+  answer: |
+    You mark a trailing parameter `name?: string` to let callers skip it, or
+    give it a default like `name = 'guest'` which makes it optional
+    automatically. Optional parameters read as possibly `undefined` inside the
+    body, so handle that case. Keep required parameters first — a required
+    parameter after an optional one confuses callers and needs an explicit
+    `undefined` argument. Defaults also document the common case right in the
+    signature.
+  followUps:
+    - "Where must optional parameters appear in the list?"
+  tags: ["optional", "defaults"]
+- id: functions-3
+  topic: functions
+  level: basic
+  question: "How do you type an arrow function or callback?"
+  answer: |
+    You annotate it inline like `(user: User) => user.name`, and the return
+    type is usually inferred. When passing a callback directly, you can often
+    omit annotations entirely — the expected function type provides context, so
+    `(u) => u.name` is checked against the parameter's declared signature. This
+    contextual typing keeps event handlers and array callbacks quiet. Add
+    explicit annotations only when the callback stands alone without context.
+  followUps:
+    - "What is contextual typing for inline callbacks?"
+  tags: ["arrow", "callbacks"]
+- id: functions-4
+  topic: functions
+  level: intermediate
+  question: "How do function overloads work?"
+  answer: |
+    You write several call signatures above one implementation, each describing
+    a supported way to call the function. Callers see only the overload list,
+    while the implementation signature stays hidden and must accept them all.
+    Use overloads when one function genuinely accepts different shapes, like
+    `pad(s: string)` versus `pad(n: number)`. If the variants can be expressed
+    as one union or optional-parameter signature, prefer that — it is shorter
+    and easier to maintain.
+  followUps:
+    - "When is a union signature better than overloads?"
+  tags: ["overloads", "signatures"]
+- id: functions-5
+  topic: functions
+  level: basic
+  question: "How do you type a function that takes no useful result, like a click handler?"
+  answer: |
+    You annotate the return as `void`, like `(e: MouseEvent) => void`, to show
+    the result is ignored. Handlers, loggers, and `forEach` callbacks all use
+    this shape. Callers can pass functions that happen to return something —
+    TypeScript allows that — but nobody should read the value. Reserve `never`
+    for functions that never return at all, such as ones that always throw.
+  followUps:
+    - "Can a void callback return a value?"
+  tags: ["void", "handlers"]
+- id: functions-6
+  topic: functions
+  level: intermediate
+  question: "How do rest parameters work with types?"
+  answer: |
+    You collect trailing arguments with `...rest: string[]`, which reads inside
+    the body as a normal array. Callers can pass any number of extra arguments
+    and each is checked against the element type. Tuples make rest precise: `...
+    args: [string, number?]` enforces the exact sequence. Use rest for
+    wrappers like loggers and forwarders where the arity varies, and prefer
+    fixed parameters when the count is known.
+  followUps:
+    - "How would you type a fixed two-argument rest pair?"
+  tags: ["rest", "tuples"]
+- id: functions-7
+  topic: functions
+  level: intermediate
+  question: "How do you type an async function?"
+  answer: |
+    You annotate the unwrapped value inside `Promise`, like `async function
+    load(): Promise<User>`. The `async` keyword wraps your `return` and `throw`
+    into the promise for you, so you write the body as if it were synchronous.
+    Callers must `await` or `.then` the result. For error paths, let the
+    promise reject with an `Error` rather than resolving a union — it keeps
+    `try/catch` at the call site natural.
+  followUps:
+    - "Do you write Promise in the return annotation of an async function?"
+  tags: ["async", "promise"]
+- id: functions-8
+  topic: functions
+  level: basic
+  question: "How do you write a reusable function type?"
+  answer: |
+    You alias the signature, like `type Handler = (id: string) => void`, then
+    reuse `Handler` for every matching function. It keeps callbacks consistent
+    across components and makes refactors one-line changes. For methods inside
+    objects, you can write the shorthand `{ onSave(id: string): void }`. Name
+    the alias after its role, not its shape, so readers learn intent from the
+    name alone.
+  followUps:
+    - "How do you type a method inside an object type?"
+  tags: ["aliases", "callbacks"]
+- id: unions-narrowing-1
+  topic: unions-narrowing
+  level: basic
+  question: "What is a union type?"
+  answer: |
+    A value that can be one of several types, written with `|` like `string |
+    number`. You use it when a variable, parameter, or response genuinely holds
+    different shapes at different times. The compiler forces you to handle each
+    member before using type-specific features — you cannot call string methods
+    until you have narrowed away the `number` case. Keep unions small and
+    meaningful so every branch is worth handling.
+  followUps:
+    - "What must you do before calling a method on a union?"
+  tags: ["unions", "basics"]
+- id: unions-narrowing-2
+  topic: unions-narrowing
+  level: basic
+  question: "How do you narrow a union with typeof?"
+  answer: |
+    You guard with `typeof value === 'string'` inside an `if`, and the compiler
+    shrinks the union to that branch — `string` in the true path, the remainder
+    in the `else`. It works for primitives like `string`, `number`, and
+    `boolean`. Write the check as a plain condition so it also guards at
+    runtime. For objects, switch to `in`, `instanceof`, or a literal tag check
+    instead.
+  followUps:
+    - "What does the else branch contain after a typeof guard?"
+  tags: ["narrowing", "typeof"]
+- id: unions-narrowing-3
+  topic: unions-narrowing
+  level: intermediate
+  question: "What is a discriminated union?"
+  answer: |
+    A union of object types that share one literal tag field, like `{ kind:
+    'circle'; radius: number } | { kind: 'square'; size: number }`. You switch
+    on `shape.kind` and the compiler narrows the whole object in each branch,
+    so only the matching fields are visible. It is the clearest way to model
+    states, events, and API variants. Keep the tag a string literal and give
+    every member a distinct value.
+  followUps:
+    - "Why must the shared field be a literal type?"
+  tags: ["discriminated", "unions"]
+- id: unions-narrowing-4
+  topic: unions-narrowing
+  level: basic
+  question: "How does the in operator narrow a union?"
+  answer: |
+    You test for a property with `'email' in user`, and the compiler keeps only
+    the union members that declare it. It suits object unions where members
+    have different fields. Like `typeof`, the check runs at runtime too, so it
+    doubles as real validation. Prefer a discriminated tag when you control the
+    shapes — an explicit `kind` field reads better than probing for incidental
+    properties.
+  followUps:
+    - "When is a kind field better than an in check?"
+  tags: ["narrowing", "in"]
+- id: unions-narrowing-5
+  topic: unions-narrowing
+  level: basic
+  question: "How does instanceof narrow a union?"
+  answer: |
+    You write `if (err instanceof Error)` and the compiler treats the true
+    branch as that class, exposing its methods and fields. It works because the
+    check consults the prototype chain at runtime. Use it for class instances
+    like `Date`, `Error`, or your own classes. For plain object literals or
+    interfaces, `instanceof` cannot help — there is no constructor to test, so
+    prefer a tag field or `in` check there.
+  followUps:
+    - "Why doesn't instanceof work on interfaces?"
+  tags: ["narrowing", "instanceof"]
+- id: unions-narrowing-6
+  topic: unions-narrowing
+  level: intermediate
+  question: "How do truthiness checks narrow a value?"
+  answer: |
+    Writing `if (value)` removes `null`, `undefined`, `''`, `0`, and other
+    falsy members from the type in that branch. It is concise for optional
+    values, but be careful: legitimate `0` or empty strings are dropped too.
+    When those values are valid, compare explicitly with `value != null` or
+    `value !== undefined` instead. Choose the narrowest check that matches
+    what you actually want to exclude.
+  followUps:
+    - "What valid values can a bare if accidentally drop?"
+  tags: ["narrowing", "truthiness"]
+- id: unions-narrowing-7
+  topic: unions-narrowing
+  level: intermediate
+  question: "How do you write an exhaustive switch over a union?"
+  answer: |
+    You handle every member in `case` branches and let the `default` assign the
+    remainder to `never` — if a member is unhandled, that assignment errors and
+    points at the missing case. Adding a new union member then breaks the
+    switch loudly instead of silently falling through. Keep a small `assertNever`
+    helper for the default branch so the intent reads clearly and every future
+    reader knows the switch must stay complete.
+  followUps:
+    - "What does a never assignment in default prove?"
+  tags: ["exhaustive", "never"]
+- id: unions-narrowing-8
+  topic: unions-narrowing
+  level: intermediate
+  question: "What is a custom type guard?"
+  answer: |
+    A function whose return type is a predicate like `pet is Fish`, which tells
+    the compiler the argument's narrowed type when it returns true. You
+    implement the runtime test yourself — checking a tag or property — and the
+    `is` annotation exports that knowledge to every `if` that calls it. Use
+    guards to hide repeated narrowing logic behind a named, testable function.
+    Keep the runtime test honest, since the compiler trusts your predicate.
+  followUps:
+    - "What does the is keyword promise the compiler?"
+  tags: ["guards", "predicates"]
+- id: generics-1
+  topic: generics
+  level: basic
+  question: "What is a generic in TypeScript?"
+  answer: |
+    A placeholder type you fill in at use time, written `<T>` like `function
+    first<T>(items: T[]): T`. One definition then works for strings, users, or
+    any shape while preserving the exact type through to the result. Without
+    generics you would duplicate the function per type or fall back to `any`
+    and lose safety. Read `T` as a variable for types: the caller chooses what
+    it stands for on each call.
+  followUps:
+    - "How is a generic different from any?"
+  tags: ["generics", "basics"]
+- id: generics-2
+  topic: generics
+  level: basic
+  question: "How do you call a generic function?"
+  answer: |
+    You usually let inference fill the placeholder: `first(['a', 'b'])`
+    resolves `T` to `string` with nothing extra to write. When inference fails
+    or you want to be explicit, pass the argument in angle brackets like
+    `first<string>([])`. Explicit arguments also pin an empty array to the type
+    you intend. Prefer inference at call sites — it keeps code quiet and stays
+    correct when element types evolve.
+  followUps:
+    - "When must you write the type argument explicitly?"
+  tags: ["generics", "inference"]
+- id: generics-3
+  topic: generics
+  level: basic
+  question: "How are built-in Array and Promise generic?"
+  answer: |
+    `Array<T>` stores whatever element type you choose, so `string[]` only
+    accepts strings and returns strings from indexing. `Promise<T>` wraps the
+    resolved value, so `Promise<User>` forces you to `await` a `User`. Both
+    preserve the inner type through methods like `map` and `then` instead of
+    degrading to `any`. Whenever you model a container or wrapper, follow the
+    same pattern: parameterize the inside rather than fixing it.
+  followUps:
+    - "What does the T stand for in Array<T>?"
+  tags: ["generics", "array"]
+- id: generics-4
+  topic: generics
+  level: intermediate
+  question: "How do generic constraints with extends work?"
+  answer: |
+    You bound the placeholder like `<T extends { id: string }>`, which requires
+    every argument type to have at least those members. Inside the body you can
+    then safely read `item.id` without narrowing. Constraints turn an
+    anything-goes generic into one with a minimum shape. Keep them as small as
+    the body needs — an over-wide constraint rejects valid callers for no
+    reason.
+  followUps:
+    - "What can you safely access inside a constrained generic?"
+  tags: ["constraints", "extends"]
+- id: generics-5
+  topic: generics
+  level: intermediate
+  question: "How do generic defaults work?"
+  answer: |
+    You provide a fallback like `<T = string>`, used when the caller omits the
+    argument and inference finds nothing better. It makes a generic convenient
+    without closing off other types — `Box` means `Box<string>` but
+    `Box<number>` still works. Use defaults for the common case in library
+    types and config objects. Keep the default compatible with your constraint,
+    or the declaration itself becomes an error.
+  followUps:
+    - "When does the default apply instead of inference?"
+  tags: ["defaults", "generics"]
+- id: generics-6
+  topic: generics
+  level: intermediate
+  question: "How do you write a generic interface?"
+  answer: |
+    You parameterize the whole shape, like `interface Box<T> { value: T }`, so
+    each use picks its contents: `Box<string>` versus `Box<number>`. Methods
+    inside can reuse `T` without redeclaring it. It suits wrappers, responses,
+    and state containers where the shell is stable but the payload varies.
+    Prefer one well-named parameter over several — extra parameters multiply
+    the complexity every caller must manage.
+  followUps:
+    - "How would you type a generic API response wrapper?"
+  tags: ["interfaces", "generics"]
+- id: generics-7
+  topic: generics
+  level: basic
+  question: "Why is a generic safer than any?"
+  answer: |
+    `any` erases the type — inputs and outputs both become unchecked, so
+    mistakes flow silently. A generic like `<T>(x: T): T` remembers the exact
+    type from call to result, so passing a string guarantees a string back. You
+    write the function once but every caller keeps full checking. Reach for
+    generics whenever the shape varies but the relationship between input and
+    output stays fixed.
+  followUps:
+    - "What does the compiler remember that any forgets?"
+  tags: ["generics", "any"]
+- id: generics-8
+  topic: generics
+  level: intermediate
+  question: "What does keyof do in a generic?"
+  answer: |
+    `keyof T` is the union of `T`'s property names, so `<T, K extends keyof T>`
+    ties a key argument to the object it indexes. A helper like `get(obj, key)`
+    then returns the precise property type instead of `any`, and misspelled
+    keys become compile errors. It powers typed pickers, sorters, and form
+    helpers. Use it whenever a string argument must name a real property of
+    another argument.
+  followUps:
+    - "How does keyof prevent misspelled property names?"
+  tags: ["keyof", "generics"]
+- id: enums-literals-1
+  topic: enums-literals
+  level: basic
+  question: "What is a literal type?"
+  answer: |
+    A type that allows exactly one value, like `'save'` or `200`. You use
+    literals to name the precise strings and numbers your code accepts instead
+    of widening to `string` or `number`. Combined with unions they describe
+    finite choices — `'small' | 'medium' | 'large'` — and misspellings become
+    errors. Prefer literals for options, states, and tags where only specific
+    values are valid.
+  followUps:
+    - "How do literals combine into a union of choices?"
+  tags: ["literals", "unions"]
+- id: enums-literals-2
+  topic: enums-literals
+  level: basic
+  question: "What is an enum in TypeScript?"
+  answer: |
+    A named set of related constants, like `enum Role { Admin, User }`, that
+    groups choices under one type. Members are accessible as `Role.Admin` and
+    document intent better than bare strings scattered through code. String
+    enums assign explicit values per member; numeric enums auto-increment when
+    you omit values. Use enums when the set belongs together and deserves a
+    single importable name.
+  followUps:
+    - "How do numeric and string enums differ?"
+  tags: ["enums", "basics"]
+- id: enums-literals-3
+  topic: enums-literals
+  level: intermediate
+  question: "Should you use an enum or a string union?"
+  answer: |
+    Prefer a string union like `'admin' | 'user'` for most application code —
+    it is erasable, interoperates with plain JavaScript, and needs no import at
+    runtime. Choose an `enum` when you want a namespaced container with
+    behavior or when a library already exposes one. Unions also narrow cleanly
+    in discriminated patterns. As a default, reach for the union and reserve
+    enums for cases where the grouping itself adds value.
+  followUps:
+    - "Why do unions interoperate better with plain JS?"
+  tags: ["enums", "unions"]
+- id: enums-literals-4
+  topic: enums-literals
+  level: basic
+  question: "How do string enums work?"
+  answer: |
+    You assign each member an explicit string, like `enum Direction { Up =
+    'UP', Down = 'DOWN' }`, and use `Direction.Up` throughout your code. The
+    explicit values serialize predictably and read well in logs. Unlike numeric
+    enums, string enums have no reverse mapping surprises. They still emit a
+    runtime object, so if you want zero runtime cost, consider a string union
+    plus a plain object instead.
+  followUps:
+    - "Do string enums emit runtime code?"
+  tags: ["enums", "strings"]
+- id: enums-literals-5
+  topic: enums-literals
+  level: intermediate
+  question: "What is a const enum, and when should you avoid it?"
+  answer: |
+    A `const enum` is inlined at compile time, so uses of its members become
+    raw values with no runtime object emitted. That saves bytes but breaks
+    isolated transpilation workflows that compile file-by-file without type
+    information. For that reason many style guides avoid `const enum` in shared
+    libraries. Prefer regular enums or string unions unless you control the
+    whole build and genuinely need the inlining.
+  followUps:
+    - "Why do some bundlers struggle with const enums?"
+  tags: ["enums", "const"]
+- id: enums-literals-6
+  topic: enums-literals
+  level: intermediate
+  question: "How does as const create literal types?"
+  answer: |
+    Appending `as const` to an object or array freezes it to its narrowest
+    literal form: properties become `readonly` and values become literals
+    instead of widening to `string` or `number`. A config like `{ mode: 'dark'
+    } as const` gives `mode` the type `'dark'`, so typos elsewhere fail. Use it
+    for constant tables, option maps, and test fixtures where the exact values
+    are the contract. It is the lightest way to get enum-like precision.
+  followUps:
+    - "What two things does as const change about a literal?"
+  tags: ["const", "literals"]
+- id: classes-1
+  topic: classes
+  level: basic
+  question: "How do you declare a class with typed fields in TypeScript?"
+  answer: |
+    You list each field with its type, like `name: string`, and assign them in
+    the `constructor` or at declaration. The compiler requires every non-optional
+    field to be definitely assigned before construction finishes. Declare the
+    shape up front so readers see the state at a glance. Use constructor
+    parameter properties like `constructor(public name: string)` as a shorthand
+    when you want declaration and assignment in one line.
+  followUps:
+    - "What shorthand declares and assigns a field at once?"
+  tags: ["classes", "fields"]
+- id: classes-2
+  topic: classes
+  level: basic
+  question: "How does the constructor work with types?"
+  answer: |
+    The constructor takes typed parameters and initializes the instance, like
+    `constructor(name: string) { this.name = name }`. Its parameters follow the
+    same rules as functions — required first, optionals and defaults last. The
+    checker verifies every field is set on all paths through the constructor.
+    Keep construction simple: validate and assign, and move complex creation
+    into static factory methods that stay easy to type and test.
+  followUps:
+    - "Who checks that every field gets assigned?"
+  tags: ["classes", "constructor"]
+- id: classes-3
+  topic: classes
+  level: basic
+  question: "What do public, private, and protected mean?"
+  answer: |
+    They control where a member can be used: `public` anywhere, `protected`
+    inside the class and its subclasses, and `private` only inside the
+    declaring class. The compiler rejects out-of-scope access at build time,
+    which documents your intended surface area. Remember it is a static guard —
+    emitted JavaScript historically still exposes the field at runtime. For
+    hard runtime privacy, use JavaScript `#private` fields alongside the
+    type-level modifiers.
+  followUps:
+    - "Do private fields stay private at runtime?"
+  tags: ["classes", "modifiers"]
+- id: classes-4
+  topic: classes
+  level: basic
+  question: "How does readonly work on class fields?"
+  answer: |
+    Marking a field `readonly` lets the constructor assign it once and forbids
+    later writes, like `readonly id: string`. It suits identifiers and injected
+    dependencies that must never change. The compiler enforces the rule
+    statically; plain JavaScript output does not freeze the value. Combine
+    `readonly` with constructor shorthand — `constructor(readonly id: string)`
+    — for immutable state with minimal boilerplate.
+  followUps:
+    - "Where is the only place a readonly field can be set?"
+  tags: ["classes", "readonly"]
+- id: classes-5
+  topic: classes
+  level: intermediate
+  question: "How does implements work with a class?"
+  answer: |
+    You declare `class User implements Named { name: string }` to promise the
+    class satisfies the `Named` shape, and the compiler verifies every member
+    exists with a compatible type. It only checks the contract — no code is
+    inherited, unlike `extends`. Use `implements` to keep classes honest
+    against shared interfaces while leaving the implementation free. If the
+    interface changes, every implementing class is flagged at once.
+  followUps:
+    - "How is implements different from extends?"
+  tags: ["classes", "implements"]
+- id: classes-6
+  topic: classes
+  level: intermediate
+  question: "How does extends work for class inheritance?"
+  answer: |
+    A subclass with `class Admin extends User` inherits fields and methods and
+    can override them, calling `super()` to run the parent constructor first.
+    The checker ensures overrides stay compatible — you cannot widen parameter
+    types or drop required members. Keep hierarchies shallow: deep chains are
+    hard to type and test. Favor composition over inheritance when the
+    relationship is has-a rather than is-a.
+  followUps:
+    - "What must a subclass constructor call first?"
+  tags: ["classes", "extends"]
+- id: classes-7
+  topic: classes
+  level: intermediate
+  question: "What is an abstract class?"
+  answer: |
+    A base class marked `abstract` that cannot be instantiated directly — it
+    exists to be extended. It can declare abstract methods with no body, which
+    each concrete subclass must implement. You use it when subclasses share
+    real logic plus required holes, like a `Shape` base with a shared `move`
+    method and an abstract `area`. For pure contracts with no shared code,
+    prefer an interface instead.
+  followUps:
+    - "When is an interface a better fit than an abstract class?"
+  tags: ["classes", "abstract"]
+- id: classes-8
+  topic: classes
+  level: intermediate
+  question: "How do getters, setters, and static members work?"
+  answer: |
+    Getters and setters expose computed access like `get fullName()` while
+    storing simpler fields underneath — callers read a property, you run a
+    function. Annotate the getter's return and the setter's parameter so both
+    stay consistent. `static` members belong to the class itself, like
+    `User.nextId`, and are accessed without `new`. Use statics for factories
+    and shared counters, and accessors when derived state must stay in sync.
+  followUps:
+    - "How do you access a static member?"
+  tags: ["classes", "static"]
+- id: utility-types-1
+  topic: utility-types
+  level: basic
+  question: "What are TypeScript utility types?"
+  answer: |
+    Small built-in generics that transform existing types instead of you
+    rewriting them by hand. `Partial`, `Pick`, `Omit`, and `Record` reshape
+    objects, while `ReturnType` and `Awaited` unwrap function results. You pass
+    your type in and get a precise variant out. Learn this toolbox early —
+    reaching for a utility keeps one source of truth instead of duplicating
+    slightly different interfaces across files.
+  followUps:
+    - "Why use a utility instead of writing a second interface?"
+  tags: ["utility", "basics"]
+- id: utility-types-2
+  topic: utility-types
+  level: basic
+  question: "How does Partial work?"
+  answer: |
+    `Partial<T>` makes every property of `T` optional, so `Partial<User>`
+    accepts any subset of user fields. It suits update payloads and patch
+    helpers where callers send only what changed. Inside the function, remember
+    each property may now be `undefined` and guard accordingly. For the reverse
+    — requiring every field — use `Required<T>`. Keep the base `T` strict and
+    derive the lenient variant with the utility.
+  followUps:
+    - "What utility does the opposite of Partial?"
+  tags: ["partial", "utility"]
+- id: utility-types-3
+  topic: utility-types
+  level: basic
+  question: "How do Pick and Omit work?"
+  answer: |
+    `Pick<User, 'name' | 'email'>` keeps only the listed properties, while
+    `Omit<User, 'password'>` drops the listed ones — both produce a new object
+    type without touching `User`. Use `Pick` for narrow views like list rows
+    and `Omit` for safe variants like creation payloads without server-set
+    fields. Prefer them over copying field declarations, so base-type changes
+    propagate automatically to every derived shape.
+  followUps:
+    - "When would you choose Omit over Pick?"
+  tags: ["pick", "omit"]
+- id: utility-types-4
+  topic: utility-types
+  level: basic
+  question: "How does Record work?"
+  answer: |
+    `Record<Keys, Value>` builds an object type with a fixed key set and a
+    uniform value type, like `Record<'admin' | 'user', number>` for role
+    counts. Every listed key is required and every value is checked. It suits
+    lookup tables, dictionaries with known keys, and mapped config. For
+    open-ended keys you do not know upfront, use an index signature instead —
+    `Record` shines when the key union is finite and explicit.
+  followUps:
+    - "When is an index signature better than Record?"
+  tags: ["record", "utility"]
+- id: utility-types-5
+  topic: utility-types
+  level: intermediate
+  question: "How does Required work, and when would you use it?"
+  answer: |
+    `Required<T>` removes every `?`, turning all optional properties into
+    required ones. You use it after defaults are applied or validation has run
+    — the point where a previously partial shape is now guaranteed complete.
+    A function that fills missing config can return `Required<Config>` to
+    prove the result is whole. It keeps the input type lenient while the output
+    type stays strict, with both derived from one definition.
+  followUps:
+    - "What stage of a pipeline suits Required?"
+  tags: ["required", "utility"]
+- id: utility-types-6
+  topic: utility-types
+  level: intermediate
+  question: "How does ReturnType work?"
+  answer: |
+    `ReturnType<typeof fn>` extracts a function's declared return type, so you
+    name the result without repeating it. If `getUser` returns `Promise<User>`,
+    `ReturnType<typeof getUser>` is that promise type. It keeps callers in sync
+    when the function evolves — change the implementation once and every
+    derived alias follows. Combine it with `Awaited` to unwrap the promise to
+    `User` itself.
+  followUps:
+    - "How would you get the awaited result type too?"
+  tags: ["returntype", "utility"]
+- id: utility-types-7
+  topic: utility-types
+  level: intermediate
+  question: "How do Exclude and Extract work?"
+  answer: |
+    Both filter a union: `Exclude<'a' | 'b', 'a'>` keeps `'b'`, while
+    `Extract<'a' | 'b', 'a'>` keeps `'a'`. You use them to derive narrower
+    states from a shared union — public versus internal statuses, for example —
+    without redeclaring members. They operate purely at the type level and emit
+    nothing. When the union grows, the filtered aliases update automatically,
+    which beats maintaining parallel hand-written lists.
+  followUps:
+    - "How do Exclude and Extract differ?"
+  tags: ["exclude", "extract"]
+- id: utility-types-8
+  topic: utility-types
+  level: intermediate
+  question: "How does Awaited work?"
+  answer: |
+    `Awaited<T>` unwraps nested promises to the final resolved value, so
+    `Awaited<Promise<Promise<User>>>` is just `User`. It mirrors what `await`
+    actually gives you at runtime. Pair it with `ReturnType` — `Awaited<
+    ReturnType<typeof getUser>>` — to name the loaded data type for state and
+    props without duplicating declarations. It is the cleanest way to talk
+    about async results in synchronous type positions.
+  followUps:
+    - "What does Awaited give you that ReturnType alone does not?"
+  tags: ["awaited", "async"]
+- id: any-unknown-assertions-1
+  topic: any-unknown-assertions
+  level: basic
+  question: "What does any mean?"
+  answer: |
+    `any` opts out of checking — the value can be anything and every operation
+    on it is allowed. It is an escape hatch for untyped boundaries and quick
+    prototypes, but overuse spreads unchecked values through typed code. The
+    compiler will not help you with an `any`, so errors resurface at runtime.
+    Treat each `any` as tech debt: contain it at the boundary and convert to a
+    real type or `unknown` plus narrowing as soon as you can.
+  followUps:
+    - "Why should you contain any at the boundary?"
+  tags: ["any", "safety"]
+- id: any-unknown-assertions-2
+  topic: any-unknown-assertions
+  level: basic
+  question: "What does unknown mean?"
+  answer: |
+    `unknown` means a value of uncertain type that you must narrow before use —
+    the type-safe counterpart to `any`. Assign anything to it, but the compiler
+    forbids calling, indexing, or reading properties until you prove the shape
+    with a guard. It suits parsed JSON, caught errors, and plugin inputs. Prefer
+    `unknown` over `any` whenever you cannot name the type yet but still want
+    every use site to verify before proceeding.
+  followUps:
+    - "What must you do before using an unknown value?"
+  tags: ["unknown", "safety"]
+- id: any-unknown-assertions-3
+  topic: any-unknown-assertions
+  level: basic
+  question: "How do you narrow an unknown value safely?"
+  answer: |
+    You apply runtime checks — `typeof`, `instanceof`, `in`, or a custom guard —
+    and the compiler shrinks `unknown` to the proven type in that branch. For
+    example, `if (typeof data === 'string')` lets you call string methods
+    inside. For objects, validate the needed properties before casting. Never
+    jump straight to `as` without checking: narrowing keeps the runtime test and
+    the static type in agreement.
+  followUps:
+    - "Why check before you cast?"
+  tags: ["unknown", "narrowing"]
+- id: any-unknown-assertions-4
+  topic: any-unknown-assertions
+  level: basic
+  question: "How does the as keyword work?"
+  answer: |
+    `value as User` tells the compiler to treat the value as that type for the
+    rest of the expression. It performs no runtime conversion or validation —
+    it is purely your assertion, and the emitted code passes the value through
+    unchanged. Use it after you have validated, or for cases the checker cannot
+    see like DOM lookups. If the types do not overlap enough, the compiler
+    rejects the assertion and asks you to justify it more explicitly.
+  followUps:
+    - "Does as convert or validate anything at runtime?"
+  tags: ["assertion", "as"]
+- id: any-unknown-assertions-5
+  topic: any-unknown-assertions
+  level: intermediate
+  question: "How is satisfies different from as?"
+  answer: |
+    `satisfies` checks that an expression matches a type while keeping its
+    precise inferred shape, whereas `as` widens or overrides to the asserted
+    type. A config object with `satisfies Config` still exposes its literal
+    values for autocomplete, but a mistyped field errors immediately. Use
+    `satisfies` when you want validation without losing narrowness — theme
+    objects and route tables are classic cases. Reach for `as` only when you
+    intentionally re-label a value.
+  followUps:
+    - "Why does satisfies preserve literals better than as?"
+  tags: ["satisfies", "assertion"]
+- id: any-unknown-assertions-6
+  topic: any-unknown-assertions
+  level: intermediate
+  question: "What does the non-null assertion ! do?"
+  answer: |
+    Appending `!` like `user!.name` tells the compiler a nullable value is
+    definitely present, removing `null` and `undefined` from the type. It emits
+    no runtime check — if you are wrong, the code still crashes. Use it
+    sparingly for cases the checker cannot see, such as values set by a
+    framework lifecycle. Prefer explicit guards or defaults wherever the
+    absence is genuinely possible, since those handle the failure instead of
+    asserting it away.
+  followUps:
+    - "What happens at runtime if a ! assertion is wrong?"
+  tags: ["non-null", "assertion"]
+- id: any-unknown-assertions-7
+  topic: any-unknown-assertions
+  level: intermediate
+  question: "What are assertion functions with asserts?"
+  answer: |
+    Functions declared `asserts value is string` throw on failure and narrow
+    the argument in code that follows — no `if` needed at the call site. You
+    centralize validation like `assertIsUser(data)` and every later line sees
+    the proven type. They suit loaders and test setup where invalid data must
+    halt execution. Keep each assertion focused on one shape so failures point
+    clearly at what was missing.
+  followUps:
+    - "How does an assertion function differ from a type guard?"
+  tags: ["asserts", "narrowing"]
+- id: any-unknown-assertions-8
+  topic: any-unknown-assertions
+  level: intermediate
+  question: "When is a double assertion like as unknown as T justified?"
+  answer: |
+    It forces a conversion between types that do not overlap enough for a
+    single `as`, by routing through `unknown` first. It is occasionally needed
+    for test doubles, deserialized payloads, or legacy interop. Treat it as a
+    loud warning: you have bypassed the overlap check, so validate at runtime
+    before trusting the result. If you reach for it often, the underlying types
+    likely need remodeling rather than more forceful casting.
+  followUps:
+    - "What runtime step should follow a double assertion?"
+  tags: ["assertion", "unknown"]
+- id: modules-declarations-1
+  topic: modules-declarations
+  level: basic
+  question: "How do import and export work in TypeScript?"
+  answer: |
+    Exactly as in modern JavaScript: you `export` functions, classes, and types
+    from one file and `import` them where needed. Each file with top-level
+    `import` or `export` is a module with its own scope. You can export values
+    and types side by side, and importers pull only what they use. Keep
+    exports intentional — a small public surface makes refactors and API
+    reviews far easier than re-exporting everything.
+  followUps:
+    - "What makes a file a module?"
+  tags: ["modules", "esm"]
+- id: modules-declarations-2
+  topic: modules-declarations
+  level: intermediate
+  question: "What does import type do, and why use it?"
+  answer: |
+    `import type { User }` brings in only the static type, guaranteeing no
+    runtime dependency on the source module. The import is fully erased at
+    emit, which avoids circular runtime imports and lets bundlers skip the
+    module. Use it whenever you need just the shape — props, payloads, return
+    types. It also documents intent: readers see immediately that the import
+    cannot affect runtime behavior.
+  followUps:
+    - "How does import type help with circular imports?"
+  tags: ["import", "types"]
+- id: modules-declarations-3
+  topic: modules-declarations
+  level: basic
+  question: "How do you share a type across files?"
+  answer: |
+    You export it from one module with `export interface User` and import it
+    with `import type { User }` wherever it is needed. One canonical definition
+    keeps every consumer in sync — changing the interface updates all usages at
+    the next check. Place widely shared shapes in a nearby `types.ts` or next
+    to the domain they describe. Avoid global ambient types for app code, since
+    explicit imports trace where each name comes from.
+  followUps:
+    - "Where should you put widely shared types?"
+  tags: ["modules", "sharing"]
+- id: modules-declarations-4
+  topic: modules-declarations
+  level: intermediate
+  question: "What is a .d.ts declaration file?"
+  answer: |
+    A file containing only types — no runtime code — that describes the shapes
+    of JavaScript for the compiler. Libraries ship them so your editor and
+    `tsc` understand the API without seeing the implementation. You can also
+    write local `.d.ts` files to type untyped JavaScript you depend on. They
+    are never executed, only read during checking, which is why they contain
+    `declare` statements rather than real logic.
+  followUps:
+    - "Are declaration files ever executed?"
+  tags: ["declarations", "dts"]
+- id: modules-declarations-5
+  topic: modules-declarations
+  level: intermediate
+  question: "What is DefinitelyTyped and when do you need @types packages?"
+  answer: |
+    DefinitelyTyped is the community repository of declaration packages for
+    libraries that do not bundle their own types. When an import errors with a
+    missing-declarations message, you install the matching `@types` package as
+    a dev dependency — for example `@types/lodash` for `lodash`. Modern
+    well-maintained libraries usually ship types already, so check the package
+    itself first. Remove the `@types` package once the library bundles its own.
+  followUps:
+    - "How do you know if a library already ships its own types?"
+  tags: ["types", "definitelytyped"]
+- id: modules-declarations-6
+  topic: modules-declarations
+  level: intermediate
+  question: "How do you declare a missing module with declare module?"
+  answer: |
+    You write a short ambient declaration like `declare module 'x' { const v:
+    string; export default v }` in a `.d.ts` file to give the compiler a shape
+    for an untyped import. It unblocks the build without editing the library.
+    Keep the declaration minimal and accurate, and prefer contributing real
+    types upstream or installing `@types` when available. Treat local declares
+    as temporary shims with a note about what should replace them.
+  followUps:
+    - "Why prefer @types over a hand-written declare module?"
+  tags: ["declare", "modules"]
+- id: tsconfig-strict-1
+  topic: tsconfig-strict
+  level: basic
+  question: "What is tsconfig.json?"
+  answer: |
+    The configuration file for the TypeScript compiler: it selects which files
+    to include, how strictly to check them, what language level to emit, and
+    where output goes. Editors read it too, so its settings drive the errors
+    you see inline. Every project should commit one at the root rather than
+    relying on command-line flags. Start from the `strict: true` preset and
+    relax individual options only with a written reason.
+  followUps:
+    - "What are the most important options to set first?"
+  tags: ["tsconfig", "config"]
+- id: tsconfig-strict-2
+  topic: tsconfig-strict
+  level: intermediate
+  question: "What does strict mode enable?"
+  answer: |
+    Setting `strict: true` turns on the whole family of correctness flags at
+    once — `strictNullChecks`, `noImplicitAny`, strict function and property
+    checks among them. It is the recommended default because each flag closes a
+    specific hole where errors slip through silently. Enable it for new
+    projects without hesitation. For older codebases, turn flags on one at a
+    time so each batch of errors stays reviewable.
+  followUps:
+    - "How would you adopt strict in an old codebase?"
+  tags: ["strict", "config"]
+- id: tsconfig-strict-3
+  topic: tsconfig-strict
+  level: intermediate
+  question: "What does strictNullChecks do?"
+  answer: |
+    It removes `null` and `undefined` from every type unless you list them
+    explicitly, so `string` truly means a present string. Reading a possibly
+    missing value becomes an error until you guard, default, or narrow it. That
+    one flag eliminates the most common production crash — dereferencing
+    nothing. Keep it on and model absence honestly with `| null` or optional
+    properties instead of letting every type secretly include emptiness.
+  followUps:
+    - "How do you model a value that can be missing?"
+  tags: ["null", "strict"]
+- id: tsconfig-strict-4
+  topic: tsconfig-strict
+  level: intermediate
+  question: "What does noImplicitAny do?"
+  answer: |
+    It forbids the compiler from silently falling back to `any` where it
+    cannot infer a type — untyped parameters and bare `[]` initializers become
+    errors instead. Each error asks you to state your intent explicitly. That
+    keeps `any` visible and deliberate rather than accidental. When migrating,
+    these errors form a natural todo list: annotate each site with a real type
+    instead of suppressing the flag.
+  followUps:
+    - "Why is a silent any worse than an explicit one?"
+  tags: ["any", "strict"]
+- id: tsconfig-strict-5
+  topic: tsconfig-strict
+  level: basic
+  question: "How do include, exclude, and lib work in tsconfig?"
+  answer: |
+    `include` and `exclude` choose which files the compiler checks — typically
+    your `src` folder minus tests or build output. `lib` selects the built-in
+    APIs available, like `DOM` for browser code or `ES2022` for modern
+    runtime helpers. Narrowing these keeps checking fast and prevents
+    server code from accidentally using browser globals. Review them when
+    adding a new folder or runtime target.
+  followUps:
+    - "Why would server code exclude DOM lib?"
+  tags: ["tsconfig", "lib"]
+- id: tsconfig-strict-6
+  topic: tsconfig-strict
+  level: intermediate
+  question: "What do target and module control?"
+  answer: |
+    `target` sets the JavaScript version emitted — how modern the syntax and
+    helpers in your `.js` output may be. `module` sets the import format used
+    between emitted files, like `ESNext` for bundlers or `CommonJS` for older
+    Node setups. Match them to your runtime: modern browsers and Node accept
+    higher targets, while libraries often compile lower for compatibility.
+    Mismatched settings cause missing helpers or unloadable output.
+  followUps:
+    - "What breaks if target is newer than your runtime?"
+  tags: ["target", "module"]
+- id: tsconfig-strict-7
+  topic: tsconfig-strict
+  level: intermediate
+  question: "How do noUnusedLocals and noUnusedParameters help?"
+  answer: |
+    They turn dead code into compile errors: unused local variables and
+    unused function parameters are flagged instead of lingering. That keeps
+    diffs clean and surfaces leftover scaffolding from refactors. Prefix a
+    deliberately unused parameter with `_`, like `_next`, to signal intent and
+    silence the check. Enable both once `strict` is green — they are the
+    cheapest tidy-up automation a codebase can have.
+  followUps:
+    - "How do you mark an intentionally unused parameter?"
+  tags: ["strict", "lint"]
+- id: react-api-calls-1
+  topic: react-api-calls
+  level: basic
+  question: "How do you type React component props?"
+  answer: |
+    You define a `Props` interface or type and annotate the component, like
+    `function Card({ title }: { title: string })`. Required data stays
+    required, optional UI gets `?`, and mismatched usages fail at the call
+    site instead of rendering broken output. Keep the `Props` type next to the
+    component and name it after the component. For children, add `children?:
+    React.ReactNode` explicitly.
+  followUps:
+    - "How do you type children?"
+  tags: ["react", "props"]
+- id: react-api-calls-2
+  topic: react-api-calls
+  level: basic
+  question: "How do you type useState in React?"
+  answer: |
+    You pass the value type as a generic, like `useState<User | null>(null)`,
+    so the state and setter stay checked. Inference handles the easy case —
+    `useState('')` is already `string` — but empty or nullable initial values
+    need the explicit argument to avoid widening to `null` or `never[]`. The
+    generic documents what the state will become, not just what it starts as.
+  followUps:
+    - "When does useState need an explicit generic?"
+  tags: ["react", "state"]
+- id: react-api-calls-3
+  topic: react-api-calls
+  level: basic
+  question: "How do you type React event handlers?"
+  answer: |
+    You annotate the event with its React type, like `(e:
+    React.ChangeEvent<HTMLInputElement>)`. The generic names the element, so
+    `e.target.value` is correctly a string. Inline handlers usually infer the
+    event from the JSX prop, so explicit annotations matter most in extracted
+    helpers. Use `React.FormEvent` for submits and `React.MouseEvent` for
+    clicks, and call `e.preventDefault()` where the behavior needs it.
+  followUps:
+    - "How do you type an input change handler?"
+  tags: ["react", "events"]
+- id: react-api-calls-4
+  topic: react-api-calls
+  level: intermediate
+  question: "How do you type a fetch call with ApiResponse<T>?"
+  answer: |
+    You wrap the payload in a generic envelope like `interface ApiResponse<T> {
+    data: T; error: string | null }`, then write `fetchUser():
+    Promise<ApiResponse<User>>`. The generic keeps every endpoint's data type
+    precise while sharing one error and loading shape. Callers narrow on
+    `error` before reading `data`. Keep the wrapper small — status, data, and
+    error — so it fits every endpoint without sprouting per-route variants.
+  followUps:
+    - "How does the caller know whether data is safe to read?"
+  tags: ["react", "fetch"]
+- id: react-api-calls-5
+  topic: react-api-calls
+  level: intermediate
+  question: "Why must you validate API data at runtime even with TypeScript?"
+  answer: |
+    `fetch` returns `any`-shaped JSON the compiler cannot see, so asserting it
+    with `as User` proves nothing — a changed backend still flows through. Add
+    a small validator or schema check where the response enters your app and
+    narrow to the typed shape only after it passes. That one boundary guard
+    protects every downstream component. Treat network data as `unknown` until
+    proven otherwise, no matter how precise your interfaces look.
+  followUps:
+    - "Where exactly should the validation live?"
+  tags: ["validation", "fetch"]
+- id: react-api-calls-6
+  topic: react-api-calls
+  level: intermediate
+  question: "How do you type loading and error states for data fetching?"
+  answer: |
+    You model the states explicitly, often as a discriminated union like `{
+    status: 'loading' } | { status: 'ok'; data: User } | { status: 'error';
+    message: string }`. The component switches on `status` and each branch sees
+    only the fields that exist there. That removes impossible states — no `data`
+    access while loading. Keep the union next to the fetch helper so UI and
+    data logic share one definition of what can happen.
+  followUps:
+    - "Why is a status union safer than separate booleans?"
+  tags: ["react", "states"]
+- id: react-api-calls-7
+  topic: react-api-calls
+  level: intermediate
+  question: "How do you type a ref to a DOM element?"
+  answer: |
+    You parameterize the ref with the element type, like
+    `useRef<HTMLInputElement>(null)`, so `.current` is checked on every use.
+    Because the ref starts empty, its type includes `null` and you must guard
+    before calling methods like `.focus()`. Callback refs and non-null
+    assertions have their place, but an explicit guard reads best. Use refs for
+    focus, measurement, and uncontrolled inputs — not as a second state
+    system.
+  followUps:
+    - "Why must you check ref.current for null?"
+  tags: ["react", "refs"]
+- id: migrating-js-1
+  topic: migrating-js
+  level: basic
+  question: "What is a safe first step when migrating JavaScript to TypeScript?"
+  answer: |
+    Rename one small, well-tested file from `.js` to `.ts` and fix only its
+    errors before moving on. Start at the leaves — utility modules with few
+    imports — so each conversion stays reviewable. Keep the rest of the app
+    running in JavaScript throughout. Small vertical slices beat a big-bang
+    rewrite: every commit stays shippable and each fix teaches the patterns
+    the next file will need.
+  followUps:
+    - "Which files should you convert first?"
+  tags: ["migration", "steps"]
+- id: migrating-js-2
+  topic: migrating-js
+  level: intermediate
+  question: "How do allowJs and checkJs enable gradual migration?"
+  answer: |
+    `allowJs` lets `tsc` compile your existing `.js` alongside new `.ts`, so
+    the project builds during the transition. Adding `checkJs` extends type
+    checking into those JavaScript files, surfacing errors without renaming
+    anything yet. You tighten file by file, converting the cleanest ones first.
+    Once a file is fully typed, rename it to `.ts` and let the stricter rules
+    apply. It is the official on-ramp for large codebases.
+  followUps:
+    - "When do you rename a file from .js to .ts?"
+  tags: ["migration", "allowjs"]
+- id: migrating-js-3
+  topic: migrating-js
+  level: intermediate
+  question: "How does JSDoc help during a gradual migration?"
+  answer: |
+    JSDoc comments like `@param {string} name` give JavaScript files real types
+    that `checkJs` enforces, without changing any runtime code. You document
+    function contracts in place, fix the errors they reveal, and later convert
+    each annotation mechanically into TypeScript syntax. It suits teams that
+    must keep shipping `.js` while still gaining safety. Treat dense JSDoc as a
+    staging area — convert to `.ts` once a file's annotations stabilize.
+  followUps:
+    - "How does a JSDoc type become a TypeScript annotation?"
+  tags: ["jsdoc", "migration"]
+- id: migrating-js-4
+  topic: migrating-js
+  level: basic
+  question: "How should you handle the flood of implicit any errors during migration?"
+  answer: |
+    Work through them top-down from shared types outward: define the core
+    domain interfaces first, then annotate function boundaries to use them.
+    Prefer real types over quick `any` fixes — each honest annotation resolves
+    several downstream errors at once. Where the shape is genuinely unknown,
+    use `unknown` plus a guard instead of `any`. Track remaining errors as a
+    visible count so the team sees steady progress toward zero.
+  followUps:
+    - "Why fix shared types before leaf functions?"
+  tags: ["migration", "any"]
+- id: migrating-js-5
+  topic: migrating-js
+  level: intermediate
+  question: "How do you keep tests passing while converting to TypeScript?"
+  answer: |
+    Convert source files before test files, keeping the runtime behavior
+    identical — types alone should not change what the code does. Run the
+    existing suite after each file conversion so regressions point at the last
+    change. Only then add type-aware assertions for the new contracts. If a
+    test needs loosening with a cast during transition, leave a comment naming
+    the follow-up. Green tests on every commit prove the migration is behavior
+    preserving.
+  followUps:
+    - "Should behavior change during a type migration?"
+  tags: ["migration", "tests"]
+- id: migrating-js-6
+  topic: migrating-js
+  level: intermediate
+  question: "When should you enable strict mode during a migration?"
+  answer: |
+    Finish a lenient pass first — whole codebase compiling with basic checking —
+    then enable strict flags one at a time, starting with `strictNullChecks`.
+    Each flag produces a focused batch of real bugs to fix and review
+    separately. Turning everything on at once buries the team in unrelated
+    errors and stalls the migration. Celebrate each flag going green: it marks
+    a permanent safety upgrade, not just a config tweak.
+  followUps:
+    - "Which strict flag should you enable first?"
+  tags: ["migration", "strict"]

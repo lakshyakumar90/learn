@@ -1,0 +1,86 @@
+---
+title: Enums, const assertions and literal unions
+description: When an enum earns its keep, and when a union of strings wins.
+---
+
+"New, paid, shipped, done" — a fixed set of names. TypeScript offers two
+ways to model it, and interviewers want the trade-off, not just the
+syntax.
+
+## Real-life situation
+
+An order tracker stores its status in a database column and renders it in
+a dropdown. A string union (`"new" | "paid" | ...`) erases completely and
+matches the stored text exactly. A numeric enum emits a real lookup
+object — handy when you need reverse mapping, but a second source of
+truth to keep in sync with the database.
+
+## Visual
+
+<Diagram id="ts-enum-union" />
+
+## Try it
+
+<CodeRunner
+  title="Order statuses, two spellings"
+  language="typescript"
+  errors="TS2345"
+  expect="paid\nshipped\n1\ndone"
+>
+{`type OrderStatus = "new" | "paid" | "shipped" | "done";
+function next(status: OrderStatus): OrderStatus {
+  if (status === "new") {
+    return "paid";
+  }
+  if (status === "paid") {
+    return "shipped";
+  }
+  return "done";
+}
+enum OldStatus {
+  New = 0,
+  Paid = 1,
+  Shipped = 2,
+}
+console.log(next("new"));
+console.log(next("paid"));
+console.log(OldStatus.Paid);
+console.log(next("refunded"));`}
+</CodeRunner>
+
+Try changing `"refunded"` to `"shipped"` — clean, printing `"done"`.
+Notice `OldStatus.Paid` prints `1`: numeric enums exist at runtime,
+while the union vanished entirely. `as const` objects give a middle
+path — real values plus literal types — without enum quirks.
+
+Default stance: reach for the string union. Take the enum when you need
+runtime values (numeric codes, reverse lookups) and accept the emitted
+object. `const enum` avoids the object but complicates isolated builds —
+say that sentence in interviews and move on.
+
+<TypeCheck
+  id="ts-enum-assign"
+  question="Will it compile?"
+  answer="yes"
+  explanation="D.Up is a member of D, so assigning it to a D variable is exactly what enums are for."
+>
+{`enum Direction {
+  Up = 0,
+  Down = 1,
+}
+const d: Direction = Direction.Up;
+console.log(d);`}
+</TypeCheck>
+
+<InterviewQuestions topic="enums-literals" dir="typescript" />
+
+## Key takeaways
+
+- String unions erase fully and match stored text — the default choice.
+- Numeric enums emit a runtime object; that is the whole cost.
+- `as const` gives values plus literal types without enum machinery.
+
+## References
+
+- [TypeScript Handbook: enums](https://www.typescriptlang.org/docs/handbook/enums.html).
+- [TypeScript Handbook: everyday types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html).

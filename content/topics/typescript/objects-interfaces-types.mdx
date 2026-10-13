@@ -1,0 +1,87 @@
+---
+title: "Objects: interface versus type"
+description: Optional and readonly fields, index signatures, and the classic question.
+---
+
+Objects are where TypeScript earns its keep: one shape declaration
+protects every function that touches an API user. Interviewers ask
+"interface versus type?" on almost every loop — the answer is short, and
+below.
+
+## Real-life situation
+
+An API returns users with optional emails and occasional extra fields.
+Without a declared shape, every consumer re-guesses: is `email` always
+there? With `interface ApiUser`, the optionality lives in one place, and
+a misspelled extra property fails immediately instead of silently
+passing `undefined` downstream.
+
+## Visual
+
+<Diagram id="ts-shape" />
+
+## Try it
+
+<CodeRunner
+  title="An API user with optional fields"
+  language="typescript"
+  errors="TS2353"
+  expect="sam\njo &lt;jo@x.com&gt;\nal level 2\n2\nzo"
+>
+{`interface ApiUser {
+  id: number;
+  name: string;
+  email?: string;
+}
+function label(user: ApiUser): string {
+  const suffix = user.email === undefined ? "" : " <" + user.email + ">";
+  return user.name + suffix;
+}
+const reader: ApiUser = { id: 1, name: "sam" };
+console.log(label(reader));
+console.log(label({ id: 2, name: "jo", email: "jo@x.com" }));
+type Admin = ApiUser & { level: number };
+const boss: Admin = { id: 3, name: "al", level: 2 };
+console.log(label(boss) + " level " + boss.level);
+const levels: Record<string, number> = { al: 2 };
+console.log(levels.al);
+console.log(label({ id: 4, name: "zo", nickname: "z" }));`}
+</CodeRunner>
+
+Try removing `nickname` from the last call — clean. Then add `readonly`
+before `id` and attempt reassignment: the compiler stops you, although
+JavaScript itself would allow it. That gap (compile-time promise, no
+runtime lock) surprises people once, then never again.
+
+So `interface` or `type`? Interfaces describe object shapes and merge
+across declarations; type aliases cover everything else (unions, tuples,
+mapped shapes) and combine with `&`. For plain objects they are
+interchangeable — say that, then mention extending versus intersection.
+
+<TypeCheck
+  id="ts-object-excess"
+  question="Will it compile?"
+  answer="no"
+  line="5"
+  explanation="Fresh object literals are checked for unknown properties, so nickname fails at the call."
+>
+{`interface Card {
+  id: number;
+  name: string;
+}
+const card: Card = { id: 1, name: "x", nickname: "y" };
+console.log(card);`}
+</TypeCheck>
+
+<InterviewQuestions topic="objects-interfaces-types" dir="typescript" />
+
+## Key takeaways
+
+- Declare the shape once; every consumer inherits the optionality rules.
+- Excess property checks only bite fresh literals — that is the feature.
+- `interface` for object shapes, `type` for everything composed.
+
+## References
+
+- [TypeScript Handbook: object types](https://www.typescriptlang.org/docs/handbook/2/objects.html).
+- [TypeScript Handbook: interfaces](https://www.typescriptlang.org/docs/handbook/interfaces.html).

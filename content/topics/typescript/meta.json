@@ -1,0 +1,30 @@
+{
+  "title": "TypeScript",
+  "pages": [
+    "index",
+    "---Start here---",
+    "why-typescript",
+    "how-it-works",
+    "pros-cons",
+    "---Basics---",
+    "basic-types",
+    "objects-interfaces-types",
+    "functions",
+    "unions-narrowing",
+    "generics",
+    "enums-literals",
+    "classes",
+    "utility-types",
+    "any-unknown-assertions",
+    "modules-declarations",
+    "tsconfig-strict",
+    "---Real life---",
+    "react-api-calls",
+    "migrating-js",
+    "---Interview prep---",
+    "question-bank",
+    "compile-puzzles",
+    "challenges",
+    "cheat-sheet"
+  ]
+}

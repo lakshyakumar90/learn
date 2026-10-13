@@ -1,0 +1,83 @@
+---
+title: Utility types, keyof and typeof
+description: Partial, Pick, Omit, Record and the queries that power them.
+---
+
+Utility types derive new shapes from old ones, so one source interface
+feeds forms, previews, and API payloads without drift. Interviewers ask
+you to build `Partial` from scratch — the pattern matters more than the
+name.
+
+## Real-life situation
+
+A profile form submits only the fields the user touched. Typing the
+update as `Partial<Profile>` makes every field optional at once; a
+preview card takes `Pick<Profile, "name" | "bio">`. Add a field to
+`Profile` and every derived shape follows — no second declaration to
+forget.
+
+## Visual
+
+<Diagram id="ts-utility" />
+
+## Try it
+
+<CodeRunner
+  title="A profile update form"
+  language="typescript"
+  errors="TS2353"
+  expect="update 1: name\nsam - dev\nal a@x.com\nzo"
+>
+{`interface Profile {
+  id: number;
+  name: string;
+  email: string;
+  bio: string;
+}
+function updateProfile(id: number, patch: Partial<Profile>): string {
+  const keys = Object.keys(patch).join(",");
+  return "update " + id + ": " + keys;
+}
+type ProfilePreview = Pick<Profile, "name" | "bio">;
+const preview: ProfilePreview = { name: "sam", bio: "dev" };
+console.log(updateProfile(1, { name: "jo" }));
+console.log(preview.name + " - " + preview.bio);
+type NoBio = Omit<Profile, "bio">;
+const short: NoBio = { id: 2, name: "al", email: "a@x.com" };
+console.log(short.name + " " + short.email);
+const bad: ProfilePreview = { name: "zo", bio: "x", email: "z@x.com" };
+console.log(bad.name);`}
+</CodeRunner>
+
+Try deleting `email` from the last object — clean, printing `"zo"`.
+`keyof Profile` is the union of its keys, `typeof someValue` grabs a
+value's type, and `Profile["email"]` indexes one field out. `Record<string,
+number>`, `Required`, and `ReturnType<typeof fn>` round out the daily
+set — each is one line, each saves a redeclaration.
+
+<TypeCheck
+  id="ts-utility-partial"
+  question="Will it compile?"
+  answer="yes"
+  explanation="Partial makes every field optional, so an empty object satisfies it completely."
+>
+{`interface Settings {
+  theme: string;
+  volume: number;
+}
+const current: Partial<Settings> = {};
+console.log(current);`}
+</TypeCheck>
+
+<InterviewQuestions topic="utility-types" dir="typescript" />
+
+## Key takeaways
+
+- Derive shapes (`Partial`, `Pick`, `Omit`) — never redeclare them.
+- `keyof` lists keys, `typeof` borrows a type, indexing reads one field.
+- One source interface keeps forms and payloads in sync.
+
+## References
+
+- [TypeScript Handbook: utility types](https://www.typescriptlang.org/docs/handbook/utility-types.html).
+- [TypeScript Handbook: keyof and indexed access](https://www.typescriptlang.org/docs/handbook/2/keyof-types.html).

@@ -1,0 +1,79 @@
+---
+title: Basic types and inference
+description: Primitives, arrays, tuples, any, unknown, never and as const.
+---
+
+You rarely need to annotate everything: TypeScript infers most types and
+only asks when it cannot know. Interviewers probe whether you can read
+inference — what type does this variable actually have?
+
+## Real-life situation
+
+A cart total breaks when the string `"12"` sneaks into a prices array.
+JavaScript happily computes `0 + "12"` as `"012"` and renders it. With
+`prices: number[]`, the mistake fails at the line that introduces it,
+not at the customer. That is the whole pitch for basic types.
+
+## Visual
+
+<Diagram id="ts-inference" />
+
+## Try it
+
+<CodeRunner
+  title="A string sneaks into the cart"
+  language="typescript"
+  errors="TS2322"
+  expect="items: 3\ntotal: 40\nbook costs 12\n2\ntotal: 012"
+>
+{`function cartTotal(prices: number[]): number {
+  let total = 0;
+  for (const price of prices) {
+    total = total + price;
+  }
+  return total;
+}
+const prices: number[] = [12, 8, 20];
+console.log("items: " + prices.length);
+console.log("total: " + cartTotal(prices));
+const pair: [string, number] = ["book", 12];
+console.log(pair[0] + " costs " + pair[1]);
+const frozen = ["book", "pen"] as const;
+console.log(frozen.length);
+const typo: number = "12";
+console.log("total: " + cartTotal([typo]));`}
+</CodeRunner>
+
+Try changing `"12"` to `12` and watch the error vanish. Then hover over
+`pair` and `frozen` mentally: the tuple keeps position types, while `as
+const` freezes the array into readonly literals. Remove the `: number[]`
+annotation and nothing changes — inference already knew.
+
+Primitives (`string`, `number`, `boolean`) plus `null` and `undefined`
+cover most values. `any` opts out of checking, `unknown` forces you to
+check first, and `never` marks code that cannot return — each gets its
+own page later ([any versus unknown](./any-unknown-assertions)).
+
+<TypeCheck
+  id="ts-basic-assign"
+  question="Will it compile?"
+  answer="no"
+  line="1"
+  explanation="A string is not assignable to a number, so the declaration itself fails before anything runs."
+>
+{`const total: number = "five";
+console.log(total);`}
+</TypeCheck>
+
+<InterviewQuestions topic="basic-types" dir="typescript" />
+
+## Key takeaways
+
+- Annotate boundaries (function inputs, API shapes); let inference handle the rest.
+- Tuples fix positions, `as const` freezes literals — arrays do neither.
+- `unknown` is the honest default for data you have not checked yet.
+
+## References
+
+- [TypeScript Handbook: everyday types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html).
+- [TypeScript Handbook: more on functions](https://www.typescriptlang.org/docs/handbook/2/functions.html).

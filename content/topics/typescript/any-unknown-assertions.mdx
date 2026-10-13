@@ -1,0 +1,83 @@
+---
+title: any, unknown, assertions and satisfies
+description: Escape hatches, guards, the ! operator and why types are not validation.
+---
+
+`any` disables the checker, `unknown` forces you to convince it.
+Interviewers use this pair to separate people who type from people who
+silence — reach for `unknown` plus a guard, and say why out loud.
+
+## Real-life situation
+
+Your app parses JSON from an API. The payload could be anything, so
+`unknown` is the honest label — then a guard proves it has a string
+`name` before you touch it. Typing the same payload `any` compiles
+silently and crashes loudly: `count + 1` becomes `"[object Object]1"`
+with no warning anywhere.
+
+## Visual
+
+<Diagram id="ts-unsafe-flow" />
+
+## Try it
+
+<CodeRunner
+  title="Narrow unknown API data safely"
+  language="typescript"
+  errors="TS2322"
+  expect="hello sam\ndirect: sam\n[object Object]1\nblue 12\nobject"
+>
+{`function parsePayload(text: string): unknown {
+  return JSON.parse(text);
+}
+const raw = parsePayload('{"name":"sam"}');
+if (typeof raw === "object" && raw !== null && "name" in raw) {
+  const record = raw as { name: unknown };
+  if (typeof record.name === "string") {
+    console.log("hello " + record.name);
+  }
+}
+const direct: string = parsePayload('"sam"');
+console.log("direct: " + direct);
+const count: number = raw as number;
+console.log(count + 1);
+type LooseTheme = Record<string, string | number>;
+const theme = { color: "blue", size: 12 } satisfies LooseTheme;
+console.log(theme.color + " " + theme.size);
+console.log(typeof raw);`}
+</CodeRunner>
+
+Try changing `raw as number` to a guarded extraction — the error stays
+until the types line up, which is the point. Assertions (`as`) tell the
+checker what you claim to know; guards (`typeof`, `in`, custom `is`)
+prove it. `satisfies` checks a value against a type without widening it.
+The `!` non-null assertion (`user!.name`) is a promise without proof —
+the exercise system rejects it, and so should you.
+
+Types are never runtime validation: `unknown` only organizes your own
+doubt. Real payloads need real checks at the boundary (see [typing an
+API call](./react-api-calls)).
+
+<TypeCheck
+  id="ts-any-leak"
+  question="Will it compile?"
+  answer="yes"
+  explanation="Anything assigned from any stays silent, so the string variable accepts it with no diagnostic."
+>
+{`const loose: any = { name: "sam" };
+const name: string = loose.name;
+console.log(name);`}
+</TypeCheck>
+
+<InterviewQuestions topic="any-unknown-assertions" dir="typescript" />
+
+## Key takeaways
+
+- `unknown` plus a guard; `any` only when you can defend it.
+- Assertions claim, guards prove — prefer proof at boundaries.
+- No annotation validates runtime data; check payloads for real.
+
+## References
+
+- [TypeScript Handbook: everyday types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html).
+- [TypeScript Handbook: narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html).

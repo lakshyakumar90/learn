@@ -1,0 +1,128 @@
+---
+title: TypeScript in a React app and an API call
+description: Typing props, state, events, a fetch hook and an API response.
+---
+
+Components are functions with typed inputs; API calls are promises with
+typed outputs. Interviewers ask you to type both live — props with an
+interface, fetch with a generic envelope, and state that cannot hold the
+wrong shape.
+
+## Real-life situation
+
+A login form takes a title and an `onLogin` callback, fetches the user,
+and renders the name. Untyped, the callback receives whatever the form
+feels like and the render trusts whatever the network sent. Typed, props
+are checked at every usage, the response envelope is generic, and a
+runtime guard stands where the network ends and your code begins.
+
+## Visual
+
+<Diagram id="ts-react-data" />
+
+## Try it
+
+<CodeRunner
+  title="Fetch a user into a typed envelope"
+  language="typescript"
+  errors="TS2322"
+  expect="200 Aarav Sharma\nvalid\nAarav Sharma"
+>
+{`interface ApiUser {
+  id: number;
+  name: string;
+  email: string;
+}
+interface ApiResponse<T> {
+  data: T;
+  status: number;
+}
+async function loadUser(id: number): Promise<ApiResponse<ApiUser>> {
+  const response = await fakeFetch("https://api.example.com/users/" + id);
+  const data = (await response.json()) as ApiUser;
+  return { data: data, status: response.status };
+}
+function isUser(value: unknown): value is ApiUser {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "name" in value &&
+    "email" in value
+  );
+}
+loadUser(1).then(function (res: ApiResponse<ApiUser>) {
+  console.log(res.status + " " + res.data.name);
+  console.log(isUser(res.data) ? "valid" : "invalid");
+  const bad: ApiUser = res.data.name;
+  console.log(bad);
+});`}
+</CodeRunner>
+
+Try fixing `bad` to `res.data` — clean. Props typing follows the same
+shape-first habit, shown statically below with small declared helpers
+standing in for React (no imports in the sandbox):
+
+```ts
+interface LoginProps {
+  title: string;
+  onLogin: (email: string) => void;
+}
+function useState<S>(initial: S): [S, (next: S) => void] {
+  let current: S = initial;
+  function set(next: S): void {
+    current = next;
+  }
+  return [current, set];
+}
+function onSubmit(
+  handler: (event: { preventDefault: () => void }) => void,
+): void {
+  handler({
+    preventDefault: function (): void {},
+  });
+}
+function LoginForm(props: LoginProps): string {
+  const [email, setEmail] = useState("");
+  setEmail("sam@example.com");
+  onSubmit(function (event) {
+    event.preventDefault();
+    props.onLogin(email);
+  });
+  return props.title + ": " + email;
+}
+```
+
+The event parameter needed no annotation — context provides it. State
+keeps the type of its initial value. And the guard (`isUser`) is the
+honest part: types describe your claims, but only a runtime check
+confronts the network.
+
+<TypeCheck
+  id="ts-react-props"
+  question="Will it compile?"
+  answer="no"
+  line="8"
+  explanation="The title prop is required, so rendering without it fails at the call."
+>
+{`interface CardProps {
+  title: string;
+  count: number;
+}
+function renderCard(props: CardProps): string {
+  return props.title + props.count;
+}
+renderCard({ count: 3 });`}
+</TypeCheck>
+
+<InterviewQuestions topic="react-api-calls" dir="typescript" />
+
+## Key takeaways
+
+- Props are interfaces; events and state inherit types from context.
+- Wrap fetch in a generic envelope, then guard the payload at runtime.
+- A green check never proves the network behaved — validate at the edge.
+
+## References
+
+- [TypeScript Handbook: generics](https://www.typescriptlang.org/docs/handbook/2/generics.html).
+- [React: TypeScript quick start](https://react.dev/learn/typescript).

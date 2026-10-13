@@ -1,0 +1,78 @@
+---
+title: Migrating a JavaScript project
+description: AllowJs, checkJs, JSDoc and a five-step path that never stalls.
+---
+
+Nobody rewrites a working app in a weekend. Migration is a ratchet:
+check the JavaScript you have, annotate the seams, rename files one by
+one, and tighten strictness last. Interviewers ask for the order — recite
+these five steps.
+
+## Real-life situation
+
+A checkout helper has grown for two years with no types. Step one flips
+on `checkJs` so the compiler reads the existing JavaScript. Step two adds
+JSDoc annotations to the trickiest function. Steps three and four rename
+one file to `.ts` and fix only its errors. Step five raises strictness.
+Each step ships; the build never goes red for a week.
+
+## Visual
+
+<Diagram id="ts-migration" />
+
+## Try it
+
+<CodeRunner
+  title="A half-migrated loader still fails"
+  language="typescript"
+  errors="TS18046"
+  expect="ids: 1,2,3"
+>
+{`async function loadUserIds(): Promise<number[]> {
+  try {
+    const response = await fakeFetch("https://api.example.com/users");
+    const users = (await response.json()) as Array<{ id: number }>;
+    return users.map(function (user) {
+      return user.id;
+    });
+  } catch (e) {
+    console.log("failed: " + e.message);
+    return [];
+  }
+}
+loadUserIds().then(function (ids) {
+  console.log("ids: " + ids.join(","));
+});`}
+</CodeRunner>
+
+Try narrowing the `catch` variable — `e instanceof Error ? e.message :
+"unknown"` — and the Types tab goes clean. That is step four in
+miniature: one file, one error species, fixed and shipped. `allowJs`
+lets `.js` files stay in the build during the transition, `checkJs`
+types them loosely, and JSDoc (`@param {number[]} prices`) annotates
+without renaming anything.
+
+<TypeCheck
+  id="ts-migrate-let"
+  question="Will it compile?"
+  answer="no"
+  line="2"
+  explanation="Strict assignment checks prove the variable is still empty at the log line."
+>
+{`let nickname: string;
+console.log(nickname);
+nickname = "sam";`}
+</TypeCheck>
+
+<InterviewQuestions topic="migrating-js" dir="typescript" />
+
+## Key takeaways
+
+- Check first (`checkJs`), annotate second (JSDoc), rename third, strict last.
+- Fix one error species at a time; every step must ship green.
+- `allowJs` keeps old files building while new files get full checking.
+
+## References
+
+- [TypeScript Handbook: migrating from JavaScript](https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html).
+- [TypeScript Handbook: JSDoc reference](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html).

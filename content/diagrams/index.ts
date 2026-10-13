@@ -77,6 +77,20 @@ import { jsScopeChainSpec } from './js-scope-chain';
 import { jsTypesSpec } from './js-types';
 import { jsPrototypeChainSpec } from './js-prototype-chain';
 import { jsPromiseStatesSpec } from './js-promise-states';
+import { tsPipelineSpec } from './ts-pipeline';
+import { tsInferenceSpec } from './ts-inference';
+import { tsShapeSpec } from './ts-shape';
+import { tsFnSignatureSpec } from './ts-fn-signature';
+import { tsNarrowingSpec } from './ts-narrowing';
+import { tsGenericIOSpec } from './ts-generic-io';
+import { tsEnumUnionSpec } from './ts-enum-union';
+import { tsClassShapeSpec } from './ts-class-shape';
+import { tsUtilitySpec } from './ts-utility';
+import { tsUnsafeFlowSpec } from './ts-unsafe-flow';
+import { tsDtsBridgeSpec } from './ts-dts-bridge';
+import { tsStrictFlagsSpec } from './ts-strict-flags';
+import { tsReactDataSpec } from './ts-react-data';
+import { tsMigrationSpec } from './ts-migration';
 
 /**
  * Every reusable diagram, keyed by the id used in MDX (`<Diagram id="web" />`).
@@ -161,6 +175,20 @@ export const diagramSpecs: Record<string, DiagramSpec> = {
   'js-types': jsTypesSpec,
   'js-prototype-chain': jsPrototypeChainSpec,
   'js-promise-states': jsPromiseStatesSpec,
+  'ts-pipeline': tsPipelineSpec,
+  'ts-inference': tsInferenceSpec,
+  'ts-shape': tsShapeSpec,
+  'ts-fn-signature': tsFnSignatureSpec,
+  'ts-narrowing': tsNarrowingSpec,
+  'ts-generic-io': tsGenericIOSpec,
+  'ts-enum-union': tsEnumUnionSpec,
+  'ts-class-shape': tsClassShapeSpec,
+  'ts-utility': tsUtilitySpec,
+  'ts-unsafe-flow': tsUnsafeFlowSpec,
+  'ts-dts-bridge': tsDtsBridgeSpec,
+  'ts-strict-flags': tsStrictFlagsSpec,
+  'ts-react-data': tsReactDataSpec,
+  'ts-migration': tsMigrationSpec,
 };
 
 export function getDiagramSpec(id: string): DiagramSpec | undefined {

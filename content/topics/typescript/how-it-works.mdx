@@ -1,0 +1,82 @@
+---
+title: How TypeScript works
+description: Compile time versus runtime, checking versus emit, and how people run it.
+---
+
+TypeScript does its work before your code ever runs, then gets out of
+the way. Two distinctions carry every interview answer: checking is not
+emit, and compile time is not runtime.
+
+## Visual
+
+<Diagram id="ts-pipeline" />
+
+## Compile time versus runtime
+
+Checking asks "could this be wrong?" Emit asks "what JavaScript should
+ship?" They are independent: even with errors, the compiler still emits
+(try it below — the runner tells you plainly when it does). At runtime
+no type information remains, so no `instanceof` trick can recover an
+interface. If you need safety from real data, you validate at runtime;
+types only describe what you claimed.
+
+Structural typing fits here too: two types with the same shape are
+compatible, whatever their names. The snippet below passes because
+`coords` has everything `Point` asks for — no declaration of intent.
+
+```ts
+interface Point {
+  x: number;
+  y: number;
+}
+const coords = { x: 1, y: 2 };
+const spot: Point = coords;
+console.log(spot.x + spot.y);
+```
+
+## How people run TypeScript
+
+Most projects compile with `tsc` or let a bundler strip types during the
+build. For running directly: Node.js executes TypeScript files itself
+since v22.6.0, enabled by default since v22.18.0 and v23.6.0, and stable
+since v24.12.0 — but it only strips types, never checks them
+([Node.js TypeScript docs](https://nodejs.org/api/typescript.html)).
+Community runners like `tsx` go further with full transformation. And
+since July 2026, the `tsc` binary in the `typescript` package is the
+native Go compiler; programmatic users stay on the 6.x line (see the
+[7.0 announcement](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/)).
+
+## Try it
+
+<CodeRunner
+  title="Errors do not stop emit"
+  language="typescript"
+  errors="TS2322"
+  expect="total: 40\ntotal: 012"
+>
+{`function cartTotal(prices: number[]): number {
+  let total = 0;
+  for (const price of prices) {
+    total = total + price;
+  }
+  return total;
+}
+console.log("total: " + cartTotal([12, 8, 20]));
+const typo: number = "12";
+console.log("total: " + cartTotal([typo]));`}
+</CodeRunner>
+
+Run it, then read both tabs: the Types tab reports the mismatch while
+the Output tab still prints. Change `"12"` to `12` and watch the Types
+tab go quiet. That split — noisy at compile time, silent at runtime — is
+the mental model behind every page that follows.
+
+<InterviewQuestions topic="how-it-works" dir="typescript" />
+
+## References
+
+- [TypeScript Handbook: everyday types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html).
+- [Node.js TypeScript docs](https://nodejs.org/api/typescript.html).
+- [Announcing TypeScript 7.0](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/).
+
+Last verified: 2026-10-13.

@@ -1,0 +1,91 @@
+---
+title: Unions, literals and narrowing
+description: typeof, in and discriminated unions that shrink types line by line.
+---
+
+Unions say "one of these"; narrowing proves "this one, here".
+Interviewers love this page because it is TypeScript thinking in pure
+form: start wide, test, and watch the type shrink inside each branch.
+
+## Real-life situation
+
+A fetch can be loading, successful, or failed — three shapes, one
+variable. Without a union you juggle flags and nullable fields; with a
+discriminated union on `status`, each branch knows exactly which fields
+exist. Accessing `users` inside the `"success"` branch is safe because
+the check already proved the shape.
+
+## Visual
+
+<Diagram id="ts-narrowing" />
+
+## Try it
+
+<CodeRunner
+  title="Loading, success or error"
+  language="typescript"
+  errors="TS2322"
+  expect="still loading\n2 users\nfailed: down\nfailed: undefined"
+>
+{`type FetchState =
+  | { status: "loading" }
+  | { status: "success"; users: string[] }
+  | { status: "error"; message: string };
+function describe(state: FetchState): string {
+  if (state.status === "loading") {
+    return "still loading";
+  }
+  if (state.status === "success") {
+    return state.users.length + " users";
+  }
+  return "failed: " + state.message;
+}
+console.log(describe({ status: "loading" }));
+console.log(describe({ status: "success", users: ["a", "b"] }));
+console.log(describe({ status: "error", message: "down" }));
+console.log(describe({ status: "done" }));`}
+</CodeRunner>
+
+Try changing `"done"` to `"error"` with a message — clean. The guards
+that shrink types are small: `typeof` for primitives, `in` for object
+shapes, `instanceof` for class instances, and equality on a shared
+literal field for discriminated unions. A custom type guard (`value is
+User`) teaches the checker a test you wrote yourself.
+
+The compiler verifies each narrowed type below at build time:
+
+```ts
+function firstName(user: string | null): string {
+  if (user === null) {
+    return "guest";
+  }
+  user; // user: string
+  return user;
+}
+console.log(firstName(null));
+console.log(firstName("sam"));
+```
+
+<TypeCheck
+  id="ts-union-literal"
+  question="Will it compile?"
+  answer="no"
+  line="1"
+  explanation="The literal union only allows the two named strings, so a third string fails immediately."
+>
+{`const direction: "up" | "down" = "left";
+console.log(direction);`}
+</TypeCheck>
+
+<InterviewQuestions topic="unions-narrowing" dir="typescript" />
+
+## Key takeaways
+
+- Model "one of" with unions; prove "this one" with a guard per branch.
+- Discriminated unions (one shared literal field) scale best.
+- Narrowing is compile-time only — the emitted JavaScript keeps the tests.
+
+## References
+
+- [TypeScript Handbook: narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html).
+- [TypeScript Handbook: everyday types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html).

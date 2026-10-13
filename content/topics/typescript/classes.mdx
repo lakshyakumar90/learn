@@ -1,0 +1,84 @@
+---
+title: Classes
+description: Access modifiers, readonly, parameter properties and implements.
+---
+
+Classes bundle state with the operations allowed on it. TypeScript adds
+compile-time locks — `private`, `protected`, `readonly` — plus a way to
+promise an interface with `implements`. Interviewers check you know the
+locks vanish at runtime.
+
+## Real-life situation
+
+A bank account hides its balance behind `deposit` and `total` methods so
+no caller can set it directly. Marking the owner `readonly` stops
+reassignment in the editor — but the emitted JavaScript assigns happily,
+which the runner below proves. The lock is a promise between developers,
+not a vault.
+
+## Visual
+
+<Diagram id="ts-class-shape" />
+
+## Try it
+
+<CodeRunner
+  title="A bank account with locks"
+  language="typescript"
+  errors="TS2540"
+  expect="sam has 150\n150"
+>
+{`class BankAccount {
+  private balance: number;
+  readonly owner: string;
+  constructor(owner: string, start: number) {
+    this.owner = owner;
+    this.balance = start;
+  }
+  deposit(amount: number): void {
+    this.balance = this.balance + amount;
+  }
+  total(): number {
+    return this.balance;
+  }
+}
+const mine = new BankAccount("sam", 100);
+mine.deposit(50);
+console.log(mine.owner + " has " + mine.total());
+mine.owner = "jo";
+console.log(mine.total());`}
+</CodeRunner>
+
+Try removing the `mine.owner = "jo"` line — clean. Then try reading
+`mine.balance` from outside: `private` fails the same way. Parameter
+properties (`constructor(private balance: number)`) declare and assign
+in one stroke, and `abstract` classes sketch shared behavior subclasses
+must complete. For `this` behavior itself, revisit
+[`this`](/topics/javascript/this-keyword) in the JavaScript topic.
+
+<TypeCheck
+  id="ts-class-private"
+  question="Will it compile?"
+  answer="no"
+  line="5"
+  explanation="Private members are invisible outside the class body, so reading x from outside fails."
+>
+{`class Vault {
+  private code = 1234;
+}
+const vault = new Vault();
+console.log(vault.code);`}
+</TypeCheck>
+
+<InterviewQuestions topic="classes" dir="typescript" />
+
+## Key takeaways
+
+- `private` and `readonly` are editor promises — the emit ignores them.
+- `implements` checks the class against an interface at declaration time.
+- Parameter properties and `abstract` remove whole lines of boilerplate.
+
+## References
+
+- [TypeScript Handbook: classes](https://www.typescriptlang.org/docs/handbook/2/classes.html).
+- [MDN: classes](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes).

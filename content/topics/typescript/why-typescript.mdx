@@ -1,0 +1,56 @@
+---
+title: Why TypeScript exists
+description: The late-runtime-error problem, a short verified timeline, and who uses it.
+---
+
+JavaScript finds your typos at runtime, in production, in front of users.
+TypeScript moves that moment earlier: you annotate the shapes you meant,
+the checker compares every use against them, and wrong code fails in your
+editor instead of on someone's screen.
+
+## The problem it solves
+
+Dynamic code trusts every caller. A price arrives as the string `"12"`,
+a refactor renames `userName` to `name` in four of five places, and
+nothing complains until the page renders `NaN` or crashes. Interviewers
+love this framing because it is honest: types do not make code correct,
+they make whole classes of mistakes impossible to ignore.
+
+Seen in: Visual Studio Code's core is fully implemented in TypeScript
+([source code organization](https://github.com/microsoft/vscode/wiki/source-code-organization),
+checked 2026); Angular is written in TypeScript and uses it as its
+primary language ([TypeScript Handbook: Angular](https://www.typescriptlang.org/docs/handbook/angular.html));
+the TypeScript compiler itself was self-hosted TypeScript until the 7.0
+native port (see the timeline below).
+
+## A short verified timeline
+
+Microsoft unveiled TypeScript 0.8 on October 1, 2012, led by Anders
+Hejlsberg, as a typed superset of JavaScript for large applications
+([ten years of TypeScript](https://devblogs.microsoft.com/typescript/ten-years-of-typescript/)).
+TypeScript 1.0 followed in April 2014 with a stability promise for type
+definition files
+([announcement](https://devblogs.microsoft.com/typescript/announcing-typescript-1-0/)).
+The team announced a native Go port of the compiler in March 2025, and
+TypeScript 7.0 shipped it on July 8, 2026 — roughly ten times faster,
+with the `typescript` package now carrying the native compiler and API
+consumers staying on the `@typescript/typescript6` compatibility package
+([announcing TypeScript 7.0](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/)).
+
+## The idea in one paragraph
+
+Every JavaScript program is already a TypeScript program: add
+annotations where they pay off, and the compiler erases them on emit.
+Nothing you write in types survives to runtime — no checks, no overhead,
+no behavior change. That erasure is the whole deal, and the next page
+shows exactly where the boundary lies.
+
+<InterviewQuestions topic="why-typescript" dir="typescript" />
+
+## References
+
+- [TypeScript Handbook: the basics](https://www.typescriptlang.org/docs/handbook/2/basic-types.html).
+- [Announcing TypeScript 7.0](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/).
+- [Ten years of TypeScript](https://devblogs.microsoft.com/typescript/ten-years-of-typescript/).
+
+Last verified: 2026-10-13.
