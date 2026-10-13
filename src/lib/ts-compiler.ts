@@ -158,6 +158,15 @@ export const RUNNER_AMBIENT =
   'declare function resetHelpers(): void;\n';
 
 /**
+ * `assert` preamble for Exercise type-checks. A real one-line function,
+ * NOT an ambient declaration: checked code is wrapped in an async IIFE
+ * where `declare` statements are illegal (TS1184). Exactly one line, so
+ * callers can subtract one line to map diagnostics back to user code.
+ */
+export const ASSERT_IMPL =
+  'function assert(cond: unknown, name: string): void { if (!cond) { throw new Error("Assertion failed: " + name); } }\n';
+
+/**
  * Checked code is wrapped EXACTLY like the runtime wraps it (ambient
  * globals, then an async IIFE so top-level await type-checks the way it
  * runs). Visible user line N lives at actual line N + CHECK_LINE_OFFSET.
@@ -184,44 +193,38 @@ export function createTsProgram(
   const options = resolveTsOptions(tsMod, strict) as Parameters<
     typeof ts.createProgram
   >[1];
-  const baseHost = tsMod.createCompilerHost(options);
+  // The host is built literally, never via ts.createCompilerHost: that
+  // factory reads ts.sys (Node-only) and crashes inside the browser
+  // worker. Every method the checker needs is defined here; there are
+  // no imports in the sandbox, so directory probes stay trivial.
   const host: ts.CompilerHost = {
-    ...baseHost,
-    getSourceFile: (name, lang, ...rest) => {
+    getSourceFile: (name, lang) => {
       if (name === file) return tsMod.createSourceFile(name, wrapped, lang, true);
       const lib = getLib(name.split('/').pop()!);
       if (lib !== undefined)
         return tsMod.createSourceFile(name, lib, lang, true);
-      try {
-        return baseHost.getSourceFile(name, lang, ...rest);
-      } catch {
-        return undefined;
-      }
+      return undefined;
     },
     fileExists: (name) => {
       if (name === file || getLib(name.split('/').pop()!) !== undefined)
         return true;
-      try {
-        return baseHost.fileExists(name);
-      } catch {
-        return false;
-      }
+      return false;
     },
     readFile: (name) => {
       if (name === file) return wrapped;
       const lib = getLib(name.split('/').pop()!);
       if (lib !== undefined) return lib;
-      try {
-        return baseHost.readFile(name);
-      } catch {
-        return undefined;
-      }
+      return undefined;
     },
     getDefaultLibFileName: () => 'lib.es2022.d.ts',
+    getDefaultLibLocation: () => '/',
+    directoryExists: () => true,
+    getDirectories: () => [],
     getCurrentDirectory: () => '/',
     getCanonicalFileName: (f) => f,
     useCaseSensitiveFileNames: () => true,
     getNewLine: () => '\n',
+    writeFile: () => {},
   };
   const program = tsMod.createProgram([file], options, host);
   const source = program.getSourceFile(file)!;
@@ -307,7 +310,6 @@ export function narrowedTypeAtLine(
   // A bare source file is enough: narrowing assertions only need the
   // checker over user code, and lib gaps would only add noise.
   const host: ts.CompilerHost = {
-    ...tsMod.createCompilerHost(options),
     getSourceFile: (name, lang) =>
       name === file
         ? source
@@ -315,10 +317,14 @@ export function narrowedTypeAtLine(
     fileExists: () => true,
     readFile: () => '',
     getDefaultLibFileName: () => 'lib.es2022.d.ts',
+    getDefaultLibLocation: () => '/',
+    directoryExists: () => true,
+    getDirectories: () => [],
     getCurrentDirectory: () => '/',
     getCanonicalFileName: (f) => f,
     useCaseSensitiveFileNames: () => true,
     getNewLine: () => '\n',
+    writeFile: () => {},
   };
   const program = tsMod.createProgram([file], options, host);
   const checker = program.getTypeChecker();

@@ -38,19 +38,22 @@ test("the TS runner shows a diagnostic and the output tab still runs", async ({
   await expect(group.getByText("Compiler not loaded")).toBeVisible();
   await group.getByRole("button", { name: "Check types" }).click();
   const types = group.getByLabel("Type diagnostics");
-  await expect(types).toContainText("TS2322");
+  // Cold start compiles the worker and fetches the lib files; slow machines need room.
+  await expect(types).toContainText("TS2322", { timeout: 60000 });
   await expect(types).toContainText("line 6");
   // Run anyway: types fail, output still prints.
   await group.getByRole("button", { name: /Run check and code/ }).click();
   const output = group.getByLabel("Program output");
   await expect(output).toContainText("Aarav Sharma");
   await expect(group).toContainText("still emits JavaScript");
-  // The failing line is marked in the editor, not color-only.
+  // The failing line is marked in the editor gutter, not color-only.
+  // (Gutter markers render in .cm-gutters, a sibling of .cm-content.)
   const editor = group.locator(".cm-content");
   await expect(editor).toBeVisible();
-  await expect(
-    group.locator(".cm-content").locator(".cm-lint-marker-error"),
-  ).toHaveCount(1);
+  // Gutter marks arrive a beat after the text (lint reschedules).
+  await expect(group.locator(".cm-lint-marker-error")).toHaveCount(1, {
+    timeout: 15000,
+  });
 });
 
 test("the compiler is not requested on page load", async ({ page }) => {
@@ -69,7 +72,7 @@ test("the compiler is not requested on page load", async ({ page }) => {
   const group = page.getByRole("group", { name: "TS token check" });
   await group.scrollIntoViewIfNeeded();
   await group.getByRole("button", { name: "Check types" }).click();
-  await expect(group.getByLabel("Type diagnostics")).toContainText("TS2322");
+  await expect(group.getByLabel("Type diagnostics")).toContainText("TS2322", { timeout: 60000 });
   // Whatever else lazy-loads on scroll was already here; the compiler
   // chunk (megabytes of new JS) arrives only now, on first interaction.
   const fresh = [...seen].filter((p) => !before.has(p));

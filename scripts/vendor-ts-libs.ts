@@ -14,7 +14,6 @@
 import { createRequire } from 'node:module';
 import {
   copyFileSync,
-  existsSync,
   mkdirSync,
   readdirSync,
   statSync,

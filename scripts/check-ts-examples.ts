@@ -113,7 +113,7 @@ function checkNarrows(label: string, code: string, strict: boolean): void {
 
 /** `assert` exists in the Exercise worker; declare it for typechecking. */
 const ASSERT_DECL =
-  'declare function assert(cond: unknown, name: string): void;\n';
+  'function assert(cond: unknown, name: string): void { if (!cond) { throw new Error("Assertion failed: " + name); } }\n';
 
 async function checkContent(
   label: string,

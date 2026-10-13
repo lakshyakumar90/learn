@@ -58,8 +58,19 @@ async function diagnose(
     seen.add(name);
     const text = await libText(name);
     if (text === undefined) continue;
+    // References use bare names (lib="es2021"); files are lib.*.d.ts.
     for (const m of text.matchAll(/<reference\s+lib="([^"]+)"/g)) {
-      if (!seen.has(m[1])) queue.push(m[1]);
+      const file = m[1].endsWith('.d.ts') ? m[1] : `lib.${m[1]}.d.ts`;
+      if (!seen.has(file)) queue.push(file);
+    }
+  }
+  // Without the roots every global collapses to `any` and bad code
+  // reports clean — fail loudly instead of lying about the check.
+  for (const root of ['lib.es2022.d.ts', 'lib.dom.d.ts']) {
+    if (!libCache.has(root)) {
+      throw new Error(
+        `Could not load the compiler library file ${root}. Check your connection and try again.`,
+      );
     }
   }
   return createTsProgram(ts, code, strict, (base) => libCache.get(base))
@@ -80,6 +91,7 @@ self.addEventListener('message', async (e: MessageEvent<InMsg>) => {
       self.postMessage({ id: msg.id, type: 'emitted', js: emitJs(msg.code) });
     }
   } catch (err) {
+    console.error('[ts-worker]', err);
     self.postMessage({
       id: msg.id,
       type: 'worker-error',

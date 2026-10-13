@@ -217,6 +217,7 @@ function TsRunner({
   const [checkedOnce, setCheckedOnce] = useState(false);
   const [checking, setChecking] = useState(false);
   const [emitError, setEmitError] = useState<string | null>(null);
+  const [checkError, setCheckError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
   const runner = useConsoleRunner();
@@ -225,11 +226,17 @@ function TsRunner({
 
   const doCheck = useCallback(async (): Promise<TsDiagnostic[]> => {
     setChecking(true);
+    setCheckError(null);
     try {
       const diags = await ts.check(code, strict);
       setDiagnostics(diags);
       setCheckedOnce(true);
       return diags;
+    } catch (e) {
+      // The worker failed (not the code): say so instead of showing
+      // stale or empty results as if the check had passed.
+      setCheckError(e instanceof Error ? e.message : String(e));
+      return [];
     } finally {
       setChecking(false);
     }
@@ -254,6 +261,7 @@ function TsRunner({
     setDiagnostics([]);
     setCheckedOnce(false);
     setEmitError(null);
+    setCheckError(null);
     runner.reset();
   }, [initial, runner]);
 
@@ -310,10 +318,15 @@ function TsRunner({
   );
 
   const typesPanel = (
-    <div aria-label="Type diagnostics" aria-live="polite">
+    <div aria-live="polite">
       {ts.status === 'error' ? (
         <p className="rounded-lg border p-3 text-sm text-red-800 dark:text-red-300">
           {ts.loadError}
+        </p>
+      ) : checkError !== null ? (
+        <p className="rounded-lg border p-3 text-sm text-red-800 dark:text-red-300">
+          The check itself failed: {checkError} Fix that first — the
+          results below may be stale.
         </p>
       ) : !checkedOnce && ts.status === 'idle' ? (
         <p className="text-sm opacity-70">
@@ -354,7 +367,7 @@ function TsRunner({
           it printed.
         </p>
       )}
-      <div className="code-output" aria-label="Program output" aria-live="polite">
+      <div className="code-output" aria-live="polite">
         {!runner.lines.length &&
           !runner.error &&
           !emitError &&

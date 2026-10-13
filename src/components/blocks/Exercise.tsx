@@ -6,7 +6,7 @@ import { HighlightedCode } from './HighlightedCode';
 import { FlaskConical } from 'lucide-react';
 import { useConsoleRunner } from './use-console-runner';
 import { useTsCompiler } from '@/lib/use-ts-compiler';
-import { findBannedTs, type TsDiagnostic } from '@/lib/ts-compiler';
+import { findBannedTs, ASSERT_IMPL, type TsDiagnostic } from '@/lib/ts-compiler';
 
 export interface ExerciseProps {
   title?: string;
@@ -56,7 +56,7 @@ export function Exercise({ title, tests, solution, children, preview = "", solut
       if (bans.length > 0) return;
       setTypeBusy(true);
       try {
-        const unit = `declare function assert(cond: unknown, name: string): void;\n${code}\n${tests}`;
+        const unit = `${ASSERT_IMPL}${code}\n${tests}`;
         const diags = await ts.check(unit, true);
         const shown = diags
           .map((d) => ({ ...d, line: d.line - 1 }))

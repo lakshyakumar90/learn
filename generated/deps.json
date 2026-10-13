@@ -9,12 +9,12 @@
           "role": "A TypeScript drawing application with guest storage, authenticated scenes, real-time rooms, a hand-drawn renderer, Redis write-behind persistence, and the Phase 19 editor features.",
           "runtime": "Node >=24",
           "fileCounts": {
-            "md": 333,
-            "ts": 344,
-            "tsx": 54,
+            "md": 466,
+            "js": 5,
+            "ts": 348,
+            "tsx": 58,
             "css": 3,
-            "prisma": 1,
-            "js": 3
+            "prisma": 1
           },
           "deps": [
             {
@@ -46,9 +46,9 @@
           "role": "Next.js editor, account dashboard, and room access interface.",
           "runtime": "Node >=24",
           "fileCounts": {
-            "md": 50,
+            "md": 52,
             "ts": 85,
-            "tsx": 51,
+            "tsx": 55,
             "css": 3
           },
           "deps": [
@@ -179,7 +179,7 @@
           "role": "Authenticated HTTP API for scenes, rooms, invites, files, and private library items.",
           "runtime": "Node >=24",
           "fileCounts": {
-            "ts": 16,
+            "ts": 18,
             "md": 4
           },
           "deps": [
@@ -622,7 +622,7 @@
           "runtime": "Node >=24",
           "fileCounts": {
             "md": 2,
-            "ts": 6
+            "ts": 8
           },
           "deps": [
             {

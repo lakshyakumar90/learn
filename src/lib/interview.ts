@@ -25,7 +25,7 @@ export type InterviewQuestion = z.infer<typeof questionSchema>;
 
 export const MAX_ANSWER_WORDS = 120;
 
-let cache = new Map<string, InterviewQuestion[]>();
+const cache = new Map<string, InterviewQuestion[]>();
 
 export function questionsPath(dir = 'javascript'): string {
   return join(process.cwd(), 'content', 'topics', dir, 'interview', 'questions.yaml');

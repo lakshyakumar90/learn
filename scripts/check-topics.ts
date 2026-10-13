@@ -213,7 +213,10 @@ function checkSpecialPage(file: string, rules: TopicRules): void {
     }
   }
   if (slug === 'challenges') {
-    const blocks = [...text.matchAll(/<Exercise\b([\s\S]*?)>([\s\S]*?)<\/Exercise>/g)];
+    // Attribute values may hold `{`...`}` templates containing `>`
+    // (arrow types), so consume quoted spans atomically like the
+    // content miners do instead of stopping at the first `>`.
+    const blocks = [...text.matchAll(/<Exercise\b((?:"[^"]*"|'[^']*'|`[^`\\]*(?:\\.[^`\\]*)*`|[^>])*)>([\s\S]*?)<\/Exercise>/g)];
     if (blocks.length < rules.minChallenges) fail(`${rel} has ${blocks.length} challenges (need ${rules.minChallenges})`);
     for (const b of blocks) {
       if (!/tests=\{`/.test(b[1]) || !/solution=\{`/.test(b[1])) {

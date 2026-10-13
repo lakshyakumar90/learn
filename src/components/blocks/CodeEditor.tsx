@@ -9,6 +9,44 @@ export interface EditorDiagnostic {
   message: string;
 }
 
+interface DocLine {
+  from: number;
+  to: number;
+}
+
+interface DocLike {
+  line(n: number): DocLine;
+  lines: number;
+}
+
+/** Map checker diagnostics onto document ranges for the lint gutter. */
+function toMarks(
+  doc: DocLike,
+  diags: EditorDiagnostic[],
+): Array<{ from: number; to: number; severity: "error"; message: string }> {
+  const out: Array<{
+    from: number;
+    to: number;
+    severity: "error";
+    message: string;
+  }> = [];
+  for (const d of diags) {
+    try {
+      const line = doc.line(Math.min(Math.max(d.line, 1), doc.lines));
+      const from = Math.min(line.from + Math.max(d.col - 1, 0), line.to);
+      out.push({
+        from,
+        to: Math.min(from + 1, line.to),
+        severity: "error",
+        message: d.message,
+      });
+    } catch {
+      /* stale position after edits; next run refreshes */
+    }
+  }
+  return out;
+}
+
 export function CodeEditor({
   code,
   preview,
@@ -34,7 +72,7 @@ export function CodeEditor({
   const mount = useRef<HTMLDivElement>(null);
   const view = useRef<EditorView | null>(null);
   const lintCompartmentRef = useRef<Compartment | null>(null);
-  const forceLintRef = useRef<((view: EditorView) => void) | null>(null);
+  const relintRef = useRef<((diags: EditorDiagnostic[]) => void) | null>(null);
   const latest = useRef({ code, onChange, onRun });
   useEffect(() => {
     latest.current = { code, onChange, onRun };
@@ -62,7 +100,7 @@ export function CodeEditor({
           { javascript },
           { html },
           { css },
-          { linter, lintGutter, forceLinting },
+          { linter, lintGutter },
         ] = await Promise.all([
           import("@codemirror/view"),
           import("@codemirror/state"),
@@ -76,7 +114,20 @@ export function CodeEditor({
         if (cancelled || !mount.current) return;
         const lintCompartment = new StateCompartment();
         lintCompartmentRef.current = lintCompartment;
-        forceLintRef.current = forceLinting;
+        // Re-marking reconfigures the compartment (a config change makes
+        // the lint plugin re-run; forceLinting alone no-ops on an
+        // unchanged document). The snapshot is baked in, so no ref dance.
+        relintRef.current = (diags) => {
+          const editor = view.current;
+          const compartment = lintCompartmentRef.current;
+          if (!editor || !compartment) return;
+          const snapshot = [...diags];
+          editor.dispatch({
+            effects: compartment.reconfigure(
+              linter((v) => toMarks(v.state.doc, snapshot)),
+            ),
+          });
+        };
         const style = HighlightStyle.define([
           { tag: [tags.keyword, tags.modifier], color: "var(--code-keyword)" },
           { tag: tags.string, color: "var(--code-string)" },
@@ -117,34 +168,7 @@ export function CodeEditor({
                 ? [
                     lintGutter(),
                     lintCompartment.of(
-                      linter((view) => {
-                        const out: Array<{
-                          from: number;
-                          to: number;
-                          severity: "error";
-                          message: string;
-                        }> = [];
-                        for (const d of diagRef.current) {
-                          try {
-                            const line = view.state.doc.line(
-                              Math.min(Math.max(d.line, 1), view.state.doc.lines),
-                            );
-                            const from = Math.min(
-                              line.from + Math.max(d.col - 1, 0),
-                              line.to,
-                            );
-                            out.push({
-                              from,
-                              to: Math.min(from + 1, line.to),
-                              severity: "error",
-                              message: d.message,
-                            });
-                          } catch {
-                            /* stale position after edits; next run refreshes */
-                          }
-                        }
-                        return out;
-                      }),
+                      linter((v) => toMarks(v.state.doc, diagRef.current ?? [])),
                     ),
                   ]
                 : []),
@@ -216,12 +240,9 @@ export function CodeEditor({
         changes: { from: 0, to: editor.state.doc.length, insert: code },
       });
   }, [code]);
-  // Re-mark diagnostics without rebuilding the editor. The linter
-  // closure reads diagRef, so forcing is enough to pick up new results.
+  // Re-mark diagnostics without rebuilding the editor.
   useEffect(() => {
-    const editor = view.current;
-    const force = forceLintRef.current;
-    if (editor && force) force(editor);
+    relintRef.current?.(diagnostics ?? []);
   }, [diagnostics]);
   return (
     <div ref={container} className="code-surface code-editor">

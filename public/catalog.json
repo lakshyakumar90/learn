@@ -90,6 +90,39 @@
     "order": 2
   },
   {
+    "id": "typescript",
+    "collection": "topics",
+    "title": "TypeScript",
+    "summary": "Types for the JavaScript you already write: the concepts interviews ask about.",
+    "categories": [
+      "languages"
+    ],
+    "primaryCategory": "languages",
+    "tags": [
+      "Language",
+      "Types",
+      "Interview"
+    ],
+    "level": "all",
+    "status": "live",
+    "cover": "/topics/typescript/img/hero.svg",
+    "href": "/topics/typescript",
+    "updated": "2026-10-13",
+    "pageCount": 21,
+    "keywords": [
+      "interface vs type",
+      "generics",
+      "narrowing",
+      "any vs unknown",
+      "strict mode",
+      "utility types",
+      "tsconfig",
+      "discriminated union",
+      "interview questions"
+    ],
+    "order": 2
+  },
+  {
     "id": "excalidraw",
     "collection": "projects",
     "title": "Excalidraw",

@@ -63,7 +63,7 @@ export function decodeLines(value?: string): string[] {
 }
 
 const TAG_RE =
-  /<(CodeRunner|Exercise|TypeCheck)\b((?:"[^"]*"|'[^']*'|`[^`\\]*(?:\\.[^`\\]*)*'|[^'">`])*)>([\s\S]*?)<\/\1>/g;
+  /<(CodeRunner|Exercise|TypeCheck)\b((?:"[^"]*"|'[^']*'|`[^`\\]*(?:\\.[^`\\]*)*`|[^'">`])*)>([\s\S]*?)<\/\1>/g;
 
 export interface TsFence {
   kind: 'fence';
@@ -122,7 +122,7 @@ export function tsFences(text: string): TsFence[] {
   for (const m of text.matchAll(/```(ts|tsx|typescript)([^\n]*)\n([\s\S]*?)```/g)) {
     out.push({
       kind: 'fence',
-      code: m[4].trimEnd(),
+      code: m[3].trimEnd(),
       language: m[1] === 'tsx' ? 'tsx' : 'ts',
       meta: (m[2] ?? '').trim(),
       start: m.index!,
@@ -175,7 +175,7 @@ export function tsExercises(text: string): TsExercise[] {
     if (m[1] !== 'Exercise' || !isTsBlock(m[2])) continue;
     const inner = m[3];
     const get = (name: string): string | undefined => {
-      const pm = inner.match(
+      const pm = m[2].match(
         new RegExp('\\b' + name + '=\\{`((?:\\\\.|[^`])*)`\\}'),
       );
       if (!pm) return undefined;

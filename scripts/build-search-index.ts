@@ -120,24 +120,29 @@ function indexLibraries(entries: SearchEntry[]): void {
  * questions by wording, answer and tags — not just page prose.
  */
 function indexInterviewQuestions(entries: SearchEntry[]): void {
-  const bank = entries.find((e) => e.url === '/topics/javascript/question-bank');
-  if (!bank) return;
-  const file = join(CONTENT, 'topics', 'javascript', 'interview', 'questions.yaml');
-  if (!existsSync(file)) return;
-  try {
-    const questions = loadYaml(readFileSync(file, 'utf8')) as Array<{
-      question?: string;
-      answer?: string;
-      tags?: string[];
-    }>;
-    const text = questions
-      .map((q) =>
-        [q.question ?? '', q.answer ?? '', (q.tags ?? []).join(' ')].join(' '),
-      )
-      .join(' ');
-    bank.text += ` Interview questions: ${text}`.slice(0, 20000);
-  } catch (e) {
-    console.warn(`search index: questions skipped (${(e as Error).message})`);
+  for (const [url, dir] of [
+    ['/topics/javascript/question-bank', 'javascript'],
+    ['/topics/typescript/question-bank', 'typescript'],
+  ] as Array<[string, string]>) {
+    const bank = entries.find((e) => e.url === url);
+    if (!bank) continue;
+    const file = join(CONTENT, 'topics', dir, 'interview', 'questions.yaml');
+    if (!existsSync(file)) continue;
+    try {
+      const questions = loadYaml(readFileSync(file, 'utf8')) as Array<{
+        question?: string;
+        answer?: string;
+        tags?: string[];
+      }>;
+      const text = questions
+        .map((q) =>
+          [q.question ?? '', q.answer ?? '', (q.tags ?? []).join(' ')].join(' '),
+        )
+        .join(' ');
+      bank.text += ` Interview questions: ${text}`.slice(0, 20000);
+    } catch (e) {
+      console.warn(`search index: questions skipped (${(e as Error).message})`);
+    }
   }
 }
 

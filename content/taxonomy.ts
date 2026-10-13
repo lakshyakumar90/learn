@@ -52,6 +52,7 @@ export const TOPIC_CATEGORIES: Category[] = [
 
 export const TOPIC_TAGS = [
   'Language',
+  'Types',
   'Runtime',
   'Browser',
   'Async',
