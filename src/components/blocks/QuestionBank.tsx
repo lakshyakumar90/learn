@@ -5,7 +5,7 @@
  * the URL (?q=&topic=&level=): read on mount, written with replaceState,
  * so filtered views survive reloads and sharing on static export.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import type { InterviewQuestion } from "@/lib/interview";
 import { QuestionDetails } from "./QuestionItem";
@@ -14,6 +14,10 @@ export interface BankTopic {
   slug: string;
   title: string;
 }
+
+const subscribeToHydration = () => () => {};
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
 
 interface FilterOption {
   value: string;
@@ -164,6 +168,13 @@ export function QuestionBank({
   questions: InterviewQuestion[];
   topics: BankTopic[];
 }) {
+  // Static HTML appears before React attaches event handlers. Keep search
+  // disabled until hydration so early input cannot be lost.
+  const hydrated = useSyncExternalStore(
+    subscribeToHydration,
+    clientSnapshot,
+    serverSnapshot,
+  );
   // URL state is read lazily on first render (defaults during static
   // prerender) so filtered views survive reloads and sharing.
   const [initial] = useState(readInitial);
@@ -259,6 +270,7 @@ export function QuestionBank({
           ref={searchRef}
           id="bank-search"
           type="search"
+          disabled={!hydrated}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Search questions and answers…"

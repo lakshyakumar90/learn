@@ -38,6 +38,27 @@ for (const width of [390, 1024, 1440]) {
   }
 }
 
+test("ts bank search waits for hydration", async ({ page }) => {
+  let releaseScripts!: () => void;
+  const scriptsReady = new Promise<void>((resolve) => {
+    releaseScripts = resolve;
+  });
+  await page.route("**/_next/static/**/*.js", async (route) => {
+    await scriptsReady;
+    await route.continue();
+  });
+  await page.goto("/topics/typescript/question-bank", { waitUntil: "commit" });
+  const search = page.getByLabel("Search interview questions");
+  try {
+    await expect(search).toBeDisabled();
+  } finally {
+    releaseScripts();
+  }
+  await expect(search).toBeEnabled();
+  await search.fill("narrowing");
+  await expect(page).toHaveURL(/q=narrowing/);
+});
+
 test("ts bank filters survive a reload", async ({ page }) => {
   await page.goto("/topics/typescript/question-bank");
   await page.getByLabel("Search interview questions").fill("narrowing");
